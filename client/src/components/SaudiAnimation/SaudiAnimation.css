@@ -1,0 +1,42 @@
+.saudi-container {
+    position:fixed;
+    top: 40px; /* Adjust as needed */
+    left: 0;
+    width: 200%; /* Twice the width of the images combined */
+    /* Display images side by side */
+    overflow: hidden;
+    z-index: -1; /* Hide overflow */
+  }
+  
+  .saudi-animate {
+    width: 50%; /* Each image takes half of the container's width */
+    height: auto;
+    opacity: 0.3; /* Adjust opacity as needed */
+  }
+  
+  .saudi-animate:first-child {
+    animation: driftContinuous1 20s linear infinite; /* Animation for the first image */
+  }
+  
+  .saudi-animate:last-child {
+    animation: driftContinuous2 20s linear infinite; /* Animation for the second image */
+  }
+  
+  @keyframes driftContinuous1 {
+    0% {
+      transform: translateX(0); /* Start from the original position */
+    }
+    100% {
+      transform: translateX(-100%); /* Move left by the image's width */
+    }
+  }
+  
+  @keyframes driftContinuous2 {
+    100% {
+      transform: translateX(-100%); /* Start from halfway left */
+    }
+    200% {
+      transform: translateX(-200%); /* Move left by 100% + 50% */
+    }
+  }
+  

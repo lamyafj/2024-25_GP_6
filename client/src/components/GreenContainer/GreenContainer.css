@@ -1,0 +1,9 @@
+.GreenContainer {
+    display: block;
+    background-color: #88B6A0;
+    height: 100vh;
+    margin: 0;
+    width: 35%;
+    opacity: 0.5;
+    margin-left: 100px;
+  }
