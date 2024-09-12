@@ -1,13 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Zain:wght@200;300;400;700;800;900&display=swap');
+
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  padding:0;
+  font-family: "Zain", sans-serif;
+  font-weight: 900;
+  font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width:100vw;
+  height:100vh;
 }
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+.zain-extralight {
+    font-family: "Zain", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+  }
+  
+  .zain-light {
+    font-family: "Zain", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  .zain-regular {
+    font-family: "Zain", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .zain-bold {
+    font-family: "Zain", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+  }
+  
+  .zain-extrabold {
+    font-family: "Zain", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+  }
+  
+  .zain-black {
+    font-family: "Zain", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+  }
