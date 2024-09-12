@@ -1,9 +1,11 @@
-import React from 'react'
+import React from 'react';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
-export const function SidebarData= [
-    {
-        title:"الصفحة الرئيسية"
-        icon:
-        link:
-    }
-]
+
+export const SidebarData = [
+  {
+    title: "الصفحة الرئيسية",
+    icon: <DashboardIcon />, // JSX element
+    link: "/adminDashboard",
+  }
+];
