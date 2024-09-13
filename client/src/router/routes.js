@@ -1,18 +1,29 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Login from '../pages/login/login.js';
-import AdminDashboard from '../pages/adminDashboard/adminDashboard.js'
-import {Sidebar} from '../components/Sidebar/Sidebar.js'
+import AdminDashboard from '../pages/adminDashboard/adminDashboard.js';
+import { Sidebar } from '../components/Sidebar/Sidebar.js';
 
-const AppRouter= () => {
+const AppRouter = () => {
     return (
         <Router>
-          <Sidebar />
-          <Routes>
-          <Route path="/adminDashboard" element={<AdminDashboard />} />
-          <Route path="/login" element={<Login />} />
-          </Routes>
-      </Router>
+            <AppRoutes />
+        </Router>
     );
-  }
-  
-  export default AppRouter;
+}
+
+const AppRoutes = () => {
+    const location = useLocation();
+    const shouldShowSidebar = location.pathname !== '/login';
+
+    return (
+        <div>
+            {shouldShowSidebar && <Sidebar />}
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/adminDashboard" element={<AdminDashboard />} />
+            </Routes>
+        </div>
+    );
+}
+
+export default AppRouter;
