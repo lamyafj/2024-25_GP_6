@@ -1,0 +1,70 @@
+.inputform {
+    position: relative;
+    height: 55px;
+    overflow: hidden;
+    border: 1px solid #a7a7a7;
+    border-radius:8px ;
+    margin: 5px;
+  }
+  
+  .inputform input {
+    width: 100%;
+    height: 100%;
+    color: #585858;
+    padding-top: 20px;
+    border: none;
+    background-color: #ffffff;
+    font-size: 15px; /* Adjust as needed for larger text */
+    font-family: "Nunito";
+    text-align: right; /* Align text to the right */
+  }
+  
+  .inputform label {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    color: #585858;
+    border-bottom: 1px solid white;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 20px; /* Adjust as needed */
+  }
+  
+  .inputform label::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    right:-2px;
+    width: 100%;
+    height: 100%;
+    border-bottom: 3px solid #ffffff;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .content-name {
+    transition: transform 0.3s ease, font-size 0.3s ease, color 0.3s ease;
+  }
+  
+  .inputform input:focus {
+    outline: none;
+    
+  }
+  
+  .inputform input:focus + .label-name .content-name,
+  .inputform input:valid + .label-name .content-name {
+    transform: translateY(-60%) translateX(-10%); /* Adjust as needed */
+    font-size: 15px; /* Adjust if needed */
+    color: #0c3216;
+    position: absolute;
+  }
+  
+  .inputform input:focus + .label-name::after,
+  .inputform input:valid + .label-name::after {
+    transform: translateX(0);
+  }
+  

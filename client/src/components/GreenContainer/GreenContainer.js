@@ -1,12 +1,20 @@
+import React from 'react';
 import './GreenContainer.css';
+import TextField from '../input/input.js'
 
-function GreenContainer() {
-    return (
-      <div className='GreenContainer'>
-        <h1>hi</h1>
+function GreenContainer(props) {
+  return (
+    <div className='GreenContainer'>
+      
+      <div className='content'>
        
-      </div>
-    );
-  }
+      {props.children}
 
-  export default GreenContainer;
+      
+      </div>
+     
+    </div>
+  );
+}
+
+export default GreenContainer;

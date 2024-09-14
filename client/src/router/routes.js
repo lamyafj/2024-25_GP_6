@@ -20,6 +20,7 @@ const AppRoutes = () => {
             {shouldShowSidebar && <Sidebar />}
             <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/loginUI" element={<Login />} />
                 <Route path="/adminDashboard" element={<AdminDashboard />} />
             </Routes>
         </div>

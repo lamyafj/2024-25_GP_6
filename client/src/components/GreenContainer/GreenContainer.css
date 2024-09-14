@@ -1,9 +1,106 @@
 .GreenContainer {
-    display: block;
-    background-color: #88B6A0;
-    height: 100vh;
-    margin: 0;
-    width: 35%;
-    opacity: 0.5;
-    margin-left: 100px;
-  }
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height:100%;
+  margin: 0;
+  width: 35%;
+  margin-left: 100px;
+  text-align: right; /* Ensure text is aligned to the right */
+}
+
+.GreenContainer {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height: 100vh; /* Use viewport height to ensure full screen height */
+  margin: 0;
+  width: 35%;
+  margin-left: 100px;
+  text-align: right; /* Ensure text is aligned to the right */
+}
+
+.GreenContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(159, 205, 183, 0.5); /* Semi-transparent background */
+  z-index: -1; /* Ensures background is behind the content */
+}
+
+.content {
+  padding: 60px;
+  box-sizing: border-box; /* Ensures padding does not affect width calculations */
+}
+
+form {
+  display: grid;
+  margin: 0; /* Remove any default margins */
+}
+
+label {
+  /* Add styles if needed */
+}
+
+h2 {
+  font-size: 20px;
+  color: #000000;
+}
+
+h1 {
+  font-size: 40px;
+  color: #01391F;
+}
+
+button {
+  font-family: 'Zain';
+  width: 100%;
+  margin-top: 20px;
+  background-color: #053A21;
+  color: aliceblue;
+  font-size: 20px;
+  border-radius: 5px;
+  box-shadow: none;
+  border: none;
+  /* Remove right:0; to avoid unexpected layout issues */
+}
+
+.content{
+  padding:60px;
+  
+}
+form {
+  display: grid;
+  right:0; /* Align content to the right */
+  
+}
+
+label{
+  
+}
+
+h2{
+  font-size: 20px;
+  color: #000000;;
+}
+h1{
+  font-size: 40px;
+  color: #01391F;
+}
+
+button{
+  right:0;
+  font-family: 'zain';
+  width: 100%;
+  margin-top: 20px;
+  background-color: #053A21;
+  color: aliceblue;
+  font-size: 20px;
+  border-radius: 5px;
+  box-shadow: none;
+  border: none;
+}
+

@@ -1,4 +1,5 @@
 .Login {
+  overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center; /* Corrected the property name from 'align-Items' to 'align-items' */
