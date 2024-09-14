@@ -29,6 +29,7 @@ function Login() {
         <GifLogo />
         <GreenContainer>
           <h1>تسجيل الدخول</h1>
+          <div className='hLine'></div>
           <form onSubmit={onSubmit}>
   
             <h2>البريد الالكتروني</h2>
@@ -41,6 +42,7 @@ function Login() {
                onChange={(e) => setEmail(e.target.value)}
                   />
             <h2>الرمز السري</h2>
+            
             <Textinput
             type="password"
             width={100}

@@ -3,7 +3,7 @@ import './SaudiAnimation.css';
 function GifLogo() {
     return (   
       <div>
-        <img src="../Maslakgif.gif" alt="Logo" style={{ width: '600px', height: 'auto', marginTop: '100px' }} />
+        <img src="../Maslakgif.gif" alt="Logo" style={{ width: '600px', height: 'auto', marginTop: '102px' }} />
       </div>
     );
   }
