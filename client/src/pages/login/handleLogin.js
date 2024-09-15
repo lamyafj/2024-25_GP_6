@@ -9,7 +9,7 @@ const handleLogin = async (email, password) => {
     const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
     const user = userCredential.user;
 
-    // Get user token
+    // Get user token//idkkkkk
     const token = await user.getIdToken();
 
     // Send token to backend server
