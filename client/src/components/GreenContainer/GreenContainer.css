@@ -22,7 +22,7 @@
 }
 
 form {
-  display: grid;
+  display: table ;
   margin: 0; /* Remove any default margins */
 }
 
@@ -36,7 +36,7 @@ h2 {
 }
 
 h1 {
-  font-size: 40px;
+  font-size: 20px;
   color: #01391F;
 }
 
@@ -54,7 +54,9 @@ button {
 }
 
 .content{
-  padding:60px;
+  padding:20px;
+  padding-left: 10%;
+  padding-right: 10%;
   
 }
 form {
@@ -73,7 +75,7 @@ h2{
   color: #000000;;
 }
 h1{
-  font-size: 40px;
+  font-size: 30px;
   color: #01391F;
 }
 

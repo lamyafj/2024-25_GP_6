@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './input.css';
 
-export default function Textinput({ width, type, content ,value,onChange}) {
+export default function Textinput({ width, type, content ,value,onChange ,name}) {
   return (
     <div>
        <div className="inputform" style={{ width: `${width}%` }}>
@@ -9,6 +9,7 @@ export default function Textinput({ width, type, content ,value,onChange}) {
         type={type}
         value={value}
         onChange={onChange}
+        name={name}
         required
       />
       <label className="label-name">

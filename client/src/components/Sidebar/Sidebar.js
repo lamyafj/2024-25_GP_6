@@ -2,9 +2,6 @@ import { Link } from 'react-router-dom';
 import './Sidebar.css';
 import { SidebarData } from './SidebarData';
 
-
-
-
 export const Sidebar = () => {
   return (
     <div className='Sidebar'>

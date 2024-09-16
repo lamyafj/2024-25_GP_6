@@ -1,30 +1,35 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import Login from '../pages/login/login.js';
-import AdminDashboard from '../pages/adminDashboard/adminDashboard.js';
-import { Sidebar } from '../components/Sidebar/Sidebar.js';
+// // src/router/routes.js
+// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// import Login from '../pages/login/login';
+// import AdminDashboard from '../pages/adminDashboard/adminDashboard';
+// import { Sidebar } from '../components/Sidebar/Sidebar';
+// import { AuthProvider } from '../context/AuthContext';
+// import ProtectedRoute from './ProtectedRoute';
 
-const AppRouter = () => {
-    return (
-        <Router>
-            <AppRoutes />
-        </Router>
-    );
-}
+// const AppRoutes = () => {
+//   return (
+//     <div>
+//       <Sidebar />
+//       <Routes>
+//         <Route path="/login" element={<Login />} />
+//         <Route
+//           path="/adminDashboard"
+//           element={<ProtectedRoute element={<AdminDashboard />} />}
+//         />
+//         {/* Add other routes here */}
+//       </Routes>
+//     </div>
+//   );
+// };
 
-const AppRoutes = () => {
-    const location = useLocation();
-    const shouldShowSidebar = location.pathname !== '/login';
+// const AppRouter = () => {
+//   return (
+//     <AuthProvider>
+//       <Router>
+//         <AppRoutes />
+//       </Router>
+//     </AuthProvider>
+//   );
+// };
 
-    return (
-        <div>
-            {shouldShowSidebar && <Sidebar />}
-            <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/loginUI" element={<Login />} />
-                <Route path="/adminDashboard" element={<AdminDashboard />} />
-            </Routes>
-        </div>
-    );
-}
-
-export default AppRouter;
+// export default AppRouter;

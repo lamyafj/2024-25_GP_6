@@ -14,33 +14,34 @@ import { CiRoute } from "react-icons/ci";
 export const SidebarData = [
   {
     title: "الصفحة الرئيسية",
-    icon: <RiDashboardFill size={20} />
-  , 
+    icon: <RiDashboardFill size={20} />, 
     link: "/adminDashboard",
   },
   {
     title: "مسار السير",
-    icon:<CiRoute size={20}  />
-  , 
+    icon:<CiRoute size={20}  />, 
     link: "/adminDashboard",
   },
   {
     title: "قائمة الطلاب",
-    icon:<PiStudent size={20} />
-  , 
+    icon:<PiStudent size={20} />, 
     link: "/adminDashboard",
   },
   {
     title: "قائمة الباصات",
-    icon: <FaBus size={20} />
-  , 
+    icon: <FaBus size={20} />, 
     link: "/adminDashboard",
   },
   {
     title: "قائمة السائقين",
-    icon: <PiSteeringWheel size={20} />
-  , 
+    icon: <PiSteeringWheel size={20} />, 
     link: "/adminDashboard",
+  },
+  {
+    title:"تسجيل خروج",
+    icon:"",
+    link:"",
+    button:"<button onClick={logoutAndRedirect}>Logout</button>"
   }
 
 ];

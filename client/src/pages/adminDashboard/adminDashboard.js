@@ -1,12 +1,13 @@
+import {Sidebar} from '../../components/Sidebar/Sidebar.js'
 
-
-function AdminDashboard() {
+export default function AdminDashboard() {
     return (
       <div>
-
+        <Sidebar/>
+        test admin Dashboard
       </div>
     );
   }
   
-  export default AdminDashboard;
+
   

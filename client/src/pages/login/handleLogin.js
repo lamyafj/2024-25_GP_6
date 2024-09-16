@@ -1,26 +1,22 @@
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebaseConfig.js'; // Import Firebase auth object
+import { auth } from '../../firebaseConfig.js';
 import axios from 'axios';
 
-// Function that handles login and communicates with Firebase and server
+
 const handleLogin = async (email, password) => {
   try {
-    // Firebase sign-in
     const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
     const user = userCredential.user;
-
-    // Get user token
     const token = await user.getIdToken();
-
-    // Send token to backend server
+    console.log('Token:', token);
     const response = await axios.post('http://localhost:5000/api/auth', { token });
-
-    // Return success response
+    
     return { success: true, data: response.data };
   } catch (err) {
-    // Return error message
-    return { error: 'Login failed: ' + err.message };
+    const error = err.code 
+    return { error };
   }
 };
 
 export default handleLogin;
+
