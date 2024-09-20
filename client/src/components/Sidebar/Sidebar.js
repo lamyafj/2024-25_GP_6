@@ -1,8 +1,22 @@
 import { Link } from 'react-router-dom';
 import './Sidebar.css';
 import { SidebarData } from './SidebarData';
+import HandleLogout from '../../pages/login/handleLogout'
+import { useNavigate } from 'react-router-dom';
+
 
 export const Sidebar = () => {
+  const navigate = useNavigate(); // Hook should be used in the functional component
+
+  const logout = async (e) => {
+    e.preventDefault();
+    try {
+      await HandleLogout(navigate); // Pass the navigate function to HandleLogout
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
+  };
+
   return (
     <div className='Sidebar'>
     <div className='SidebarLogo'>
@@ -18,9 +32,10 @@ export const Sidebar = () => {
 
   </div>
 </Link>
+
         </div>
       ))}
-      
+     <button onClick={logout}>Logout</button>
     </div>
   );
 };

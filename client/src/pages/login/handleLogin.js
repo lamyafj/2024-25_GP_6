@@ -1,22 +1,70 @@
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebaseConfig.js';
+import { auth } from '../../firebaseConfig.js'; // Ensure this path is correct
 import axios from 'axios';
-
 
 const handleLogin = async (email, password) => {
   try {
+    // Sign in with Firebase Authentication
     const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
     const user = userCredential.user;
+
+    // Get Firebase ID token
     const token = await user.getIdToken();
-    console.log('Token:', token);
-    const response = await axios.post('http://localhost:5000/api/auth', { token });
-    
-    return { success: true, data: response.data };
+    console.log('Firebase ID Token:', token);
+    // Send the token to the server for session creation
+    const response = await axios.post(
+      'http://localhost:5000/api/sessionLogin',  // Adjusted to your session route
+      { idToken: token }, // Sending idToken to the server
+      {
+        withCredentials: true, // Ensure cookies are sent and received
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return { success: true, data: response.data };  // Successfully logged in
   } catch (err) {
-    const error = err.code 
-    return { error };
+    // Handle errors
+    const errorCode = err.response ? err.response.data : err.code; // Capture error from server or Firebase
+    console.error('Login error:', errorCode);
+    return { success: false, error: errorCode };  // Return error for further handling
   }
 };
 
 export default handleLogin;
 
+
+
+
+
+
+
+
+
+
+// import { signInWithEmailAndPassword } from 'firebase/auth';
+// import { baseURL, AUTH } from '../../Api/Api';
+// import { auth } from '../../firebaseConfig.js';
+// import axios from 'axios';
+
+
+// const handleLogin = async (email, password) => {
+//   try {
+//     const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
+//     const user = userCredential.user;
+//     const token = await user.getIdToken();
+//     console.log('Token:', token);
+    
+//     // Send the token to the server
+//     const response = await axios.post('http://localhost:5000/api/auth', { token }, { withCredentials: true });
+//     return { success: true, data: response.data };
+//   } catch (err) {
+//     const error = err.code;
+//     return { error };
+//   }
+// };
+
+// export default handleLogin;
+
+//////////////////////

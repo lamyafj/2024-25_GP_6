@@ -30,7 +30,7 @@ export const SidebarData = [
   {
     title: "قائمة الباصات",
     icon: <FaBus size={20} />, 
-    link: "/adminDashboard",
+    link: "/busList",
   },
   {
     title: "قائمة السائقين",
@@ -41,7 +41,7 @@ export const SidebarData = [
     title:"تسجيل خروج",
     icon:"",
     link:"",
-    button:"<button onClick={logoutAndRedirect}>Logout</button>"
+    button:"<button onClick={log}>Logout</button>"
   }
 
 ];

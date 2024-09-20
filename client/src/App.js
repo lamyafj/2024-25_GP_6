@@ -2,7 +2,8 @@ import AdminDashboard from './pages/adminDashboard/adminDashboard.js';
 import Login from './pages/login/login.js';
 import Signup from './pages/signup/signup.js';
 import { Route, Routes } from 'react-router-dom';
-import ProtectedRoute from './router/ProtectedRoute.js'; // Import the ProtectedRoute component
+import RequireAuth from './context/AuthContext.js'; // Updated path
+import BusList from './pages/busList/busList.js';
 
 function App() {
   return (
@@ -10,14 +11,23 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/adminDashboard" element={<AdminDashboard />} />
-        {/* Protect the Admin Dashboard route */}
-        {/* <Route
-          path="/adminDashboard"
+
+        <Route 
+          path="/adminDashboard" 
           element={
-            <ProtectedRoute element={<AdminDashboard />} />
-          }
-        /> */}
+            <RequireAuth>
+              <AdminDashboard />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/busList" 
+          element={
+            <RequireAuth>
+              <BusList />
+            </RequireAuth>
+          } 
+        />
       </Routes>
     </div>
   );

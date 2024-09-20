@@ -1,44 +1,50 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { auth } from '../firebaseConfig'; // Import Firebase config
-import { onAuthStateChanged } from 'firebase/auth';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
-// Create a context for authentication
-const AuthContext = createContext();
 
-// Custom hook to access auth context
-export function useAuth() {
-  return useContext(AuthContext);
-}
-
-// AuthProvider component to provide auth context to the app
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // Holds the current user
-  const [loading, setLoading] = useState(true); // Loading state to manage initial auth check
+const RequireAuth = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // null: loading, true: authenticated, false: unauthenticated
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user); // Set the user if logged in
-      } else {
-        setUser(null); // Set user to null if not logged in
-      }
-      setLoading(false); // Stop loading once auth state is determined
-    });
+    const checkAuth = async () => {
+      const idToken = Cookies.get('session'); 
+      if (idToken) {
+        try {
+          const response = await axios.get('http://localhost:5000/api/protected-route', {
+            headers: {
+              Authorization: `Bearer ${idToken}`,
+            },
+            withCredentials: true,
+          });
 
-    // Clean up the subscription to auth state changes
-    return () => unsubscribe();
+          setIsAuthenticated(true);
+          console.log('Decoded Claims:', response.data);
+        } catch (error) {
+          console.error('Error accessing protected route:', error);
+          setIsAuthenticated(false); 
+        }
+      } else {
+        setIsAuthenticated(false);
+        console.log('User not authenticated');
+      }
+    };
+
+    checkAuth();
   }, []);
 
-  // Context value to be passed to consumers
-  const value = {
-    user,
-    loading,
-  };
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children} {/* Render children only when loading is done */}
-    </AuthContext.Provider>
-  );
-}
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
+  return isAuthenticated === true ? children : null; 
+};
+
+export default RequireAuth;

@@ -5,12 +5,14 @@ import SaudiAnimation, { GifLogo } from '../../components/SaudiAnimation/SaudiAn
 import handleLogin from './handleLogin';
 import Textinput from '../../components/input/input';
  import { useNavigate } from 'react-router-dom';
+//import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
- const navigate = useNavigate();
+  const navigate = useNavigate();
+  //const { setIsAuthenticated } = useAuth(); 
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -18,8 +20,8 @@ export default function Login() {
     if (result.error) {
       setError(result.error);
     } else {    
-      navigate('/adminDashboard');
-      
+      //setIsAuthenticated(true);
+      navigate('/adminDashboard'); 
     }
   };
 

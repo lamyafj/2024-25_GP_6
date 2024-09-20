@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const HandleSignup = async (form) => {
     try{
-        await axios.post(`${baseURL}/${REGISTER}`, form);
+        await axios.post(`${baseURL}${REGISTER}`, form);
         return { success: true };
     }catch(err){
     return { err };
