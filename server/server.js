@@ -73,7 +73,7 @@ app.use(bodyParser.json());
 
 
 
-////////////////Sign up School
+//////////////////////Sign up School
 
 app.post('/api/auth/register', async (req, res) => {
   const { email, password, schoolCode } = req.body;
@@ -90,7 +90,11 @@ app.post('/api/auth/register', async (req, res) => {
     const userData = {
       email,
       schoolCode,
-      "Role":"School",
+      Role:"School",
+      buses:[],
+      students:[],
+      drivers:[],
+      location:[0,0],
       createdAt: admin.firestore.FieldValue.serverTimestamp(), // Add timestamp
     };
     // Add the user data to the 'users' collection in Firestore
@@ -198,7 +202,6 @@ app.post('/api/record', async (req, res) => {
   try {
     // Verify the ID token (using verifyIdToken instead of verifySessionCookie)
     const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
-    console.log('Decoded Claims:', decodedClaims);
 
     // Fetch user document from Firestore
     const userDoc = await admin.firestore().collection('School').doc(decodedClaims.uid).get();
@@ -209,8 +212,43 @@ app.post('/api/record', async (req, res) => {
 
     // Retrieve user data and send it as the response
     const userData = userDoc.data();
-    console.log('User Data:', userData);
     res.status(200).send(userData);
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
+
+///////////////////////// add bus
+
+app.post('/api/add', async (req, res) => {
+  console.log('Server add  called');
+  
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  let {newbus} =req.body;
+  if (!idToken ) {
+    return res.status(403).send('failed');
+  }
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const schooluid =decodedClaims.uid;
+    const schoolRef = db.collection('School').doc(schooluid);
+    newbus = { 
+      ...newbus,  
+      school: schoolRef, 
+    };
+    const newBusRef = await db.collection('Bus').add(newbus); 
+    const schoolDoc = await admin.firestore().collection('School').doc(schooluid).get();
+    const schoolData = schoolDoc.data();
+    const newschoolDoc = { 
+      ...schoolData, // Spread the existing data
+      buses: [...(schoolData.buses || []), newBusRef], // Add the new bus ID to the buses array
+    };
+   
+    await db.collection('School').doc(schooluid).set(newschoolDoc);    
+    console.log('added bus');
+    res.status(200).send(true);
   } catch (error) {
     console.error('Token verification or data fetching error:', error);
     res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');

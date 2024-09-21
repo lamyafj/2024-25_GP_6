@@ -7,9 +7,10 @@ import Textinput from '../../components/input/input';
 import axios from 'axios';
 import { baseURL, REGISTER } from '../../Api/Api';
 //import HandleSignup from './handlesignup';
-//import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const SignupForm = () => {
+  const navigate =useNavigate();
   const [form, setForm] = useState({
     schoolCode: '',
     email: '',
@@ -36,6 +37,7 @@ const SignupForm = () => {
       if (result.success) {
         setSuccess('User registered successfully');
         console.log('User registered successfully');
+        setTimeout(() => {navigate('/login');}, 5000);
       } else {
         setError('Registration failed. Please try again.');
       }
