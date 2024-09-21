@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-
+import Loading from '../pages/loading/loading';
 
 const RequireAuth = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null: loading, true: authenticated, false: unauthenticated
@@ -41,9 +41,9 @@ const RequireAuth = ({ children }) => {
     }
   }, [isAuthenticated, navigate]);
 
-  if (isAuthenticated === null) {
-    return <div>Loading...</div>;
-  }
+  // if (isAuthenticated === null) {
+  //   <Loading/>
+  // }
   return isAuthenticated === true ? children : null; 
 };
 

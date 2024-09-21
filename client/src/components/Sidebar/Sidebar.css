@@ -47,7 +47,25 @@
   color: #767B7F; ; 
 }
 
+
+
 .logout{
   display: flex;
   align-items: center;
+}
+
+#logoutButton{
+  width: 100%;
+  background: none;
+  font-size: 16px;
+  color: red;
+}
+
+#logoutButtonDiv{
+  display: flex;
+  justify-content: 'flex-end';
+  align-items: center;
+  align-content: center;
+  margin: 20%;
+  margin-top: 80%;
 }

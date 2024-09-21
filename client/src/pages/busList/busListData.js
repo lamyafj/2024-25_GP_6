@@ -1,14 +1,15 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import React, { useEffect, useState } from 'react';
-import {BringRecord} from '../../BringsSchoolRecord.js'
+//import React, { useEffect, useState } from 'react';
+import { baseURL, ADDBUS,BUSRECORD} from '../../Api/Api';
+
 
 
 export const BringBusRecord = async () => {
   const idToken = Cookies.get('session'); 
   if (idToken) {
     try {
-      const response = await axios.post('http://localhost:5000/api/busrecord', {}, {
+      const response = await axios.post(`${baseURL}/${BUSRECORD}`, {}, {
         headers: {
           Authorization: `Bearer ${idToken}`, 
         },
@@ -29,7 +30,7 @@ export const BringBusRecord = async () => {
 
   
   export const AddBusToDatabase = async (newbus) => {
-    const idToken = Cookies.get('session'); // Get the token from cookies
+    const idToken = Cookies.get('session'); 
   
     if (!newbus) {
       console.log('No bus data provided');
@@ -42,18 +43,16 @@ export const BringBusRecord = async () => {
     }
   
     try {
-      const response = await axios.post(
-        'http://localhost:5000/api/add', 
-        { newbus }, 
+      const response = await axios.post( `${baseURL}/${ADDBUS}`, {newbus }, 
         {
           headers: {
-            Authorization: `Bearer ${idToken}`, // Pass the token in the Authorization header
+            Authorization: `Bearer ${idToken}`, 
           },
-          withCredentials: true, // Include credentials if needed for cross-origin requests
+          withCredentials: true, 
         }
       );
   
-      const record = response.data; // Response from the server
+      const record = response.data; 
       return record; // Return the record after a successful request
     } catch (error) {
       console.error('Error accessing protected route:', error.response?.data || error);

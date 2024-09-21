@@ -8,6 +8,7 @@ body {
   padding: 0;
   font-family: "Nunito", "Zain", sans-serif;
   font-weight: 400; 
+  overflow-y: hidden;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

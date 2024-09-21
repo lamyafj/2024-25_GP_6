@@ -86,7 +86,11 @@ app.post('/api/auth/register', async (req, res) => {
       displayName: schoolCode, // Optional     
     });
     console.log('Successfully created new user:', userRecord.uid);
-    // Prepare the data to add to Firestore
+    //////////////////set up the data attributes
+    //////////////Geo exapmple
+      const lat = 51.5074;
+      const lng = 0.1278;
+      const hash = geofire.geohashForLocation([lat, lng]);
     const userData = {
       email,
       schoolCode,
@@ -94,7 +98,9 @@ app.post('/api/auth/register', async (req, res) => {
       buses:[],
       students:[],
       drivers:[],
-      location:[0,0],
+      location: hash,
+      lat: lat,
+      lng: lng,
       createdAt: admin.firestore.FieldValue.serverTimestamp(), // Add timestamp
     };
     // Add the user data to the 'users' collection in Firestore
@@ -107,21 +113,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-
-///////////verify token and cookie before granting access to dashboaord 
-// app.get('/api/verify', async (req, res) => {
-//   const token = req.cookies.get('authToken'); // Get the cookie
-//   if (!token) {
-//     return res.status(401).send({ error: 'Unauthorized' });
-//   }
-
-//   try {
-//     const decodedToken = await admin.auth().verifyIdToken(token);
-//     res.status(200).send({ message: 'Authenticated', user: decodedToken });
-//   } catch (error) {
-//     res.status(401).send({ error: 'Unauthorized' });
-//   }
-// });
 
 
 //////////////////////Routing
@@ -143,6 +134,8 @@ app.get('/api/protected-route', async (req, res) => {
   }
 });
 
+
+
 ///////////////////////////Login
 
 app.post('/api/sessionLogin', async (req, res) => {
@@ -158,10 +151,10 @@ app.post('/api/sessionLogin', async (req, res) => {
       return res.status(404).send('User not found');
     }
 
-    // Attach user role to the request object
-    const userData = userDoc.data(); // Retrieve the document data
+    //////only sign in if the account is School account
+    const userData = userDoc.data(); 
     const userRole = userData.Role; 
-    console.log(userRole);
+
 
     if (userRole === 'School') {
       const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
@@ -182,14 +175,13 @@ app.post('/api/sessionLogin', async (req, res) => {
   }
 });
 
-////////////////////////LogOut
+//////////////////////////////LogOut
 app.post('/api/logout', (req, res) => {
   res.clearCookie('session');
-  console.log('im logout');
   res.status(200).send({ status: 'success' });
 });
 
-///////////////////////bring record
+///////////////////////bring School record
 app.post('/api/record', async (req, res) => {
   console.log('Server record checker called');
   
@@ -218,7 +210,7 @@ app.post('/api/record', async (req, res) => {
 
 ///////////////////////// add bus
 
-app.post('/api/add', async (req, res) => {
+app.post('/api/addbus', async (req, res) => {
   console.log('Server add  called');
   
   const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token

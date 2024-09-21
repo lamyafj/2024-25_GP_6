@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 import { SidebarData } from './SidebarData';
 import HandleLogout from '../../pages/login/handleLogout'
 import { useNavigate } from 'react-router-dom';
-
+import { MdLogout } from "react-icons/md";
 
 export const Sidebar = () => {
   const navigate = useNavigate(); // Hook should be used in the functional component
@@ -25,17 +25,30 @@ export const Sidebar = () => {
       </div>
       {SidebarData.map((val, key) => (
         <div key={key} className='sidebarItem'>
-          <Link to={val.link} className='sidebarLink'>
+        <NavLink 
+        to={val.link} 
+        className='sidebarLink' 
+        style={({ isActive }) => ({
+          textDecoration: 'none', 
+          width: '100%', 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          color: isActive ? 'red' : 'black' // Active link will be red
+        })}
+      >
      <div style={{ display: 'flex', alignItems: 'center' }}>
     <div className='title'>{val.title}</div>
     <div className='icon'>{val.icon}</div>
 
   </div>
-</Link>
+</NavLink>
 
         </div>
       ))}
-     <button onClick={logout}>Logout</button>
+    <div id='logoutButtonDiv'>
+     <button id='logoutButton' onClick={logout}>تسجيل خروج<MdLogout style={{color:"red",fontSize: '16px', marginLeft:'7px',  verticalAlign: 'middle'}}/></button>
+     
+     </div>
     </div>
   );
 };

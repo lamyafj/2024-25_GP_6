@@ -1,7 +1,7 @@
 import {Sidebar} from '../../components/Sidebar/Sidebar.js'
 import { AddBusToDatabase,BringBusRecord} from './busListData.js'
 import React, { useEffect, useState } from 'react';
- // Adjust the import path accordingly
+import Loading from '../loading/loading.js';
 
   
   export default function BusList() {
@@ -13,8 +13,8 @@ import React, { useEffect, useState } from 'react';
     useEffect(() => {
       const fetchRecord = async () => {
         try {
-          const data = await BringBusRecord(); // Assuming BringRecord fetches data
-          setRecord(data); // Set the fetched data
+          const data = await BringBusRecord();
+          setRecord(data); // Set the fetched data in a state
         } catch (err) {
           setError('Failed to fetch record'); // Handle any errors
         } finally {
@@ -31,8 +31,8 @@ import React, { useEffect, useState } from 'react';
       try {
         setLoading(true); 
         const newBus = {id:"3"}; // Example new bus data
-        await AddBusToDatabase(newBus); // Assuming AddBusToDatabase is a function that handles this
-        const updatedRecord = await BringBusRecord(); // Fetch updated record
+        await AddBusToDatabase(newBus); 
+        const updatedRecord = await BringBusRecord(); //bring new data after adding
         setRecord(updatedRecord); // Update the record with new data
       } catch (err) {
         setError('Failed to add bus');
@@ -42,7 +42,7 @@ import React, { useEffect, useState } from 'react';
     };
   
     if (loading) {
-      return <div>Loading...</div>; // Display loading state
+      return <Loading/>; // Display loading state
     }
   
     if (error) {

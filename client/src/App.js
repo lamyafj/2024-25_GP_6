@@ -4,6 +4,7 @@ import Signup from './pages/signup/signup.js';
 import { Route, Routes } from 'react-router-dom';
 import RequireAuth from './context/AuthContext.js'; // Updated path
 import BusList from './pages/busList/busList.js';
+import Loading from './pages/loading/loading.js';
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
+        <Route path="/loading" element={<Loading/>}/>
         <Route 
           path="/adminDashboard" 
           element={

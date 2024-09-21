@@ -1,20 +1,18 @@
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebaseConfig.js'; // Ensure this path is correct
+import { auth } from '../../firebaseConfig.js';
 import axios from 'axios';
+import { baseURL, AUTH } from '../../Api/Api';
 
 const handleLogin = async (email, password) => {
   try {
-    // Sign in with Firebase Authentication
+  
     const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
     const user = userCredential.user;
-
-    // Get Firebase ID token
     const token = await user.getIdToken();
+
     console.log('Firebase ID Token:', token);
-    // Send the token to the server for session creation
-    const response = await axios.post(
-      'http://localhost:5000/api/sessionLogin',  // Adjusted to your session route
-      { idToken: token }, // Sending idToken to the server
+    
+    const response = await axios.post(`${baseURL}/${AUTH}`, { idToken: token }, // Sending idToken to the server
       {
         withCredentials: true, // Ensure cookies are sent and received
         headers: {

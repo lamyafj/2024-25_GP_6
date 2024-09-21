@@ -1,4 +1,3 @@
-// src/components/LogoutButton.js
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';

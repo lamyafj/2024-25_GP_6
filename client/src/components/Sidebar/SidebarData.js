@@ -37,11 +37,5 @@ export const SidebarData = [
     icon: <PiSteeringWheel size={20} />, 
     link: "/adminDashboard",
   },
-  {
-    title:"تسجيل خروج",
-    icon:"",
-    link:"",
-    button:"<button onClick={log}>Logout</button>"
-  }
 
 ];
