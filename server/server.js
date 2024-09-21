@@ -193,24 +193,21 @@ app.post('/api/logout', (req, res) => {
 app.post('/api/record', async (req, res) => {
   console.log('Server record checker called');
   
-  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; 
 
   if (!idToken) {
     return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
   }
 
   try {
-    // Verify the ID token (using verifyIdToken instead of verifySessionCookie)
-    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
 
-    // Fetch user document from Firestore
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
     const userDoc = await admin.firestore().collection('School').doc(decodedClaims.uid).get();
     
     if (!userDoc.exists) {
       return res.status(404).send('User not found');
     }
 
-    // Retrieve user data and send it as the response
     const userData = userDoc.data();
     res.status(200).send(userData);
   } catch (error) {
@@ -254,6 +251,46 @@ app.post('/api/add', async (req, res) => {
     res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
   }
 });
+
+//////////////////////////bus record
+app.post('/api/busrecord', async (req, res) => {
+  console.log('Server bus record checker called');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const userDoc = await admin.firestore().collection('School').doc(decodedClaims.uid).get();
+    
+    if (!userDoc.exists) {
+      return res.status(404).send('User not found');
+    }
+
+    const userData = userDoc.data();
+    const busRefs = userData.buses; // Get the bus references
+    console.log(busRefs);
+
+    // If there are no bus references, return an empty array
+    if (!busRefs || busRefs.length === 0) {
+      return res.status(200).send([]); // No buses found
+    }
+
+    // Fetch bus documents from the Bus collection using references
+    const busPromises = busRefs.map(busRef => busRef.get());
+    const busDocs = await Promise.all(busPromises);
+
+    const buses = busDocs.map(busDoc => ({ id: busDoc.id, ...busDoc.data() }));
+
+    res.status(200).send(buses); 
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
+
 
 
 

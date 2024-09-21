@@ -1,5 +1,5 @@
 import {Sidebar} from '../../components/Sidebar/Sidebar.js'
-import {BringRecord , AddBusToDatabase} from './busListData.js'
+import { AddBusToDatabase,BringBusRecord} from './busListData.js'
 import React, { useEffect, useState } from 'react';
  // Adjust the import path accordingly
 
@@ -13,7 +13,7 @@ import React, { useEffect, useState } from 'react';
     useEffect(() => {
       const fetchRecord = async () => {
         try {
-          const data = await BringRecord(); // Assuming BringRecord fetches data
+          const data = await BringBusRecord(); // Assuming BringRecord fetches data
           setRecord(data); // Set the fetched data
         } catch (err) {
           setError('Failed to fetch record'); // Handle any errors
@@ -24,16 +24,15 @@ import React, { useEffect, useState } from 'react';
   
       fetchRecord(); // Call the fetch function
     }, []); // Empty dependency array means this runs once on mount
+
+    ////////////////////////////addbus
   
     const addBus = async () => {
       try {
-        setLoading(true); // Set loading state to true while adding
-        // Implement your logic for adding a bus here
-        // For example, you can call an API to add a bus
-  
-        const newBus = {id:"1"}; // Example new bus data
+        setLoading(true); 
+        const newBus = {id:"3"}; // Example new bus data
         await AddBusToDatabase(newBus); // Assuming AddBusToDatabase is a function that handles this
-        const updatedRecord = await BringRecord(); // Fetch updated record
+        const updatedRecord = await BringBusRecord(); // Fetch updated record
         setRecord(updatedRecord); // Update the record with new data
       } catch (err) {
         setError('Failed to add bus');
