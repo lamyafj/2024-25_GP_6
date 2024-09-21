@@ -263,7 +263,6 @@ app.post('/api/busrecord', async (req, res) => {
 
     const userData = userDoc.data();
     const busRefs = userData.buses; // Get the bus references
-    console.log(busRefs);
 
     // If there are no bus references, return an empty array
     if (!busRefs || busRefs.length === 0) {
