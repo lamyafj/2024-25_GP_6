@@ -6,7 +6,7 @@ import RequireAuth from './context/AuthContext.js'; // Updated path
 import BusList from './pages/busList/busList.js';
 import Addbus from './pages/busList/addbus.js';
 import Loading from './pages/loading/loading.js';
-import Busltem from './components/Busltem/Busltem.js';
+import BusItem from './components/Busltem/Busltem.js';
 
 function App() {
   return (
@@ -43,7 +43,7 @@ function App() {
           path="/Busltem" 
           element={
             <RequireAuth>
-              <Busltem />
+              <BusItem />
             </RequireAuth>
           } 
         />

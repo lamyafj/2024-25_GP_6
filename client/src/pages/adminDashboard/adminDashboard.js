@@ -1,7 +1,7 @@
 import React from 'react';
 import './AdminDashboard.css';
 import { FaBus } from 'react-icons/fa';
-import BusItem from '../../components/BusItem/BusItem.js';
+import BusItem from '../../components/Busltem/Busltem.js';
 
 const AdminDashboard = () => {
   return (

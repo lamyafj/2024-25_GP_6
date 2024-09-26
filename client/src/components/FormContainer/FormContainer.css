@@ -1,0 +1,8 @@
+.FormContainer{    
+    background-color: #E7F0EC;
+    overflow-x: hidden;
+    height: 100%; /* Use viewport height to ensure full screen height */
+    margin: 40px;
+    width: 100%;
+    text-align: center; /* Ensure text is aligned to the right */
+}
