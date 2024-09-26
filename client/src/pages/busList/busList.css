@@ -1,0 +1,16 @@
+.Buspage { 
+  display: grid;
+  grid-template-columns: 5fr 1fr; 
+}
+
+.busmain {
+  display: flex; 
+  direction: rtl;          
+  justify-content: center; 
+  flex-direction: column;
+  height: 100%;          
+}
+
+
+
+  

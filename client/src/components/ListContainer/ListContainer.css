@@ -1,0 +1,48 @@
+
+
+  .bus-list-item {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin-bottom: 10px;
+    height: 50px;
+    width: 100%;
+  }
+  
+  .bus-item-icon {
+    margin-left: 10px;
+  }
+  
+  .bus-details {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+  }
+  
+  .bus-details p {
+    margin: 0;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  
+  .bus-details p:first-of-type {
+    font-weight: bold;
+  }
+  
+  .delete-bus-button {
+    background-color: #4caf50;
+    color: white;
+    width: 60px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  

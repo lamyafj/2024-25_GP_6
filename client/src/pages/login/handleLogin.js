@@ -8,7 +8,7 @@ const handleLogin = async (email, password) => {
   
     const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
     const user = userCredential.user;
-    const token = await user.getIdToken();
+    const token = await user.getIdToken(true);
 
     console.log('Firebase ID Token:', token);
     

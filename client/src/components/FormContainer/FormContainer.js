@@ -1,17 +1,13 @@
+// FormContainer.js
 import React from 'react';
 import './FormContainer.css';
-//import TextField from '../input/input.js'
 
 function FormContainer(props) {
   return (
     <div className='FormContainer'>
-      
-      <div className='content'>
-       
-      {props.children}
- 
+      <div className='contentContaier'>
+        {props.children} {/* This should render children passed to FormContainer */}
       </div>
-     
     </div>
   );
 }
