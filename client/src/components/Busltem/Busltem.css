@@ -1,0 +1,51 @@
+.bus-item-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid green;
+    border-radius: 10px;
+    padding: 5px;
+    margin: 10px 20px;
+    direction: rtl;
+    height: 60px;
+  }
+  
+  .bus-item-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .bus-item-icon {
+    margin-right: 10px;
+  }
+  
+  .divider {
+    width: 2px;
+    height: 40px;
+    background-color: #ddd;
+    margin-left: 10px;
+  }
+  
+  .bus-item-details {
+    flex-grow: 1;
+    text-align: right;
+  }
+  
+  .bus-item-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .bus-item-subtitle {
+    font-size: 10px;
+    margin: 0;
+  }
+  
+  .bus-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
