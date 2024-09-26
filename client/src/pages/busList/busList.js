@@ -41,9 +41,9 @@ import Loading from '../loading/loading.js';
       }
     };
   
-    if (loading) {
-      return <Loading/>; // Display loading state
-    }
+    // if (loading) {
+    //   return <Loading/>; // Display loading state
+    // }
   
     if (error) {
       return <div>{error}</div>; // Display error state
