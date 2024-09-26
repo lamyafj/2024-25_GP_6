@@ -1,6 +1,8 @@
 .Buspage { 
-  display: grid;
-  grid-template-columns: 5fr 1fr; 
+  display: flex;
+  flex-direction: column;
+  margin-right: 220px; /* Adjust based on Sidebar width */
+  padding: 20px;
 }
 
 .busmain {

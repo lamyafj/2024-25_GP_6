@@ -2,12 +2,13 @@ import React from 'react';
 import './AdminDashboard.css';
 import { FaBus } from 'react-icons/fa';
 import BusItem from '../../components/Busltem/Busltem.js';
+import {Sidebar} from '../../components/Sidebar/Sidebar.js';
 
 const AdminDashboard = () => {
   return (
     <div className="admin-dashboard">
+      <Sidebar/>
       <BusItem />
-
       <div className="bus-list-container">
         <button className="add-bus-button">+ إضافة باص</button>
 
