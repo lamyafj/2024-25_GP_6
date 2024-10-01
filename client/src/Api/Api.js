@@ -12,6 +12,8 @@ export const BUSRECORD ='busrecord'
 
 export const ADDBUS ='addbus';
 
+export const DELETEBUS ='deletebus';
+
 
 ////////to copy
 //import { baseURL, REGISTER } from '../../Api/Api';

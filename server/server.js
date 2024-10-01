@@ -8,7 +8,7 @@ const db = admin.firestore();
 const UniversalCookie = require('universal-cookie');
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
-
+const { FieldValue } = require('firebase-admin').firestore;
 
 // Middleware to handle cookies
 app.use((req, res, next) => {
@@ -18,11 +18,30 @@ app.use((req, res, next) => {
 });
 
 
+
 app.use(cors({
   origin: 'http://localhost:3000',
   credentials: true // Allow credentials
 }));
 app.use(bodyParser.json());
+
+
+const verifyToken = async (req, res, next) => {
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; 
+
+  if (!idToken) {
+    return res.status(403).send('Unauthorized');
+  }
+
+  try {
+    const decodedToken = await admin.auth().verifySessionCookie(idToken, true);
+    req.user = decodedToken;
+    next();
+  } catch (error) {
+    return res.status(403).send('Invalid token');
+  }
+};
+
 
 
 ////////////////Log in School
@@ -135,7 +154,6 @@ app.get('/api/protected-route', async (req, res) => {
 });
 
 
-
 ///////////////////////////Login
 
 app.post('/api/sessionLogin', async (req, res) => {
@@ -228,6 +246,9 @@ app.post('/api/addbus', async (req, res) => {
       school: schoolRef, 
     };
     const newBusRef = await db.collection('Bus').add(newbus); 
+    //add uid ti the bus attributes
+    const newBusUID = newBusRef.id;
+    await db.collection('Bus').doc(newBusUID).update({ uid: newBusUID });
     const schoolDoc = await admin.firestore().collection('School').doc(schooluid).get();
     const schoolData = schoolDoc.data();
     const newschoolDoc = { 
@@ -281,6 +302,36 @@ app.post('/api/busrecord', async (req, res) => {
     res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
   }
 });
+
+
+//////////////////////////////////Delete a bus
+app.post('/api/deletebus', async (req, res) => {
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  const {  uid } = req.body; // Assuming you are sending busuid in the request body
+  if (!uid) {
+    return res.status(400).send('Bus UID and School UID are required');
+  }
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const schooluid = decodedClaims.uid;
+    const schoolRef = db.collection('School').doc(schooluid);
+    const busRef = db.collection('Bus').doc(uid);
+    await busRef.delete();
+
+    // Remove the bus UID from the buses array in the School collection
+    await schoolRef.update({
+      buses: FieldValue.arrayRemove(busRef)
+    });
+
+    res.status(200).send({ message: 'Bus deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting bus:', error);
+    res.status(500).send('Failed to delete bus');
+  }
+});
+
+
 
 
 

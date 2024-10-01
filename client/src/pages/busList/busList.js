@@ -1,11 +1,11 @@
 import { Sidebar } from '../../components/Sidebar/Sidebar.js';
-import { AddBusToDatabase, BringBusRecord } from './busListData.js';
+import { AddBusToDatabase, BringBusRecord,deleteBusDatabase } from './busListData.js';
 import React, { useEffect, useState } from 'react';
 import Loading from '../loading/loading.js';
 import Header from '../../components/header/header.js';
 import FormContainer from '../../components/FormContainer/FormContainer.js';
 import './busList.css';
-import ListContainer from '../../components/ListContainer/ListContainer.js';
+import ListContainer  from '../../components/ListContainer/ListContainer.js';
 
 export default function BusList() {
   const [record, setRecord] = useState([]);
@@ -26,6 +26,7 @@ export default function BusList() {
 
     fetchRecord(); // Call the fetch function
   }, []); // Empty dependency array means this runs once on mount
+
 
   const addBus = async () => {
     try {
@@ -49,13 +50,36 @@ export default function BusList() {
     return <div>{error}</div>; // Display error state
   }
 
+  const deletebus = async (uid) => {
+    try {
+      setLoading(true);  // Set loading to true during the operation
+      await deleteBusDatabase(uid);  // Delete bus from the database
+      // Log for debugging
+      console.log(`Bus with UID ${uid} deleted`);
+  
+      const updatedRecord = await BringBusRecord();  // Fetch the updated bus list
+      console.log('Updated buses after deletion:', updatedRecord);
+  
+      if (updatedRecord) {
+        setRecord(updatedRecord);  // Update the state with the new record
+      } else {
+        setError('Failed to fetch updated buses');
+      }
+    } catch (err) {
+      setError('Failed to delete bus');
+    } finally {
+      setLoading(false);  // Stop the loading spinner once done
+    }
+  };
+  
   return (
     <div className="Buspage">
       <div className="busmain">
         <Header />
         <FormContainer>
           {/* Pass the bus record data as a prop to ListContainer */}
-          <ListContainer buses={record} />
+          <ListContainer buses={record} fun={deletebus}/>
+
           <button className="" onClick={addBus}>
             Add Bus
           </button>
