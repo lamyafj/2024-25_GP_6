@@ -30,7 +30,7 @@ export default function BusList() {
   const addBus = async () => {
     try {
       setLoading(true);
-      const newBus = { id: "3" }; // Example new bus data
+      const newBus = { id: "4" }; // Example new bus data
       await AddBusToDatabase(newBus);
       const updatedRecord = await BringBusRecord(); // Fetch new data after adding
       setRecord(updatedRecord); // Update the record with new data

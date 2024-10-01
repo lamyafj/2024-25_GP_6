@@ -1,5 +1,4 @@
 .Buspage { 
-<<<<<<< HEAD
     display: flex;
     flex-direction: column;
     margin-right: 220px; /* Adjust based on Sidebar width */
@@ -16,24 +15,6 @@
   
   
   
+  
     
   
-=======
-  display: flex;
-  flex-direction: column;
-  margin-right: 220px; /* Adjust based on Sidebar width */
-  padding: 20px;
-}
-
-.busmain {
-  display: flex; 
-  direction: rtl;          
-  justify-content: center; 
-  flex-direction: column;
-  height: 100%;          
-}
-
-
-
-  
->>>>>>> 689a11abd11c287745bf2a86eb4b4b2fa7717b8d
