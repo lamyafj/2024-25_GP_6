@@ -1,0 +1,16 @@
+/* Reset default browser styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .page {
+    display: grid;
+    grid-template-columns: 6fr 1fr; /* Main content on the left (4fr), sidebar on the right (1fr) */
+    gap: 20px;
+    height: 100vh; /* Full viewport height */
+  }
+
+
+  

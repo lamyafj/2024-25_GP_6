@@ -1,0 +1,19 @@
+.Buspage { 
+    display: flex;
+    flex-direction: column;
+    margin-right: 220px; /* Adjust based on Sidebar width */
+    padding: 20px;
+  }
+  
+  .busmain {
+    display: flex; 
+    direction: rtl;          
+    justify-content: center; 
+    flex-direction: column;
+    height: 100%;          
+  }
+  
+  
+  
+    
+  
