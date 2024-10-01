@@ -2,7 +2,10 @@ import {Sidebar} from '../../components/Sidebar/Sidebar.js'
 import { AddBusToDatabase,BringBusRecord} from './busListData.js'
 import React, { useEffect, useState } from 'react';
 import Loading from '../loading/loading.js';
-
+import Header from '../../components/header/header.js';
+import FormContainer from '../../components/FormContainer/FormContainer.js';
+import './busList.css';
+import ListContainer from '../../components/ListContainer/ListContainer.js'
   
   export default function BusList() {
   
@@ -41,28 +44,35 @@ import Loading from '../loading/loading.js';
       }
     };
   
-    if (loading) {
-      return <Loading/>; // Display loading state
-    }
+    // if (loading) {
+    //   return <Loading/>; // Display loading state
+    // }
   
     if (error) {
       return <div>{error}</div>; // Display error state
     }
   
     return (
-      <div>
-        <Sidebar />
-        <h1>Bus Admin Dashboard</h1>
-        {record ? (
-          <div>
+      <div className='Buspage'>
+    
+      <div className='busmain'>
+        <Header />
+       <FormContainer>
+    
+        <ListContainer/>
+          <div className='record-display'>
             {/* Render your record data here */}
-            <pre>{JSON.stringify(record, null, 2)}</pre> {/* Example of rendering record */}
-          </div>
-        ) : (
-          <div>No record found.</div>
-        )}
-        <button style={{width:'80px'}} onClick={addBus}>Add Bus</button> {/* Corrected the onClick handler */}
+            <pre>{JSON.stringify(record, null, 2)}</pre>
+            </div> 
+        <button className='' onClick={addBus}>
+          Add Bus
+        </button>
+       </FormContainer>
+      </div>  
+      <div className='sidebar'>
+        <Sidebar/>
       </div>
+    </div>
     );
   }
   

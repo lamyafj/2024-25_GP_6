@@ -1,6 +1,10 @@
 
 
+<<<<<<< HEAD
 .bus-list-item {
+=======
+  .bus-list-item {
+>>>>>>> 689a11abd11c287745bf2a86eb4b4b2fa7717b8d
     display: flex;
     align-items: center;
     background-color: white;

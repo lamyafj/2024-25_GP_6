@@ -1,5 +1,5 @@
 import React from 'react';
-import './BusItem.css';
+import './Busltem.css';
 import { FaUser } from 'react-icons/fa';
 
 const BusItem = () => {

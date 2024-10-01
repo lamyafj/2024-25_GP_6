@@ -38,7 +38,7 @@ export const Sidebar = () => {
       >
      <div style={{ display: 'flex', alignItems: 'center' }}>
     <div className='title'>{val.title}</div>
-    <div className='icon'>{val.icon}</div>
+    <div className='icon-sidebar'>{val.icon}</div>
 
   </div>
 </NavLink>

@@ -4,12 +4,14 @@ import Signup from './pages/signup/signup.js';
 import { Route, Routes } from 'react-router-dom';
 import RequireAuth from './context/AuthContext.js'; // Updated path
 import BusList from './pages/busList/busList.js';
+import Addbus from './pages/busList/addbus.js';
 import Loading from './pages/loading/loading.js';
-import Busltem from './components/Busltem/Busltem.js';
+import BusItem from './components/Busltem/Busltem.js';
 
 function App() {
   return (
     <div>
+      
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -30,11 +32,19 @@ function App() {
             </RequireAuth>
           } 
         />
-        <Route 
+                <Route 
+          path="/addbus" 
+          element={
+            <RequireAuth>
+              <Addbus />
+            </RequireAuth>
+          } 
+        />
+                <Route 
           path="/Busltem" 
           element={
             <RequireAuth>
-              <Busltem />
+              <BusItem />
             </RequireAuth>
           } 
         />

@@ -8,7 +8,7 @@
   position: fixed; 
   right: 0; 
   top: 0; 
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2); 
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.15); 
 }
 
 .sidebarLink {
@@ -37,7 +37,7 @@
   align-items: center;
   padding-bottom: 20px;
 }
-.icon {
+.icon-sidebar{
   margin: 10px; 
   color: #767B7F; ; 
 }
@@ -46,8 +46,6 @@
   font-size: 18px;
   color: #767B7F; ; 
 }
-
-
 
 .logout{
   display: flex;
