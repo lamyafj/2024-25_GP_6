@@ -9,7 +9,6 @@ import ListContainer  from '../../components/ListContainer/ListContainer.js';
 import { useNavigate } from 'react-router-dom'; 
 
 export default function BusList() {
-  const navigate = useNavigate();
   const [record, setRecord] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

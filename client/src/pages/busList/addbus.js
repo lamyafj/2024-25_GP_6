@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../../components/Sidebar/Sidebar.js';
 import FormContainer from '../../components/FormContainer/FormContainer.js';
+import Header from '../../components/header/header.js';
 
 const AddBus = () => {
   const [busId, setBusId] = useState('');
@@ -37,6 +38,7 @@ const AddBus = () => {
     <div className="Addbus">
       <Sidebar />
       <div className="main">
+      <Header/>
         <FormContainer>
           <h2 className="form-title">Add a New Bus</h2>
           <form onSubmit={handleSubmit} className="add-bus-form">

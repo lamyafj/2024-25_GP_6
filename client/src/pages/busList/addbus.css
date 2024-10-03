@@ -1,7 +1,8 @@
 .Addbus {
   display: flex;
-  background-color: #f5f5f5;
-  min-height: 100vh;
+  flex-direction: column;
+  margin-right: 220px; /* Adjust based on Sidebar width */
+
 }
 
 .main {
