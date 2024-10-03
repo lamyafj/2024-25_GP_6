@@ -9,6 +9,8 @@ const UniversalCookie = require('universal-cookie');
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 const { FieldValue } = require('firebase-admin').firestore;
+//const GeoFire = require('geofire');
+
 
 // Middleware to handle cookies
 app.use((req, res, next) => {
@@ -44,50 +46,9 @@ const verifyToken = async (req, res, next) => {
 
 
 
-////////////////Log in School
-// const validateToken = async (req, res, next) => {
-//   const { token } = req.body;
-
-//   if (!token) {
-//     return res.status(400).send('No token provided');
-//   }
-
-//   try {
-//     // Verify the token with Firebase Admin SDK
-//     const decodedToken = await admin.auth().verifyIdToken(token);
-
-//     // Set token as HttpOnly cookie
-//     res.cookie('authToken', token, {
-//       httpOnly: true,
-//       secure: false, // Set to true if using HTTPS
-//       maxAge: 3600000,
-//       sameSite: 'Strict'
-//     });
-    
-//     // Attach decoded token to request object for further use
-//     // Fetch user role from Firestore
-//     const userDoc = await db.collection('School').doc(decodedToken.uid).get();
-//     if (!userDoc.exists) {
-//       return res.status(404).send('User not found');
-//     }
-//     // Attach user role to the request object
-//     const userData = userDoc.data(); // Retrieve the document data
-//     const userRole = userData.Role; 
-//     console.log(userRole) 
-//     if(userRole=='School'){
-//       next();
-//     } 
-//   } catch (err) {
-//     console.error('Token verification error:', err);
-//     return res.status(401).send('Unauthorized not admin');
-//   }
-// };
-
-// app.post('/api/auth', validateToken, (req, res) => {
-//   res.status(200).send(true); // Respond after successful login
-// });
-
-
+// Create a GeoFire reference
+//const firebaseRef = admin.database().ref('geofire'); // Adjust this path as needed
+//const geoFire = new GeoFire(firebaseRef);
 
 
 
@@ -109,7 +70,7 @@ app.post('/api/auth/register', async (req, res) => {
     //////////////Geo exapmple
       const lat = 51.5074;
       const lng = 0.1278;
-      const hash = geofire.geohashForLocation([lat, lng]);
+      //const hash = geoFire.geohashForLocation([lat, lng]);;
     const userData = {
       email,
       schoolCode,
@@ -117,9 +78,7 @@ app.post('/api/auth/register', async (req, res) => {
       buses:[],
       students:[],
       drivers:[],
-      location: hash,
-      lat: lat,
-      lng: lng,
+      coordinates: new admin.firestore.GeoPoint(Number(lat), Number(lng)),
       createdAt: admin.firestore.FieldValue.serverTimestamp(), // Add timestamp
     };
     // Add the user data to the 'users' collection in Firestore
@@ -227,7 +186,6 @@ app.post('/api/record', async (req, res) => {
 });
 
 ///////////////////////// add bus
-
 app.post('/api/addbus', async (req, res) => {
   console.log('Server add  called');
   
@@ -242,8 +200,10 @@ app.post('/api/addbus', async (req, res) => {
     const schooluid =decodedClaims.uid;
     const schoolRef = db.collection('School').doc(schooluid);
     newbus = { 
-      ...newbus,  
+      ...newbus,
       school: schoolRef, 
+      students:[],
+      driver:'',
     };
     const newBusRef = await db.collection('Bus').add(newbus); 
     //add uid ti the bus attributes
@@ -255,7 +215,6 @@ app.post('/api/addbus', async (req, res) => {
       ...schoolData, // Spread the existing data
       buses: [...(schoolData.buses || []), newBusRef], // Add the new bus ID to the buses array
     };
-   
     await db.collection('School').doc(schooluid).set(newschoolDoc);    
     console.log('added bus');
     res.status(200).send(true);
@@ -345,8 +304,6 @@ app.post('/api/busdetail', async (req, res) => {
   try {
       //لا ينمسح
    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
-
-
     const busesRef = admin.firestore().collection('Bus'); 
     const busSnapshot = await busesRef.where('uid', '==', uid).get();
 

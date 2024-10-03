@@ -12,6 +12,7 @@ import { FaPlus } from "react-icons/fa6";
 export default function BusList() {
   const [record, setRecord] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pageloading, setPageLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate(); 
   useEffect(() => {
@@ -22,7 +23,7 @@ export default function BusList() {
       } catch (err) {
         setError('Failed to fetch record'); // Handle errors
       } finally {
-        setLoading(false); // Set loading to false when done
+        setPageLoading(false); // Set loading to false when done
       }
     };
 
@@ -35,7 +36,7 @@ export default function BusList() {
   };
 
 
-  if (loading) {
+  if (pageloading) {
     return <Loading />; // Display loading state
   }
 
@@ -45,7 +46,7 @@ export default function BusList() {
 
   const deletebus = async (uid) => {
     try {
-      setLoading(true);  // Set loading to true during the operation
+      setLoading(uid);  // Set loading to true during the operation
       await deleteBusDatabase(uid);  // Delete bus from the database
       // Log for debugging
       console.log(`Bus with UID ${uid} deleted`);
@@ -83,12 +84,9 @@ export default function BusList() {
       <div className="busmain">
         <Header />
         <FormContainer>
-        <button className="goadd-bus-button " onClick={addBus}> <FaPlus style={{ marginLeft: '10px', verticalAlign: 'middle' }} />  إضافة حافلة </button>
+        <button className="goadd-bus-button " onClick={addBus}> <FaPlus style={{ marginLeft: '5px', verticalAlign: 'middle' }} />  إضافة حافلة </button>
           {/* Pass the bus record data as a prop to ListContainer */}
-          <ListContainer buses={record} fun={deletebus} fundetail={busdetail}/>
-
-          
-           
+          <ListContainer buses={record} fun={deletebus} fundetail={busdetail} loading={loading}/>       
         </FormContainer>
       </div>
       <div className="sidebar">

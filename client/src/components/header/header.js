@@ -15,7 +15,7 @@ const Header = () => {
         <div className="divider"></div>
         <div className="header-details">
           <h2 className="header-title">{schoolRecord.schoolCode}</h2>
-          <p className="header-subtitle">مدير القسم</p>
+          <p className="header-subtitle">قسم نقل الحافلات </p>
         </div>
         {/* Uncomment for actions */}
         {/* <div className="header-actions">

@@ -42,7 +42,7 @@ const RequireAuth = ({ children }) => {
   }, [isAuthenticated, navigate]);
 
   if (isAuthenticated === null) {
-    //<Loading/>
+    <Loading/>
   }
 
   return isAuthenticated === true ? children : null; 

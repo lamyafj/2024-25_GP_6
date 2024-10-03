@@ -45,14 +45,19 @@
 
   
 .edit-bus-button {
-  background-color: #395348;
+  background-color: #29684b;
   color: white;
   width: 60px;
   border: none;
   padding: 5px;
   border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer
+  font-size: 17px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.edit-bus-button:hover {
+  background-color: #1d4b3a; /* Change this color to whatever you prefer for the hover effect */
 }
 
 

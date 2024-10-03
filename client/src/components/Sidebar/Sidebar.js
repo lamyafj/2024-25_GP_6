@@ -5,7 +5,7 @@ import HandleLogout from '../../pages/login/handleLogout'
 import { useNavigate } from 'react-router-dom';
 import { MdLogout } from "react-icons/md";
 
-export const Sidebar = () => {
+export const Sidebar = (number) => {
   const navigate = useNavigate(); // Hook should be used in the functional component
 
   const logout = async (e) => {
@@ -27,14 +27,7 @@ export const Sidebar = () => {
         <div key={key} className='sidebarItem'>
         <NavLink 
         to={val.link} 
-        className='sidebarLink' 
-        style={({ isActive }) => ({
-          textDecoration: 'none', 
-          width: '100%', 
-          display: 'flex', 
-          justifyContent: 'flex-end', 
-          color: isActive ? 'red' : 'black' // Active link will be red
-        })}
+        className='sidebarLink'
       >
      <div style={{ display: 'flex', alignItems: 'center' }}>
     <div className='title'>{val.title}</div>

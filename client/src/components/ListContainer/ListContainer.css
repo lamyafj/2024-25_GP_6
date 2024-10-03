@@ -60,4 +60,19 @@
     margin-left: 2px;
     margin-bottom: 20px;
   }
+  .delete-bus-button:hover {
+    background-color: #b05252; /* Change this color for hover effect */
+}
+.delete-bus-details:hover {
+  background-color: #3a9e3a; /* Change this color for hover effect */
+}
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
   
+  .spinner {
+    animation: spin 1s linear infinite;  /* Apply the spin animation */
+    vertical-align: 'middle';
+  }

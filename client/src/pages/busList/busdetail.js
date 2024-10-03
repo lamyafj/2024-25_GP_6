@@ -7,10 +7,12 @@ import Header from '../../components/header/header.js';
 import FormContainer from '../../components/FormContainer/FormContainer.js';
 import { BringBusDetail } from './busListData.js';
 import './busdetail.css';
+import { useNavigate } from 'react-router-dom'; 
 
 
 export default function BusDetail() {
   const params = useParams(); // Extract 'uid' from the URL
+  const navigate = useNavigate();
   const uid = params.uid;
   const [record, setRecord] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,7 @@ export default function BusDetail() {
         <h2>قائمه الطلاب بالحافلة</h2>
         <ItemContainer/>
         </div>
-          <button className='edit-bus-button'>تعديل</button>  
+        <button className='edit-bus-button' onClick={() => navigate('/busList')}>عودة</button>
         </FormContainer>
          </div>  
          <div className="sidebar">

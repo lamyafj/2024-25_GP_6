@@ -1,7 +1,8 @@
 import { FaBus } from 'react-icons/fa';
 import './ListContainer.css';
+import { CgSpinnerAlt } from "react-icons/cg";
 
-const ListContainer = ({ buses, fun ,fundetail}) => {  // Destructure both buses and fun from props
+const ListContainer = ({ buses, fun, fundetail, loading }) => {  
   return (
     <div>
       {buses.map((bus, index) => (
@@ -11,7 +12,13 @@ const ListContainer = ({ buses, fun ,fundetail}) => {  // Destructure both buses
             <p>#رقم الباص {bus.id}</p> {/* Display the bus ID dynamically */}
           </div>
           <button className="delete-bus-details" onClick={() => fundetail(bus.uid)}>تفاصيل</button>
-          <button className="delete-bus-button" onClick={() => fun(bus.uid)}>حذف</button>
+          <button 
+            value={bus.id} 
+            className="delete-bus-button" 
+            onClick={() => fun(bus.uid)}
+          > 
+            {loading === bus.uid ? <CgSpinnerAlt className='spinner'/> : 'حذف'}
+          </button>
         </div>
       ))}
     </div>

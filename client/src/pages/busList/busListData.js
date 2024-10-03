@@ -113,3 +113,26 @@ export const BringBusRecord = async () => {
       return null; 
     }
   };
+
+  export const updateBusDetails = async (uid) => {
+    const idToken = Cookies.get('session'); 
+    if (idToken) {
+      try {
+        const response = await axios.post(`${baseURL}/${BUSDETAIL}`, {uid}, {
+          headers: {
+            Authorization: `Bearer ${idToken}`, 
+          },
+          withCredentials: true 
+        });
+        const record = response.data;
+        return record;
+      } catch (error) {
+        
+        console.error('Error accessing protected route:', error.response?.data || error);
+        return null; 
+      }
+    } else {
+      console.log('User not authenticated');
+      return null; 
+    }
+  };
