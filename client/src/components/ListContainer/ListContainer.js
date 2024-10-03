@@ -1,7 +1,7 @@
 import { FaBus } from 'react-icons/fa';
 import './ListContainer.css';
 
-const ListContainer = ({ buses, fun }) => {  // Destructure both buses and fun from props
+const ListContainer = ({ buses, fun ,fundetail}) => {  // Destructure both buses and fun from props
   return (
     <div>
       {buses.map((bus, index) => (
@@ -10,6 +10,7 @@ const ListContainer = ({ buses, fun }) => {  // Destructure both buses and fun f
             <FaBus size={24} style={{ direction: "rtl", marginLeft: '10px', color: 'grey' }} />
             <p>#رقم الباص {bus.id}</p> {/* Display the bus ID dynamically */}
           </div>
+          <button className="delete-bus-details" onClick={() => fundetail(bus.uid)}>تفاصيل</button>
           <button className="delete-bus-button" onClick={() => fun(bus.uid)}>حذف</button>
         </div>
       ))}

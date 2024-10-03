@@ -34,7 +34,7 @@
   }
   
   .delete-bus-button {
-    background-color: #4caf50;
+    background-color: #ce7171;
     color: white;
     width: 60px;
     border: none;
@@ -42,6 +42,22 @@
     border-radius: 5px;
     font-size: 12px;
     cursor: pointer;
+    margin-right: 1px;
+    margin-bottom: 20px;
+   
+  }
+  
+
+  .delete-bus-details {
+    background-color: #4db754;
+    color: white;
+    width: 60px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 1px;
     margin-bottom: 20px;
   }
   

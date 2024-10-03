@@ -6,8 +6,10 @@ import Header from '../../components/header/header.js';
 import FormContainer from '../../components/FormContainer/FormContainer.js';
 import './busList.css';
 import ListContainer  from '../../components/ListContainer/ListContainer.js';
+import { useNavigate } from 'react-router-dom';
 
 export default function BusList() {
+  const navigate = useNavigate();
   const [record, setRecord] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -72,13 +74,26 @@ export default function BusList() {
     }
   };
   
+
+  const busdetail = async (uid) => {
+    try {
+
+      navigate(`/busdetail/${uid}`);
+  
+    } catch (error) {
+
+      console.error('Error:', error);
+    }
+  };
+  
+  
   return (
     <div className="Buspage">
       <div className="busmain">
         <Header />
         <FormContainer>
           {/* Pass the bus record data as a prop to ListContainer */}
-          <ListContainer buses={record} fun={deletebus}/>
+          <ListContainer buses={record} fun={deletebus} fundetail={busdetail}/>
 
           <button className="" onClick={addBus}>
             Add Bus

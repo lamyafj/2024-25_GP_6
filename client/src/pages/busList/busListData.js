@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 //import React, { useEffect, useState } from 'react';
-import { baseURL, ADDBUS,BUSRECORD,DELETEBUS} from '../../Api/Api';
+import { baseURL, ADDBUS,BUSRECORD,DELETEBUS,BUSDETAIL} from '../../Api/Api';
 
 
 
@@ -87,5 +87,29 @@ export const BringBusRecord = async () => {
     } catch (error) {
       console.error('Error accessing protected route:', error.response?.data || error);
       return null; // Return null if an error occurs
+    }
+  };
+
+
+  export const BringBusDetail = async (uid) => {
+    const idToken = Cookies.get('session'); 
+    if (idToken) {
+      try {
+        const response = await axios.post(`${baseURL}/${BUSDETAIL}`, {uid}, {
+          headers: {
+            Authorization: `Bearer ${idToken}`, 
+          },
+          withCredentials: true 
+        });
+        const record = response.data;
+        return record;
+      } catch (error) {
+        
+        console.error('Error accessing protected route:', error.response?.data || error);
+        return null; 
+      }
+    } else {
+      console.log('User not authenticated');
+      return null; 
     }
   };

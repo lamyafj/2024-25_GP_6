@@ -332,6 +332,40 @@ app.post('/api/deletebus', async (req, res) => {
 });
 
 
+///////////////////////////////////bring one bus detail
+app.post('/api/busdetail', async (req, res) => {
+  console.log('Server bus detail called');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  const { uid } = req.body; // Expecting uid to be in the request body
+
+  if (!idToken ) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+  console.log(uid)
+  try {
+      //لا ينمسح
+   // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+
+
+    const busesRef = admin.firestore().collection('Bus'); 
+    const busSnapshot = await busesRef.where('uid', '==', uid).get();
+
+    if (busSnapshot.empty) {
+      return res.status(404).send('Bus not found');
+    }
+  
+    const busData = busSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }))[0];
+    res.status(200).send(busData); 
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
+
+
 
 
 

@@ -1,6 +1,7 @@
 .Buspage { 
     display: flex;
     flex-direction: column;
+    overflow-x: hidden  ;
     margin-right: 220px; /* Adjust based on Sidebar width */
     padding: 20px;
   }

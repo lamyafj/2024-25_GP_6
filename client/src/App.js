@@ -5,6 +5,7 @@ import { Route, Routes } from 'react-router-dom';
 import RequireAuth from './context/AuthContext.js'; // Updated path
 import BusList from './pages/busList/busList.js';
 import Addbus from './pages/busList/addbus.js';
+import Busdetail from './pages/busList/busdetail.js';
 import Loading from './pages/loading/loading.js';
 import BusItem from './components/Busltem/Busltem.js';
 
@@ -45,6 +46,14 @@ function App() {
           element={
             <RequireAuth>
               <BusItem />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/busdetail/:uid" 
+          element={
+            <RequireAuth>
+              <Busdetail />
             </RequireAuth>
           } 
         />

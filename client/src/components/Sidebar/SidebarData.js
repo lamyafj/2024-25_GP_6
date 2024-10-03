@@ -28,7 +28,7 @@ export const SidebarData = [
     link: "/adminDashboard",
   },
   {
-    title: "قائمة الباصات",
+    title: "قائمة الحافلات",
     icon: <FaBus size={20} />, 
     link: "/busList",
   },
