@@ -7,6 +7,7 @@ import FormContainer from '../../components/FormContainer/FormContainer.js';
 import './busList.css';
 import ListContainer  from '../../components/ListContainer/ListContainer.js';
 import { useNavigate } from 'react-router-dom'; 
+import { FaPlus } from "react-icons/fa6";
 
 export default function BusList() {
   const [record, setRecord] = useState([]);
@@ -82,12 +83,12 @@ export default function BusList() {
       <div className="busmain">
         <Header />
         <FormContainer>
+        <button className="goadd-bus-button " onClick={addBus}> <FaPlus style={{ marginLeft: '10px', verticalAlign: 'middle' }} />  إضافة حافلة </button>
           {/* Pass the bus record data as a prop to ListContainer */}
           <ListContainer buses={record} fun={deletebus} fundetail={busdetail}/>
 
-          <button className="" onClick={addBus}>
-            Add Bus
-          </button>
+          
+           
         </FormContainer>
       </div>
       <div className="sidebar">

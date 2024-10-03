@@ -13,6 +13,18 @@
     flex-direction: column;
     height: 100%;          
   }
+
+  .goadd-bus-button {
+    background-color: #395348;
+    color: white;
+    width: 150px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
   
   
   
