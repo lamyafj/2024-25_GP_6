@@ -6,12 +6,13 @@ import Header from '../../components/header/header.js';
 import FormContainer from '../../components/FormContainer/FormContainer.js';
 import './busList.css';
 import ListContainer  from '../../components/ListContainer/ListContainer.js';
+import { useNavigate } from 'react-router-dom'; 
 
 export default function BusList() {
   const [record, setRecord] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const navigate = useNavigate(); 
   useEffect(() => {
     const fetchRecord = async () => {
       try {
@@ -28,19 +29,10 @@ export default function BusList() {
   }, []); // Empty dependency array means this runs once on mount
 
 
-  const addBus = async () => {
-    try {
-      setLoading(true);
-      const newBus = { id: "4" }; // Example new bus data
-      await AddBusToDatabase(newBus);
-      const updatedRecord = await BringBusRecord(); // Fetch new data after adding
-      setRecord(updatedRecord); // Update the record with new data
-    } catch (err) {
-      setError('Failed to add bus');
-    } finally {
-      setLoading(false);
-    }
+  const addBus = () => {
+    navigate('/addbus');
   };
+
 
   if (loading) {
     return <Loading />; // Display loading state
