@@ -82,13 +82,18 @@ export default function BusDetail() {
       <Header />
       <div className="bus-detail-main">
         <div className="bus-detail-buttons">
-          <button className='edit-bus-button' onClick={() => navigate('/busList')}>عودة</button>
 
+        {!isEditing && ( // Hide edit button when editing
+             <button className='edit-bus-button' onClick={() => navigate('/busList')}>عودة</button>
+          )}
+          
           {!isEditing && ( // Hide edit button when editing
             <button className='no-button' onClick={handleEditClick}> 
               <FiEdit3 size={20} className="hover-icon" />
             </button>
           )}
+
+         
 
           {isEditing && (
             <>
