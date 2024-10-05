@@ -146,7 +146,7 @@ body{
 
 
 .save-bus-button{
-  background-color: #abbb69;
+  background-color: #4db754;
   color: rgb(255, 255, 255);
   width: 60px;
   border: none;
@@ -183,6 +183,6 @@ body{
 }
 
 .save-bus-button:hover{
-  background-color: #98965d; /* Change this color for hover effect */
+  background-color: #3a9e3a;; /* Change this color for hover effect */
   transform: scale(1.1);
 }
