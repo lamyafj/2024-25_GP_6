@@ -4,3 +4,31 @@
       justify-content: center;
       align-items: center; /* Corrected the property name from 'align-Items' to 'align-items' */
     }
+
+    .signup-button{
+      right:0;
+      font-family: 'zain';
+      width: 100%;
+      margin-top: 20px;
+      background-color: #084327;
+      color: aliceblue;
+      font-size: 20px;
+      border-radius: 5px;
+      box-shadow: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .signup-button:hover{
+      background-color: #06341e;
+    } 
+    .no-button-signup{
+      background: transparent; 
+      border: none;
+      color: rgb(0, 67, 0);
+      font-size: 15px;
+      width:75px;
+      cursor: pointer;
+      font-family: "Zain";
+    }
+  

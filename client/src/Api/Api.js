@@ -16,6 +16,8 @@ export const DELETEBUS ='deletebus';
 
 export const BUSDETAIL ='busdetail';
 
+export const EDITBUS ='editbus';
+
 
 ////////to copy
 //import { baseURL, REGISTER } from '../../Api/Api';

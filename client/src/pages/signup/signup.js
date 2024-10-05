@@ -37,7 +37,7 @@ const SignupForm = () => {
       if (result.success) {
         setSuccess('User registered successfully');
         console.log('User registered successfully');
-        setTimeout(() => {navigate('/login');}, 5000);
+        setTimeout(() => {navigate('/login');}, 1000);
       } else {
         setError('Registration failed. Please try again.');
       }
@@ -95,14 +95,16 @@ const SignupForm = () => {
               value={form.password}
               onChange={handleChange}
             />
-            <button type="submit">تسجيل حساب جديد</button>
+            <button className='signup-button' type="submit">تسجيل حساب جديد</button>
           </form>
 
           {error && <p style={{ color: 'red' }}>فشلت علمية التسجيل</p>}
           {success && <p style={{ color: 'green' }}>تم التسجيل بنجاح</p>}
-
-          <p style={{ fontSize: '15px' }}>هل لديك حساب مسبق؟</p>
-        </GreenContainer>
+          <p style={{ fontSize: '15px', lineHeight: '1.5' }}>
+          <button className='no-button-signup' onClick={() => navigate('/Login')} style={{ verticalAlign: 'middle' }}>اضغط هنا</button> 
+         هل لديك حساب مسبق؟
+          </p>
+      </GreenContainer>
       </div>
       <SaudiAnimation />
     </div>

@@ -83,11 +83,16 @@ export default function BusList() {
     <div className="Buspage">
       <div className="busmain">
         <Header />
-        <FormContainer>
+        <div className='bus-list-content'>
         <button className="goadd-bus-button " onClick={addBus}> <FaPlus style={{ marginLeft: '5px', verticalAlign: 'middle' }} />  إضافة حافلة </button>
+        <FormContainer>
+        <div className='bus-list-items'>
           {/* Pass the bus record data as a prop to ListContainer */}
-          <ListContainer buses={record} fun={deletebus} fundetail={busdetail} loading={loading}/>       
+          <ListContainer buses={record} fun={deletebus} fundetail={busdetail} loading={loading}/> 
+
+        </div>  
         </FormContainer>
+        </div>
       </div>
       <div className="sidebar">
         <Sidebar />

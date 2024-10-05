@@ -42,8 +42,10 @@
     border-radius: 5px;
     font-size: 12px;
     cursor: pointer;
-    margin-right: 1px;
+    margin-right: 5px;
     margin-bottom: 20px;
+    transition: transform 0.2s ease;
+    margin-top: 20px;
    
   }
   
@@ -59,13 +61,19 @@
     cursor: pointer;
     margin-left: 2px;
     margin-bottom: 20px;
+    transition: transform 0.2s ease;
+    margin-top: 20px;
   }
   .delete-bus-button:hover {
     background-color: #b05252; /* Change this color for hover effect */
+    transform: scale(1.1);
 }
 .delete-bus-details:hover {
   background-color: #3a9e3a; /* Change this color for hover effect */
+  transform: scale(1.1);
 }
+
+
 
   @keyframes spin {
     0% { transform: rotate(0deg); }

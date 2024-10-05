@@ -1,6 +1,4 @@
-
 .container-item {
-    display: flex;
     align-items: center;
     background-color: white;
     border: 1px solid #ddd;
@@ -8,9 +6,10 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 10px;
     margin-bottom: 10px;
-    width: 100%;
+    width: auto;
+    flex-grow: 1;
+    margin: 10px;
   }
-  
   
   .bus-item-icon {
     margin-left: 10px;

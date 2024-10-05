@@ -4,3 +4,30 @@
     justify-content: center;
     align-items: center; /* Corrected the property name from 'align-Items' to 'align-items' */
   }
+
+  .login-button{
+    right:0;
+    font-family: 'zain';
+    width: 100%;
+    margin-top: 20px;
+    background-color: #084327;
+    color: aliceblue;
+    font-size: 20px;
+    border-radius: 5px;
+    box-shadow: none;
+    cursor: pointer;
+    border: none;
+  }
+
+  .login-button:hover{
+    background-color: #06341e;
+  }
+  .no-button-login{
+    background-color: none;
+    border: none;
+    color: green;
+    font-size: 15px;
+    width:75px;
+  }
+
+  

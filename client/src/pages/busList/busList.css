@@ -1,3 +1,7 @@
+body{
+  background-color: #f7f7f7;
+}
+
 .Buspage { 
     display: flex;
     flex-direction: column;
@@ -14,20 +18,34 @@
     height: 100%;          
   }
 
+  .bus-list-items{
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  .bus-list-content{
+    margin-top: 0;
+  }
+  
   .goadd-bus-button {
     background-color: #29684b;
-    width: 140px;
+    width: 120px;
+    color: aliceblue;
     border: none;
     padding: 5px;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
+    margin-top: 20px;
     margin-bottom: 20px;
+    margin-right: 30px;
+    transition: transform 0.2s ease;
+
   }
   
 
   .goadd-bus-button:hover {
     background-color: #1d4b3a; /* Change this color for the hover effect */
+    transform: scale(1.1);
 }
   
   

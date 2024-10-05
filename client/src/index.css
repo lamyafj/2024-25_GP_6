@@ -16,6 +16,10 @@ body {
   height: 100vh;
 }
 
+button{
+  font-family: "Zain";
+}
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

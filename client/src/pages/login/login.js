@@ -50,10 +50,13 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button type="submit">تسجيل دخول</button>
+            <button className='login-button' type="submit">تسجيل دخول</button>
           </form>
           {error && <p style={{ color: 'red' }}>خطأ في البريد الألكتروني او الرمز السري</p>}
-          <p style={{ fontSize: '15px' }}>هل نسيت رمز الدخول؟</p>
+          <p style={{ fontSize: '15px', lineHeight: '1.5' }}>
+          <button className='no-button-signup' onClick={() => navigate('/signup')} style={{ verticalAlign: 'middle' }}>اضغط هنا</button> 
+         ليس لديك حساب؟
+          </p>
         </GreenContainer>
       </div>
       <SaudiAnimation />

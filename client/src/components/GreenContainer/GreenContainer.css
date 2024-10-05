@@ -40,7 +40,7 @@ h1 {
   color: #01391F;
 }
 
-button {
+/* button {
   font-family: 'Zain';
   width: 100%;
   margin-top: 20px;
@@ -51,7 +51,7 @@ button {
   box-shadow: none;
   border: none;
   
-}
+} */
 
 .content{
   padding:20px;
@@ -79,7 +79,7 @@ h1{
   color: #01391F;
 }
 
-button{
+/* .GreenContainer button{
   right:0;
   font-family: 'zain';
   width: 100%;
@@ -90,7 +90,7 @@ button{
   border-radius: 5px;
   box-shadow: none;
   border: none;
-}
+} */
 
 .hLine{
   height: 2px;

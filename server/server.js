@@ -321,6 +321,32 @@ app.post('/api/busdetail', async (req, res) => {
     res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
   }
 });
+//////////////////////////////////edit bus detail
+app.post('/api/editbus', async (req, res) => {
+  console.log('im edit')
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
+  const { uid, newbus } = req.body;
+
+  if (!uid || !newbus) {
+    return res.status(400).send('Bus UID and new data are required');
+  }
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const busRef = db.collection('Bus').doc(uid);
+    await busRef.update({
+      id: newbus.id,       
+      plate: newbus.plate, 
+      capacity: newbus.capacity,
+      rfid:newbus.rfid,
+    });
+
+    res.status(200).send({ message: 'Bus updated successfully' });
+  } catch (error) {
+    console.error('Error updating bus:', error);
+    res.status(500).send('Failed to update bus');
+  }
+});
 
 
 
