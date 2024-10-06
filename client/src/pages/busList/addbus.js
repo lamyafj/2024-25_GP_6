@@ -8,18 +8,18 @@ import Header from '../../components/header/header.js';
 import { CgSpinnerAlt } from "react-icons/cg";
 
 const AddBus = () => {
-  const [busId, setBusId] = useState('');
+  const [busName, setBusName] = useState('');
   const [busCapacity, setBusCapacity] = useState('');
   const [busPlate, setBusPlate] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const addBus = async (busId,busCapacity,busPlate) => {
+  const addBus = async (busName,busCapacity,busPlate) => {
     try {
       setLoading(true);
       const newBus = { 
-        id: busId,
+        name: busName,
         plate:busPlate,
         capacity:busCapacity,
       };
@@ -34,8 +34,8 @@ const AddBus = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (busId.trim()) {
-      addBus(busId,busCapacity,busPlate);
+    if (busName.trim()) {
+      addBus(busName,busCapacity,busPlate);
     } else {
       setError('Bus ID cannot be empty');
     }
@@ -59,14 +59,14 @@ const AddBus = () => {
           <form onSubmit={handleSubmit} className="add-bus-form">
             
             <div className="form-group">
-              <label htmlFor="busId" className="form-label">رقم الحافلة</label>
+              <label htmlFor="busName" className="form-label">اسم الحافلة</label>
               <input
                 type="text"
-                id="busId"
+                id="busName"
                 className="form-input"
-                value={busId}
-                onChange={(e) => setBusId(e.target.value)}
-                placeholder="رقم الحافلة"
+                value={busName}
+                onChange={(e) => setBusName(e.target.value)}
+                placeholder="اسم او وصف الحافلة"
                 required
               />
               <label htmlFor="busCapacity" className="form-label">سعة الحافلة</label>

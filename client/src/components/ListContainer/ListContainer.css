@@ -1,86 +1,170 @@
-
 .bus-list-item {
-    display: flex;
-    align-items: center;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    margin-bottom: 10px;
-    height: 50px;
-    width: 100%;
-  }
-  
-  .bus-item-icon {
-    margin-left: 10px;
-  }
-  
-  .bus-details {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    margin: 0 10px;
-  }
-  
-  .bus-details p {
-    margin: 0;
-    font-size: 14px;
-    white-space: nowrap;
-  }
-  
-  .bus-details p:first-of-type {
-    font-weight: bold;
-  }
-  
-  .delete-bus-button {
-    background-color: #ce7171;
-    color: white;
-    width: 60px;
-    border: none;
-    padding: 5px;
-    border-radius: 5px;
-    font-size: 12px;
-    cursor: pointer;
-    margin-right: 5px;
-    margin-bottom: 20px;
-    transition: transform 0.2s ease;
-    margin-top: 20px;
-   
-  }
-  
-
-  .delete-bus-details {
-    background-color: #4db754;
-    color: white;
-    width: 60px;
-    border: none;
-    padding: 5px;
-    border-radius: 5px;
-    font-size: 12px;
-    cursor: pointer;
-    margin-left: 2px;
-    margin-bottom: 20px;
-    transition: transform 0.2s ease;
-    margin-top: 20px;
-  }
-  .delete-bus-button:hover {
-    background-color: #b05252; /* Change this color for hover effect */
-    transform: scale(1.1);
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  margin-bottom: 10px;
+  height: 50px;
+  width: 100%;
 }
+
+.bus-item-icon {
+  margin-left: 10px;
+}
+
+.bus-details {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.bus-details p {
+  margin: 0;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.bus-details p:first-of-type {
+  font-weight: bold;
+}
+
+.delete-bus-button {
+  background-color: #ce7171;
+  color: white;
+  width: 60px;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: transform 0.2s ease;
+  margin-top: 10px; /* Reduced margin to improve alignment */
+}
+
+.delete-bus-details {
+  background-color: #4db754;
+  color: white;
+  width: 60px;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 2px;
+  transition: transform 0.2s ease;
+  margin-top: 10px; /* Reduced margin to improve alignment */
+}
+
+.delete-bus-button:hover {
+  background-color: #b05252; /* Hover effect color */
+  transform: scale(1.1);
+}
+
 .delete-bus-details:hover {
+  background-color: #3a9e3a; /* Hover effect color */
+  transform: scale(1.1);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 1s linear infinite; /* Spin animation */
+  vertical-align: middle;
+}
+
+
+/*/////////////////////////Driver css/////////////////////*/
+/* Styles for driver-list-item */
+.driver-list-item {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  margin-bottom: 10px;
+  height: 50px;
+  width: 100%;
+}
+
+.driver-item-icon {
+  margin-left: 10px;
+}
+
+.driver-details {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.driver-details p {
+  margin: 0;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.driver-details p:first-of-type {
+  font-weight: bold;
+}
+
+/* Button styles for driver */
+.delete-driver-button {
+  background-color: #ce7171;
+  color: white;
+  width: 60px;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-right: 5px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+  margin-top: 20px;
+}
+
+.details-driver-button {
+  background-color: #4db754;
+  color: white;
+  width: 60px;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 2px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+  margin-top: 20px;
+}
+
+.delete-driver-button:hover {
+  background-color: #b05252; /* Change this color for hover effect */
+  transform: scale(1.1);
+}
+
+.details-driver-button:hover {
   background-color: #3a9e3a; /* Change this color for hover effect */
   transform: scale(1.1);
 }
 
+/* Spinner animation for driver */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .spinner {
-    animation: spin 1s linear infinite;  /* Apply the spin animation */
-    vertical-align: 'middle';
-  }
+.driver-spinner {
+  animation: spin 1s linear infinite;
+  vertical-align: 'middle';
+}

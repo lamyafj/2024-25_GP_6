@@ -35,7 +35,7 @@ export const SidebarData = [
   {
     title: "قائمة السائقين",
     icon: <PiSteeringWheel size={20} />, 
-    link: "/adminDashboard",
+    link: "/DriverList",
   },
 
 ];

@@ -18,6 +18,12 @@ export const BUSDETAIL ='busdetail';
 
 export const EDITBUS ='editbus';
 
+export const ADDDRIVER='adddriver';
+
+export const DRIVERDETAIL='driverdetail';
+
+export const DRIVERRECORD ='driverecord'
+
 
 ////////to copy
 //import { baseURL, REGISTER } from '../../Api/Api';

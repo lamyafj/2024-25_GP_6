@@ -8,6 +8,8 @@ import Addbus from './pages/busList/addbus.js';
 import Busdetail from './pages/busList/busdetail.js';
 import Loading from './pages/loading/loading.js';
 import BusItem from './components/Busltem/Busltem.js';
+import AddDriver from './pages/driver-list/addDriver.js'
+import DriverList from './pages/driver-list/driverList.js'
 
 function App() {
   return (
@@ -57,7 +59,25 @@ function App() {
             </RequireAuth>
           } 
         />
+        <Route 
+          path="/addDriver" 
+          element={
+            <RequireAuth>
+              <AddDriver />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/DriverList" 
+          element={
+            <RequireAuth>
+              <DriverList/>
+            </RequireAuth>
+          } 
+        />
+
       </Routes>
+      
     </div>
   );
 }

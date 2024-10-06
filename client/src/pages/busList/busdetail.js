@@ -10,6 +10,12 @@ import './busdetail.css';
 import { useNavigate } from 'react-router-dom'; 
 import { FiEdit3 } from "react-icons/fi";
 import { CgSpinnerAlt } from "react-icons/cg";
+import { GoHash } from "react-icons/go";
+import { IoPeopleOutline } from "react-icons/io5";
+import { MdBarcodeReader } from "react-icons/md";
+import { MdOutlineSmartphone } from "react-icons/md";
+import { TbUser } from "react-icons/tb";
+import { LiaCreditCard } from "react-icons/lia";
 
 export default function BusDetail() {
   const params = useParams();
@@ -125,21 +131,25 @@ export default function BusDetail() {
                   <ul className="bus-details-list">
                     <h2>معلومات الحافلة</h2>
                     <hr />
-                    <li>
-                      <strong>رقم الحافلة:</strong> 
+                    <li><GoHash style={{ marginBottom: '-3px', marginLeft :'5px' }}/>
+                      <strong style={{ marginLeft :'5px' }}>رقم الحافلة:</strong>            
+                        {record.id }       
+                    </li>
+                    <li><GoHash style={{ marginBottom: '-3px', marginLeft :'5px' }}/>
+                      <strong style={{ marginLeft :'5px' }}>اسم الحافلة:</strong> 
                       {isEditing ? (
                         <input
                           type="text"
-                          name="id"
-                          value={formValues.id || ''}
+                          name="name"
+                          value={formValues.name || ''}
                           onChange={handleChange}
                         />
                       ) : (
-                        record.id
+                        record.name
                       )}
                     </li>
-                    <li>
-                      <strong>سعة الحافلة:</strong> 
+                    <li><IoPeopleOutline style={{ marginBottom: '-3px', marginLeft :'5px' }} />
+                      <strong style={{ marginLeft :'5px' }}>سعة الحافلة:</strong> 
                       {isEditing ? (
                         <input
                           type="text"
@@ -151,8 +161,8 @@ export default function BusDetail() {
                         record.capacity
                       )}
                     </li>
-                    <li>
-                      <strong>رقم قارئ RFID الحافلة:</strong> 
+                    <li> <MdBarcodeReader style={{ marginBottom: '-3px', marginLeft :'5px' }} />
+                      <strong style={{ marginLeft :'5px' }}>رقم قارئ RFID الحافلة:</strong> 
                       {isEditing ? (
                         <input
                           type="text"
@@ -164,8 +174,8 @@ export default function BusDetail() {
                         record.rfid
                       )}
                     </li>
-                    <li>
-                      <strong>لوحة الحافلة:</strong> 
+                    <li> <LiaCreditCard  style={{ marginBottom: '-3px', marginLeft :'5px' }}/>
+                      <strong style={{ marginLeft :'5px' }}>لوحة الحافلة:</strong> 
                       {isEditing ? (
                         <input
                           type="text"
@@ -185,8 +195,10 @@ export default function BusDetail() {
                 <h2>معلومات سائق الحافلة</h2>
                 <hr/>
                 <ul className="bus-details-list">
-                  <li><strong>اسم سائق الحافلة: </strong> {record.driver}</li>
-                  <li><strong>رقم سائق الحافلة: </strong> {record.driver}</li>
+                  <li><TbUser style={{ marginBottom: '-3px', marginLeft :'5px' }}/>
+                    <strong style={{ marginLeft :'5px' }}>اسم سائق الحافلة: </strong> {record.driver}</li>
+                  <li><MdOutlineSmartphone style={{ marginBottom: '-3px', marginLeft :'5px' }} />
+                    <strong style={{ marginLeft :'5px' }}>رقم سائق الحافلة: </strong> {record.driver}</li>
                 </ul>
               </ItemContainer>
             </div>

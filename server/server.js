@@ -9,6 +9,8 @@ const UniversalCookie = require('universal-cookie');
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 const { FieldValue } = require('firebase-admin').firestore;
+const translate = require('@vitalets/google-translate-api');
+const fetch = require('node-fetch');
 //const GeoFire = require('geofire');
 
 
@@ -204,6 +206,7 @@ app.post('/api/addbus', async (req, res) => {
       school: schoolRef, 
       students:[],
       driver:'',
+      testid:'',
     };
     const newBusRef = await db.collection('Bus').add(newbus); 
     //add uid ti the bus attributes
@@ -215,7 +218,10 @@ app.post('/api/addbus', async (req, res) => {
       ...schoolData, // Spread the existing data
       buses: [...(schoolData.buses || []), newBusRef], // Add the new bus ID to the buses array
     };
-    await db.collection('School').doc(schooluid).set(newschoolDoc);    
+    const length = newschoolDoc.buses.length
+    const busId = length
+    await db.collection('School').doc(schooluid).set(newschoolDoc); 
+    await db.collection('Bus').doc(newBusUID).update({ id: busId });   
     console.log('added bus');
     res.status(200).send(true);
   } catch (error) {
@@ -266,27 +272,51 @@ app.post('/api/busrecord', async (req, res) => {
 //////////////////////////////////Delete a bus
 app.post('/api/deletebus', async (req, res) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
-  const {  uid } = req.body; // Assuming you are sending busuid in the request body
+  const { uid } = req.body; // Assuming you are sending busuid in the request body
   if (!uid) {
-    return res.status(400).send('Bus UID and School UID are required');
+    return res.status(400).send('Bus UID is required');
   }
 
   try {
+    // Verify the session token
     const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
     const schooluid = decodedClaims.uid;
+
     const schoolRef = db.collection('School').doc(schooluid);
     const busRef = db.collection('Bus').doc(uid);
+
+    // Delete the bus document
     await busRef.delete();
 
-    // Remove the bus UID from the buses array in the School collection
+    // Remove the bus reference from the school's buses array
     await schoolRef.update({
-      buses: FieldValue.arrayRemove(busRef)
+      buses: admin.firestore.FieldValue.arrayRemove(busRef)
     });
 
-    res.status(200).send({ message: 'Bus deleted successfully' });
+    // Fetch the updated list of bus references
+    const schoolDoc = await schoolRef.get();
+    const schoolData = schoolDoc.data();
+
+    if (schoolData.buses && schoolData.buses.length > 0) {
+      // Fetch all remaining bus documents
+      const busPromises = schoolData.buses.map((busRef) => busRef.get());
+      const busDocs = await Promise.all(busPromises);
+
+      // Update the testid of each bus based on their new position
+      const updatePromises = busDocs.map((busDoc, index) => {
+        if (busDoc.exists) {
+          return busDoc.ref.update({ id: index + 1 });
+        }
+        return null;
+      });
+
+      await Promise.all(updatePromises);
+    }
+
+    res.status(200).send({ message: 'Bus deleted and testid updated successfully' });
   } catch (error) {
-    console.error('Error deleting bus:', error);
-    res.status(500).send('Failed to delete bus');
+    console.error('Error deleting bus or updating testid:', error);
+    res.status(500).send('Failed to delete bus and update testid');
   }
 });
 
@@ -335,10 +365,10 @@ app.post('/api/editbus', async (req, res) => {
     const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
     const busRef = db.collection('Bus').doc(uid);
     await busRef.update({
-      id: newbus.id,       
+      name: newbus.name,       
       plate: newbus.plate, 
       capacity: newbus.capacity,
-      rfid:newbus.rfid,
+      //rfid:newbus.rfid,
     });
 
     res.status(200).send({ message: 'Bus updated successfully' });
@@ -347,6 +377,103 @@ app.post('/api/editbus', async (req, res) => {
     res.status(500).send('Failed to update bus');
   }
 });
+/////////////////////////////////add new driver
+app.post('/api/adddriver', async (req, res) => {
+  console.log('Server driver add  called');
+  
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  let {newdriver} =req.body;
+  if (!idToken ) {
+    return res.status(403).send('failed');
+  }
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const schooluid =decodedClaims.uid;
+    const schoolRef = db.collection('School').doc(schooluid);
+    newdriver = { 
+      ...newdriver,
+      school: schoolRef, 
+      bus:null,
+    };
+    const newDriverRef = await db.collection('Driver').add(newdriver); 
+    //add uid ti the bus attributes
+    const newDriverUID = newDriverRef.id;
+    await db.collection('Driver').doc(newDriverUID).update({ uid: newDriverUID });
+    const schoolDoc = await admin.firestore().collection('School').doc(schooluid).get();
+    const schoolData = schoolDoc.data();
+    const newschoolDoc = { 
+      ...schoolData, // Spread the existing data
+      drivers: [...(schoolData.drivers || []), newDriverRef], // Add the new bus ID to the buses array
+    };
+    // const length = newschoolDoc.buses.length
+    // const busId = length
+    await db.collection('School').doc(schooluid).set(newschoolDoc); 
+    // await db.collection('Bus').doc(newBusUID).update({ id: busId });   
+    console.log('added driver');
+    res.status(200).send(true);
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
+////////////////////////////////////bring all driver
+app.post('/api/driverecord', async (req, res) => {
+  console.log('Server drivers record checker called');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const userDoc = await admin.firestore().collection('School').doc(decodedClaims.uid).get();
+    
+    if (!userDoc.exists) {
+      return res.status(404).send('User not found');
+    }
+
+    const userData = userDoc.data();
+    const driverRefs = userData.drivers; // Get the bus references
+
+    // If there are no bus references, return an empty array
+    if (!driverRefs || driverRefs.length === 0) {
+      return res.status(200).send([]); // No buses found
+    }
+
+    // Fetch bus documents from the Bus collection using references
+    const driverPromises = driverRefs.map(driverRef => driverRef.get());
+    const driverDocs = await Promise.all(driverPromises);
+
+    const drivers = driverDocs.map(driverDoc => ({ id: driverDoc.id, ...driverDoc.data() }));
+
+    res.status(200).send(drivers); 
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
+
+
+
+
+
+// app.post('/api/translate-countries', async (req, res) => {
+//   console.log('h')
+//   try {
+//     // Fetch country names from the REST Countries API
+//     const response = await fetch('https://restcountries.com/v3.1/all?fields=name');
+//     const data = await response.json();
+
+//     // Extract country names
+//     const countryNames = data.map(country => country.name.common);
+//     res.json(countryNames);
+//   } catch (error) {
+//     console.error('Error fetching or translating countries:', error);
+//     res.status(500).json({ error: 'Error fetching or translating countries' });
+//   }
+// });
 
 
 

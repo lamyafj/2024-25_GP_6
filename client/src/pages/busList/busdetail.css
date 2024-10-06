@@ -42,6 +42,8 @@ body{
 
 .bus-details-list li {
     margin-bottom: 12px;
+    justify-content: baseline;
+    align-items: baseline;
     padding: 10px;
     border-bottom: 1px solid #ddd;
     font-size: 18px;
