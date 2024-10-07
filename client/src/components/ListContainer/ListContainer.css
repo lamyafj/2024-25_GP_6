@@ -119,9 +119,9 @@
 
 /* Button styles for driver */
 .delete-driver-button {
-  background-color: #ce7171;
+  background-color: #707070;
   color: white;
-  width: 60px;
+  width: 80px;
   border: none;
   padding: 5px;
   border-radius: 5px;
@@ -142,14 +142,35 @@
   border-radius: 5px;
   font-size: 12px;
   cursor: pointer;
-  margin-left: 2px;
+  margin-left: 5px;
   margin-bottom: 20px;
   transition: transform 0.2s ease;
   margin-top: 20px;
 }
 
+.hire-driver-button {
+  background-color: #365a39;
+  color: white;
+  width: 60px;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+  margin-top: 20px;
+}
+
+.hire-driver-button:hover {
+  background-color: #2a452a; /* Change this color for hover effect */
+  transform: scale(1.1);
+}
+
 .delete-driver-button:hover {
-  background-color: #b05252; /* Change this color for hover effect */
+  background-color: #414141; /* Change this color for hover effect */
   transform: scale(1.1);
 }
 

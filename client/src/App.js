@@ -10,6 +10,7 @@ import Loading from './pages/loading/loading.js';
 import BusItem from './components/Busltem/Busltem.js';
 import AddDriver from './pages/driver-list/addDriver.js'
 import DriverList from './pages/driver-list/driverList.js'
+import DriverDetail from './pages/driver-list/driverDetail.js'
 
 function App() {
   return (
@@ -72,6 +73,14 @@ function App() {
           element={
             <RequireAuth>
               <DriverList/>
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/driverDetail/:uid" 
+          element={
+            <RequireAuth>
+              <DriverDetail/>
             </RequireAuth>
           } 
         />

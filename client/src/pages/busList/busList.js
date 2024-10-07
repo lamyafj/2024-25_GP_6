@@ -88,7 +88,7 @@ export default function BusList() {
         <FormContainer>
         <div className='bus-list-items'>
           {/* Pass the bus record data as a prop to ListContainer */}
-          <ListContainer buses={record} fun={deletebus} fundetail={busdetail} loading={loading}/> 
+          <ListContainer buses={record}  listType={'buses'} busdelete={deletebus} busdetail={busdetail} loading={loading}/> 
 
         </div>  
         </FormContainer>

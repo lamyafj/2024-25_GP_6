@@ -1,0 +1,190 @@
+body{
+    background-color: #f7f7f7;
+  }
+    .bus-detail-page { 
+      display: flex;
+      flex-direction: column;
+      margin-right: 220px; /* Adjust based on Sidebar width */
+      padding: 20px;
+    }
+  
+    .bus-detail-main h2 {
+      color: #0eab19;
+    }
+    .bus-detail-main h1 {
+      font-size: 25px;
+      color: #0d3f11;
+    }
+    
+    .bus-detail-main {
+      display: flex;    
+      flex-direction: column;
+      margin: 0px;     
+    }
+  
+  
+    
+    
+    .detail-content{
+      display: flex; 
+      direction: rtl;   
+      flex-direction: column;
+      height: 100%;  
+      margin-bottom: 10px;   
+  
+    }
+  .bus-details-list {
+     direction: rtl; 
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+  }
+  
+  .bus-details-list li {
+      margin-bottom: 12px;
+      justify-content: baseline;
+      align-items: baseline;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      font-size: 18px;
+      color: #2b4e3b;
+  }
+  
+  .bus-details-list li:last-child {
+      border-bottom: none;
+  }
+  
+  .bus-details-list strong {
+      color: #384d44;
+      font-weight: bold;
+  }
+  
+  
+  .bus-one-detail-content{
+    display: flex;
+    flex-grow: 1;
+  }
+  
+  .bus-detail-buttons{
+    display: flex;
+  }
+  
+  .title-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .title-container h1 {
+    margin-left: 10px;
+    padding-right: 10px; /* Adjust spacing between text and line */
+  }
+  
+  .title-container .line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #838383; /* Adjust line color */
+  }
+  
+  
+  .edit-bus-button {
+    background-color: #29684b;
+    color: white;
+    width: 60px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-left: 30px;
+    transition: transform 0.2s ease;
+    
+  }
+  
+  .container-headline-detail{
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: space-between
+  }
+  
+  .edit-bus-button:hover {
+    background-color: #1d4b3a; /* Change this color to whatever you prefer for the hover effect */
+    transform: scale(1.1);
+    
+  }
+  
+  
+  
+  .no-button{
+    background: none;
+    color: #0d3f11;
+    border: none;
+    margin: 0;
+    width: 20px;
+    cursor: pointer;
+    margin-left: 20px;
+    margin-top: 10px;
+  }
+  
+  .hover-icon {
+    transition: transform 0.2s ease; /* Smooth transition */
+  }
+  
+  .hover-icon:hover {
+    transform: scale(1.1); /* Adjust the scale factor as needed */
+  }
+  
+  .bus-details-container input{
+    width: 100px;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+     margin-bottom: 10px;
+     margin-right: 10px;
+  }
+  
+  
+  .save-bus-button{
+    background-color: #4db754;
+    color: rgb(255, 255, 255);
+    width: 60px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-left: 10px;
+    transition: transform 0.2s ease;
+   
+  }
+  
+  .cancel-bus-button{
+    background-color: #bb7569;
+    color: rgb(255, 255, 255);
+    width: 60px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-left: 30px;
+    transition: transform 0.2s ease;
+  
+  }
+  
+  .cancel-bus-button:hover{
+    background-color: #b05252; /* Change this color for hover effect */
+    transform: scale(1.1);
+  }
+  
+  .save-bus-button:hover{
+    background-color: #3a9e3a;; /* Change this color for hover effect */
+    transform: scale(1.1);
+  }

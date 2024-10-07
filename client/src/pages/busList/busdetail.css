@@ -40,6 +40,10 @@ body{
     margin: 0;
 }
 
+.half{
+  flex: 1; /* This makes each div take up equal space */
+}
+
 .bus-details-list li {
     margin-bottom: 12px;
     justify-content: baseline;

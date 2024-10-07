@@ -395,6 +395,7 @@ app.post('/api/adddriver', async (req, res) => {
       ...newdriver,
       school: schoolRef, 
       bus:null,
+      statue:'active'
     };
     const newDriverRef = await db.collection('Driver').add(newdriver); 
     //add uid ti the bus attributes
@@ -417,6 +418,8 @@ app.post('/api/adddriver', async (req, res) => {
     res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
   }
 });
+
+
 ////////////////////////////////////bring all driver
 app.post('/api/driverecord', async (req, res) => {
   console.log('Server drivers record checker called');
@@ -449,6 +452,37 @@ app.post('/api/driverecord', async (req, res) => {
     const drivers = driverDocs.map(driverDoc => ({ id: driverDoc.id, ...driverDoc.data() }));
 
     res.status(200).send(drivers); 
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
+
+////////////////////////////////////////bring one driver detail
+app.post('/api/driverdetail', async (req, res) => {
+  console.log('Server driver detail called');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  const { uid } = req.body; // Expecting uid to be in the request body
+
+  if (!idToken ) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+  console.log(uid)
+  try {
+      //لا ينمسح
+   // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const driversRef = admin.firestore().collection('Driver'); 
+    const driverSnapshot = await driversRef.where('uid', '==', uid).get();
+
+    if (driverSnapshot.empty) {
+      return res.status(404).send('driver not found');
+    }
+  
+    const driverData = driverSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }))[0];
+    res.status(200).send(driverData); 
   } catch (error) {
     console.error('Token verification or data fetching error:', error);
     res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');

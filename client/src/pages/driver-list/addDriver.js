@@ -67,6 +67,7 @@ const AddDriver = () => {
         driverFamilyName: driverFamilyName,
       };
       await AddDriverToDatabase(newDriver);
+      navigate('/driverList');
     } catch (err) {
       setError('Failed to add bus');
     } finally {

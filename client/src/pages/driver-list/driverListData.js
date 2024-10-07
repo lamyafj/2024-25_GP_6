@@ -91,7 +91,7 @@ export const BringDriverRecord = async () => {
   };
 
 
-  export const BringBusDetail = async (uid) => {
+  export const BringDriverDetail = async (uid) => {
     const idToken = Cookies.get('session'); 
     if (idToken) {
       try {
@@ -137,7 +137,7 @@ export const BringDriverRecord = async () => {
     }
   };
 
-  export const EditbusDetail = async (uid, newbus) => {
+  export const EditDriverDetail = async (uid, newbus) => {
     const idToken = Cookies.get('session'); 
     if (idToken) {
       try {

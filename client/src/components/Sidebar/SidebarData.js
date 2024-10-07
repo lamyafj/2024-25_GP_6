@@ -17,11 +17,11 @@ export const SidebarData = [
     icon: <RiDashboardFill size={20} />, 
     link: "/adminDashboard",
   },
-  {
-    title: "مسار السير",
-    icon:<CiRoute size={20}  />, 
-    link: "/adminDashboard",
-  },
+  // {
+  //   title: "مسار السير",
+  //   icon:<CiRoute size={20}  />, 
+  //   link: "/adminDashboard",
+  // },
   {
     title: "قائمة الطلاب",
     icon:<PiStudent size={20} />, 
