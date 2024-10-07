@@ -188,3 +188,97 @@ body{
     background-color: #3a9e3a;; /* Change this color for hover effect */
     transform: scale(1.1);
   }
+
+
+  .container-box-detail{
+    display: flex;
+    justify-content: space-between;
+  }
+
+
+  .choose-bus-button{
+    background-color:#60aa6b;
+    color: rgb(255, 255, 255);
+    width: 60px;
+    height: 30px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: transform 0.2s ease;
+  
+  }
+
+  .choose-bus-button:hover{
+    background-color: #285c28;; /* Change this color for hover effect */
+    transform: scale(1.1);
+  }
+
+  .bus-dropdown{
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  .bus-dropdown li:hover{
+    list-style-type: none;
+    background-color:#ddeadf;
+  }
+
+  .unassign-bus-button{
+    background-color:#c75555;
+    color: rgb(255, 255, 255);
+    width: 60px;
+    height: 30px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: transform 0.2s ease;
+
+  }
+
+  .delete-driver-button {
+    background-color: #707070;
+    color: white;
+    width: 80px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-bottom: 20px;
+    transition: transform 0.2s ease;
+    margin-top: 20px;
+  }
+
+  .delete-driver-button:hover {
+    background-color: #414141; /* Change this color for hover effect */
+    transform: scale(1.1);
+  }
+
+.activate-driver-button{
+  background-color: #30a528;
+  color: white;
+  width: 80px;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-right: 5px;
+  margin-left: 5px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+  margin-top: 20px;
+}
+
+.activate-driver-button:hover {
+  background-color: #1c3015; /* Change this color for hover effect */
+  transform: scale(1.1);
+}

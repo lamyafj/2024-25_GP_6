@@ -22,7 +22,17 @@ export const ADDDRIVER='adddriver';
 
 export const DRIVERDETAIL='driverdetail';
 
+export const ASSIGNBUSFORDRIVER='assignbusfordriver'
+
+export const UNASSIGNBUSFORDRIVER='UNassignbusfordriver'
+
 export const DRIVERRECORD ='driverecord'
+
+export const EDITDRIVER='editdriver'
+
+export const INACTIVATEDRIVER='inactivatedriver'
+
+export const ACTIVATEDRIVER='activatedriver'
 
 
 ////////to copy

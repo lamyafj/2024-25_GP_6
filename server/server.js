@@ -205,7 +205,7 @@ app.post('/api/addbus', async (req, res) => {
       ...newbus,
       school: schoolRef, 
       students:[],
-      driver:'',
+      driver:null,
       testid:'',
     };
     const newBusRef = await db.collection('Bus').add(newbus); 
@@ -489,7 +489,179 @@ app.post('/api/driverdetail', async (req, res) => {
   }
 });
 
+/////////////////////////////////assign a bus for driver
+app.post('/api/assignbusfordriver', async (req, res) => {
+  console.log('Server tessssssssssst assign bus for driver called');
+  
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; 
+  const { driveruid, busuid } = req.body; // Destructure driveruid and busuid
 
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+
+  try {
+    // Uncomment and implement if token verification is needed
+    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+
+    const busRef = admin.firestore().collection('Bus').doc(busuid);
+    const driverRef = admin.firestore().collection('Driver').doc(driveruid);
+
+    // Fetch documents first
+    const busDoc = await busRef.get();
+    const driverDoc = await driverRef.get();
+
+    // Ensure both bus and driver documents exist before updating
+    if (!busDoc.exists || !driverDoc.exists) {
+      return res.status(404).send('Bus or Driver not found');
+    }
+
+    // Update the driver and bus references in Firestore
+    await driverRef.update({ bus: busRef });
+    await busRef.update({ driver: driverRef });
+
+    res.status(200).send('Bus assigned successfully');
+  } catch (error) {
+    console.error('Error during bus assignment:', error);
+    res.status(500).send('Server Error: Bus assignment failed.');
+  }
+});
+/////////////////////////////////////////unAssign bus for driver
+app.post('/api/UNassignbusfordriver', async (req, res) => {
+  console.log('Server unassign bus for driver called');
+  
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; 
+  const { driveruid, busuid } = req.body; // Destructure driveruid and busuid
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+
+  try {
+    // Uncomment and implement if token verification is needed
+    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+      
+    const driverRef = admin.firestore().collection('Driver').doc(driveruid);
+    const driverDoc = await driverRef.get();
+
+    // Check if driver document exists
+    if (!driverDoc.exists) {
+      return res.status(404).send('Driver not found');
+    }
+
+    const busRef = admin.firestore().collection('Bus').doc(busuid);
+    await busRef.update({ driver: null });
+
+    await driverRef.update({ bus: null });
+
+    res.status(200).send('Bus unassigned successfully');
+  } catch (error) {
+    console.error('Error during bus unassignment:', error);
+    res.status(500).send('Server Error: Bus unassignment failed.');
+  }
+});
+/////////////////////////////edit driver
+app.post('/api/editdriver', async (req, res) => {
+  console.log('im edit')
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
+  const { uid, formValues } = req.body;
+
+  if (!uid || !formValues) {
+    return res.status(400).send('Bus UID and new data are required');
+  }
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const busRef = db.collection('Driver').doc(uid);
+    await busRef.update({
+      driverFamilyName: formValues.driverFamilyName,       
+      driverFirstName: formValues.driverFirstName, 
+      driverId: formValues.driverId,
+      driverPhone:formValues.driverPhone,
+  
+    });
+
+    res.status(200).send({ message: 'Bus updated successfully' });
+  } catch (error) {
+    console.error('Error updating bus:', error);
+    res.status(500).send('Failed to update bus');
+  }
+});
+////////////////////////////////inactivate a driver
+app.post('/api/inactivatedriver', async (req, res) => {
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
+  const { uid } = req.body;
+
+  if (!uid) {
+    return res.status(400).send('Driver UID is required');
+  }
+
+  try {
+    // Verify the token if necessary (uncomment if needed)
+    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    
+    // Reference to the driver document
+    const driverRef = db.collection('Driver').doc(uid);
+    const driverDoc = await driverRef.get();
+
+    // Check if the driver document exists
+    if (!driverDoc.exists) {
+      return res.status(404).send('Driver not found');
+    }
+
+    // Get the bus reference from the driver document
+    const busRef = driverDoc.data().bus;
+
+    // Update the driver's status and clear the bus reference
+    await driverRef.update({
+      statue: 'inactive', // Make sure this is the correct field name
+      bus: null
+    });
+
+    // If there's a bus reference, update the bus document to set driver to null
+    if (busRef) { // Check if busRef is truthy (not null or undefined)
+      const busDoc = await db.collection('Bus').doc(busRef.id).get(); // Fetch the bus document
+      
+      if (busDoc.exists) { // Check if the bus document exists
+        await busRef.update({ // Correctly reference the bus document
+          driver: null
+        });
+      }
+    }
+
+    console.log('Driver inactivated and bus updated successfully');
+    res.status(200).send({ message: 'Driver inactivated and bus updated successfully' });
+  } catch (error) {
+    console.error('Error updating driver and bus:', error);
+    res.status(500).send('Failed to update driver and bus');
+  }
+});
+
+
+////////////////////////activate a driver
+app.post('/api/activatedriver', async (req, res) => {
+  console.log('im activate server')
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
+  const { uid} = req.body;
+
+  if (!uid ) {
+    return res.status(400).send(' UID  are required');
+  }
+
+  try {
+    //const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const busRef = db.collection('Driver').doc(uid);
+    await busRef.update({
+      statue:'active',
+      bus:null
+    });
+
+    res.status(200).send({ message: 'Bus updated successfully' });
+  } catch (error) {
+    console.error('Error updating bus:', error);
+    res.status(500).send('Failed to update bus');
+  }
+});
 
 
 

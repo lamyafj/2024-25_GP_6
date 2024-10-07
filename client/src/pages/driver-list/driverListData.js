@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 //import React, { useEffect, useState } from 'react';
-import { baseURL, ADDDRIVER,DRIVERDETAIL,DELETEBUS,DRIVERRECORD,EDITBUS} from '../../Api/Api';
+import { baseURL, ADDDRIVER,DRIVERDETAIL,DELETEBUS,DRIVERRECORD,EDITDRIVER,ASSIGNBUSFORDRIVER,UNASSIGNBUSFORDRIVER,INACTIVATEDRIVER,ACTIVATEDRIVER} from '../../Api/Api';
 
 
 
@@ -61,7 +61,6 @@ export const BringDriverRecord = async () => {
   };
 
   export const deleteBusDatabase = async (uid) => {
-    console.log('i delete', uid)
     const idToken = Cookies.get('session'); 
     if (!uid) {
       console.log('No bus uid is provided');
@@ -114,11 +113,78 @@ export const BringDriverRecord = async () => {
     }
   };
 
-  export const updateBusDetails = async (uid) => {
+  export const assignDriverBus = async (driveruid, busuid) => {
     const idToken = Cookies.get('session'); 
     if (idToken) {
       try {
-        const response = await axios.post(`${baseURL}/${DRIVERDETAIL}`, {uid}, {
+        const response = await axios.post(`${baseURL}/${ASSIGNBUSFORDRIVER}`, { driveruid, busuid }, {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+          withCredentials: true,
+        });
+  
+        return response.data; // Return the response data
+      } catch (error) {
+        console.error('Error assigning bus:', error.response?.data || error);
+        return { success: false, error: error.response?.data || 'Error assigning bus' };
+      }
+    } else {
+      console.log('User not authenticated');
+      return { success: false, error: 'User not authenticated' };
+    }
+  };
+
+  export const UNassignDriverBus = async (driveruid,busuid ) => {
+    const idToken = Cookies.get('session'); 
+    if (idToken) {
+      try {
+        const response = await axios.post(`${baseURL}/${UNASSIGNBUSFORDRIVER}`, { driveruid,busuid }, {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+          withCredentials: true,
+        });
+  
+        return response.data; // Return the response data
+      } catch (error) {
+        console.error('Error assigning bus:', error.response?.data || error);
+        return { success: false, error: error.response?.data || 'Error assigning bus' };
+      }
+    } else {
+      console.log('User not authenticated');
+      return { success: false, error: 'User not authenticated' };
+    }
+  };
+  
+  export const EditDriverDetail = async (uid, formValues) => {
+    const idToken = Cookies.get('session'); 
+    if (idToken) {
+      try {
+        const response = await axios.post(`${baseURL}/${EDITDRIVER}`, { uid, formValues }, {
+          headers: {
+            Authorization: `Bearer ${idToken}`, 
+          },
+          withCredentials: true 
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Error accessing protected route:', error.response?.data || error);
+        return null; 
+      }
+    } else {
+      console.log('User not authenticated');
+      return null; 
+    }
+  };
+  
+
+  
+  export const inActivateDriver = async (uid) => {
+    const idToken = Cookies.get('session'); 
+    if (idToken) {
+      try {
+        const response = await axios.post(`${baseURL}/${INACTIVATEDRIVER}`, {uid}, {
           headers: {
             Authorization: `Bearer ${idToken}`, 
           },
@@ -137,18 +203,20 @@ export const BringDriverRecord = async () => {
     }
   };
 
-  export const EditDriverDetail = async (uid, newbus) => {
+  export const activateDriver = async (uid) => {
     const idToken = Cookies.get('session'); 
     if (idToken) {
       try {
-        const response = await axios.post(`${baseURL}/${EDITBUS}`, { uid, newbus }, {
+        const response = await axios.post(`${baseURL}/${ACTIVATEDRIVER}`, {uid}, {
           headers: {
             Authorization: `Bearer ${idToken}`, 
           },
           withCredentials: true 
         });
-        return response.data;
+        const record = response.data;
+        return record;
       } catch (error) {
+        
         console.error('Error accessing protected route:', error.response?.data || error);
         return null; 
       }
@@ -157,4 +225,3 @@ export const BringDriverRecord = async () => {
       return null; 
     }
   };
-  

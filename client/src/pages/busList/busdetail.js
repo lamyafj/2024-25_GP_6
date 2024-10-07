@@ -196,9 +196,9 @@ export default function BusDetail() {
                 <hr/>
                 <ul className="bus-details-list">
                   <li><TbUser style={{ marginBottom: '-3px', marginLeft :'5px' }}/>
-                    <strong style={{ marginLeft :'5px' }}>اسم سائق الحافلة: </strong> {record.driver}</li>
+                    <strong style={{ marginLeft :'5px' }}>اسم سائق الحافلة: </strong> {record.id}</li>
                   <li><MdOutlineSmartphone style={{ marginBottom: '-3px', marginLeft :'5px' }} />
-                    <strong style={{ marginLeft :'5px' }}>رقم سائق الحافلة: </strong> {record.driver}</li>
+                    <strong style={{ marginLeft :'5px' }}>رقم سائق الحافلة: </strong> {record.id}</li>
                 </ul>
               </ItemContainer>
             </div>

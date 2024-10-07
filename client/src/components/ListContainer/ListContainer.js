@@ -11,58 +11,53 @@ const ListContainer = ({ listType, buses, drivers,driverdelete,driverdetail, bus
         drivers.length === 0 ? (
           <p>لا يوجد سائقين</p>
         ) : (
-          <>
-          <div className="title-container">
-        <h3>سائقين من دون حافلة</h3>
-        <div className="line"></div>
+<>
+  {/* Drivers without a bus */}
+  <div className="title-container">
+    <h3>سائقين من دون حافلة</h3>
+    <div className="line"></div>
+  </div>
+  {drivers.filter(driver => !driver.bus && driver.statue === 'active').map((driver, index) => (
+    <div key={index} className="driver-list-item">
+      <div className="driver-details">
+        <FaUser size={24} style={{ direction: "rtl", marginLeft: '10px', color: 'grey' }} />
+        <p>اسم السائق: {`${driver.driverFirstName} ${driver.driverFamilyName}`}</p>
       </div>
-     {drivers.filter(driver => !driver.bus).map((driver, index) => (
-        <div key={index} className="driver-list-item">
-          <div className="driver-details">
-            <FaUser size={24} style={{ direction: "rtl", marginLeft: '10px', color: 'grey' }} />
-            <p>اسم السائق: {`${driver.driverFirstName} ${driver.driverFamilyName}`}</p>
-          </div>
-          <button className="details-driver-button" onClick={() => driverdetail(driver.uid)}>تفاصيل</button>
-          <button className="hire-driver-button" onClick={() => driverdetail(driver.uid)}>تعيين</button>
-          <button 
-            value={driver.id} 
-            className="delete-driver-button" 
-            onClick={() => driverdelete(driver.uid)}
-          > 
-            {loading === driver.uid ? <CgSpinnerAlt className='spinner' /> : 'الغاء التسجيل'}
-          </button>
-        </div>
-      ))}
+      <button className="details-driver-button" onClick={() => driverdetail(driver.uid)}>تفاصيل</button>
+    </div>
+  ))}
 
-      <div className="title-container">
-        <h3>سائقين بحافلة</h3>
-        <div className="line"></div>
+  {/* Drivers with a bus */}
+  <div className="title-container">
+    <h3>سائقين بحافلة</h3>
+    <div className="line"></div>
+  </div>
+  {drivers.filter(driver => driver.bus && driver.statue === 'active').map((driver, index) => (
+    <div key={index} className="driver-list-item">
+      <div className="driver-details">
+        <FaUser size={24} style={{ direction: "rtl", marginLeft: '10px', color: 'grey' }} />
+        <p>اسم السائق: {`${driver.driverFirstName} ${driver.driverFamilyName}`}</p>
       </div>
+      <button className="details-driver-button" onClick={() => driverdetail(driver.uid)}>تفاصيل</button>
+    </div>
+  ))}
 
-      {/* Drivers with a bus */}
-      {drivers.filter(driver => driver.bus).map((driver, index) => (
-        <div key={index} className="driver-list-item">
-          <div className="driver-details">
-            <FaUser size={24} style={{ direction: "rtl", marginLeft: '10px', color: 'grey' }} />
-            <p>اسم السائق: {`${driver.driverFirstName} ${driver.driverFamilyName}`}</p>
-          </div>
-          <button className="details-driver-button" onClick={() => driverdetail(driver.uid)}>تفاصيل</button>
-          <button 
-            value={driver.id} 
-            className="delete-driver-button" 
-            onClick={() => driverdelete(driver.uid)}
-          > 
-            {loading === driver.uid ? <CgSpinnerAlt className='spinner' /> : 'حذف'}
-          </button>
-          
-        </div>
-      ))} 
-
-        <div className="title-container">
-        <h3>سائقين غير منشطين</h3>
-        <div className="line"></div>
+  {/* Inactive drivers */}
+  <div className="title-container">
+    <h3>سائقين غير منشطين</h3>
+    <div className="line"></div>
+  </div>
+  {drivers.filter(driver => driver.statue === 'inactive').map((driver, index) => (
+    <div key={index} className="driver-list-item"  style={{backgroundColor:'#dcdcdc'}}>
+      <div className="driver-details">
+        <FaUser size={24} style={{ direction: "rtl", marginLeft: '10px', color: 'grey' }} />
+        <p>اسم السائق: {`${driver.driverFirstName} ${driver.driverFamilyName}`}</p>
       </div>
-          </>
+      <button className="details-driver-button" style={{backgroundColor:'#8f8f8f'}} onClick={() => driverdetail(driver.uid)}>تفاصيل</button>
+    </div>
+  ))}
+</>
+
         )
       ) : listType === 'buses' && buses ? (
         buses.length === 0 ? (
@@ -79,6 +74,7 @@ const ListContainer = ({ listType, buses, drivers,driverdelete,driverdetail, bus
                   <FaBus size={24} style={{ direction: "rtl", marginLeft: '10px', color: 'grey' }} />
                   <p>#رقم الباص {bus.id}</p>
                 </div>
+
                 <button className="details-bus-button" onClick={() => busdetail(bus.uid)}>تفاصيل</button>
                 <button 
                   className="delete-bus-button" 

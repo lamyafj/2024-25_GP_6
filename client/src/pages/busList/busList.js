@@ -67,9 +67,9 @@ export default function BusList() {
   };
   
 
-  const busdetail = async (uid) => {
+  const busDetail = async (uid) => {
     try {
-
+      console.log(uid)
       navigate(`/busdetail/${uid}`);
   
     } catch (error) {
@@ -88,7 +88,7 @@ export default function BusList() {
         <FormContainer>
         <div className='bus-list-items'>
           {/* Pass the bus record data as a prop to ListContainer */}
-          <ListContainer buses={record}  listType={'buses'} busdelete={deletebus} busdetail={busdetail} loading={loading}/> 
+          <ListContainer buses={record}  listType={'buses'} busdelete={deletebus} busdetail={busDetail} loading={loading}/> 
 
         </div>  
         </FormContainer>
