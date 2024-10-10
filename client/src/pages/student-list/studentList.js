@@ -1,15 +1,15 @@
 import { Sidebar } from '../../components/Sidebar/Sidebar.js';
-import {  BringDriverRecord,deleteBusDatabase } from './driverListData.js';
+import {  BringStudentRecord,deleteBusDatabase } from './studentListData.js';
 import React, { useEffect, useState } from 'react';
 import Loading from '../loading/loading.js';
 import Header from '../../components/header/header.js';
 import FormContainer from '../../components/FormContainer/FormContainer.js';
-import './driverList.css';
+import './studentList.css';
 import ListContainer  from '../../components/ListContainer/ListContainer.js';
 import { useNavigate } from 'react-router-dom'; 
 import { FaPlus } from "react-icons/fa6";
 
-export default function DriverList() {
+export default function StudentList() {
   const [record, setRecord] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageloading, setPageLoading] = useState(true);
@@ -18,7 +18,7 @@ export default function DriverList() {
   useEffect(() => {
     const fetchRecord = async () => {
       try {
-        const data = await BringDriverRecord();
+        const data = await BringStudentRecord();
         setRecord(data); // Set the fetched data in state
       } catch (err) {
         setError('Failed to fetch record'); // Handle errors
@@ -31,8 +31,8 @@ export default function DriverList() {
   }, []); // Empty dependency array means this runs once on mount
 
 
-  const addDriver = () => {
-    navigate('/adddriver');
+  const addStudent = () => {
+    navigate('/addStudent');
   };
 
 
@@ -51,7 +51,7 @@ export default function DriverList() {
       // Log for debugging
       console.log(`Bus with UID ${uid} deleted`);
   
-      const updatedRecord = await BringDriverRecord();  // Fetch the updated bus list
+      const updatedRecord = await BringStudentRecord();  // Fetch the updated bus list
       console.log('Updated buses after deletion:', updatedRecord);
   
       if (updatedRecord) {
@@ -67,10 +67,10 @@ export default function DriverList() {
   };
   
 
-  const driverdetail= async (uid) => {
+  const studentdetail= async (uid) => {
     try {
 
-      navigate(`/driverdetail/${uid}`);
+      navigate(`/studentDetail/${uid}`);
   
     } catch (error) {
 
@@ -84,12 +84,12 @@ export default function DriverList() {
       <div className="busmain">
         <Header />
         <div className='bus-list-content'>
-        <button className="goadd-bus-button " onClick={addDriver}> <FaPlus style={{ marginLeft: '5px', verticalAlign: 'middle' }} />  إضافة سائق </button>
+        <button className="goadd-bus-button " onClick={addStudent}> <FaPlus style={{ marginLeft: '5px', verticalAlign: 'middle' }} />  إضافة طالب </button>
         <FormContainer>
         <div className='bus-list-items'>
           {/* Pass the bus record data as a prop to ListContainer */}
           
-          <ListContainer drivers={record} listType={'drivers'} driverdelete={deletebus} driverdetail={driverdetail} loading={loading}/> 
+          <ListContainer students={record} listType={'students'} driverdelete={deletebus} studentdetail={studentdetail} loading={loading}/> 
 
         </div>  
         </FormContainer>

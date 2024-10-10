@@ -17,6 +17,7 @@ import { TbUser } from "react-icons/tb";
 import { FaRegIdCard } from "react-icons/fa";
 import { FaBus } from "react-icons/fa";
 import { IoTrashBinOutline } from "react-icons/io5";
+import ConfirmationModal from '../../components/Confirmation/confirm.js';
 
 export default function DriverDetail() {
   const params = useParams();
@@ -34,7 +35,8 @@ export default function DriverDetail() {
   const [driverBus, setDriverBus] = useState(null);
   const [isBusLoading, setIsBusLoading] = useState(false);
   const [isDriverActiveLoading, setIsDriverActiveLoading] = useState(false);
-  console.log(formValues)
+  const [isModalOpen, setModalOpen] = useState(false);
+ 
 
   // Fetch driver record and bus list
   useEffect(() => {
@@ -88,18 +90,63 @@ export default function DriverDetail() {
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
+    setIsSaving(true); // Start the saving process
+  
+    // Validation function
+    const validateForm = () => {
+      const { driverFirstName, driverFamilyName, driverId, driverPhone } = formValues;
+  
+      // Check if any field is empty
+      if (!driverFirstName.trim() || !driverFamilyName.trim() || !driverId.trim() || !driverPhone.trim()) {
+        setError('جميع الحقول مطلوبة');
+        return false;
+      }
+  
+      // Validate driver's first name (at least 3 letters)
+      if (!/^[A-Za-zأ-ي]{3,}$/.test(driverFirstName)) {
+        setError('الاسم الأول يجب أن يحتوي على 3 حروف على الأقل');
+        return false;
+      }
+  
+      // Validate driver's family name (at least 3 letters)
+      if (!/^[A-Za-zأ-ي]{3,}$/.test(driverFamilyName)) {
+        setError('اسم العائلة يجب أن يحتوي على 3 حروف على الأقل');
+        return false;
+      }
+  
+      // Validate driver ID (up to 10 digits)
+      if (!/^\d{1,10}$/.test(driverId)) {
+        setError('رقم الهوية  يجب أن يكون بين 1 و 10 أرقام');
+        return false;
+      }
+  
+      // Validate phone number (must start with 5 and be 9 digits)
+      if (!/^5[0-9]{8}$/.test(driverPhone)) {
+        setError('رقم الجوال يجب أن يبدأ بـ 5 ويتكون من 9 أرقام');
+        return false;
+      }
+  
+      setError(null); // Clear any existing errors
+      return true;
+    };
+  
+    if (!validateForm()) {
+      setIsSaving(false); // End the saving process if validation fails
+      return; // Exit if validation fails
+    }
+  
     try {
       await EditDriverDetail(uid, formValues);
       setRecord(formValues);
       setIsEditing(false);
     } catch (err) {
       console.error('Failed to save changes', err);
+      setError('فشل في حفظ التغييرات. يرجى المحاولة مرة أخرى.');
     } finally {
-      setIsSaving(false);
+      setIsSaving(false); // End the saving process
     }
   };
-
+  
   const handleCancel = () => {
     setFormValues(record);
     setIsEditing(false);
@@ -169,11 +216,13 @@ export default function DriverDetail() {
       console.error('Error unassigning bus:', error);
     }finally{
         setIsBusLoading(false)
+        setModalOpen(false)
     }
   };
 
   const activatedriver = async () => {
     setIsDriverActiveLoading(true)
+    setModalOpen(false)
     try {
       await activateDriver(uid); // Unassign bus from driver
       setSelectedBus(null); // Clear selected bus
@@ -191,15 +240,13 @@ export default function DriverDetail() {
       console.error('Error unassigning bus:', error);
     }finally{
         setIsDriverActiveLoading(false)
+        setModalOpen(false)
     }
   };
   if (loading) {
     return <Loading />;
   }
 
-  if (error) {
-    return <div>{error}</div>;
-  }
 
   return (
     <div className='bus-detail-page'>
@@ -210,28 +257,49 @@ export default function DriverDetail() {
           {!isEditing && (
             <button className='edit-bus-button' onClick={() => navigate('/driverList')}>عودة</button>
           )}
-            {!isEditing && record.statue === 'active' && (
-                <button 
-                    value={uid} 
-                    className="delete-driver-button" 
-                    onClick={inactivateDriver} // Call the function directly
-                    disabled={isDriverActiveLoading} // Optionally disable the button while loading
-                >
-                    {isDriverActiveLoading ? <CgSpinnerAlt className='spinner' /> : 'الغاء التسجيل'}
-                </button>
-            )}
+  <>
+      {!isEditing && record.status === 'active' && (
+        <button 
+          value={record.uid} 
+          className="delete-driver-button" 
+          onClick={() => setModalOpen(true)} // Open the modal instead of inactivating directly
+          disabled={isDriverActiveLoading}
+          style={{ width: '80px' }}
+        >
+          {isDriverActiveLoading ? <CgSpinnerAlt className='spinner' /> : 'الغاء التسجيل'}
+        </button>
+      )}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={() => inactivateDriver(record.uid)}
+      >
+        هل أنت متأكد من أنك تريد إلغاء تسجيل السائق؟
+      </ConfirmationModal>
+    </>
 
-            {!isEditing && record.statue === 'inactive' && (
-                <button 
-                    value={uid} 
-                    className="activate-driver-button" 
-                    onClick={activatedriver} // Call the function directly
-                    disabled={isDriverActiveLoading} // Optionally disable the button while loading
-                >
-                    {isDriverActiveLoading ? <CgSpinnerAlt className='spinner' /> : 'تنشيط'}
-                </button>
-            )}
 
+    <>
+  {!isEditing && record.status === 'inactive' && (
+    <button 
+      className="activate-driver-button" 
+      onClick={() => setModalOpen(true)} // Prepare to open the modal
+      disabled={isDriverActiveLoading}
+    >
+      {isDriverActiveLoading ? <CgSpinnerAlt className='spinner' /> : 'تنشيط'}
+    </button>
+  )}
+  <ConfirmationModal
+    isOpen={isModalOpen}
+    onClose={() => setModalOpen(false)}
+    onConfirm={() => {
+      setModalOpen(false); // Ensure modal is closed when confirming
+      activatedriver();
+    }}
+  >
+    هل أنت متأكد من أنك تريد تنشيط السائق؟
+  </ConfirmationModal>
+</>
 
           {isEditing && (
             <>
@@ -248,7 +316,7 @@ export default function DriverDetail() {
             </>
           )}
         </div>
-
+        {error && <p className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
         <FormContainer>
                     <div className='detail-content'>
                         <div className="title-container">
@@ -323,7 +391,7 @@ export default function DriverDetail() {
                         onChange={handleChange}
                         />
                     ) : (
-                        record.driverPhone
+                        "0"+record.driverPhone
                     )}
                     </li>
                 </ul>
@@ -369,7 +437,7 @@ export default function DriverDetail() {
                                 <CgSpinnerAlt className='spinner' />
                             </button>
                         ) : (
-                            record.statue === 'active' && (
+                            record.status === 'active' && (
                                 <button className='choose-bus-button' onClick={choosebus}>
                                     {dropdownVisible ? 'إلغاء' : 'تعيين'}
                                 </button>
@@ -389,12 +457,15 @@ export default function DriverDetail() {
                                     </li>
                                 ))}
                             </ul>
+            
+                          )}{dropdownVisible && buses.length === 0 &&(
+                            <li>لا يوجد حافلات</li>
                           )}
-                           {!dropdownVisible && !record.bus && !isBusLoading && record.statue === 'active' && (
+                           {!dropdownVisible && !record.bus && !isBusLoading && record.status === 'active' && (
                                 <li>السائق غير معين لحافلة</li>
                             )}
 
-                            {!dropdownVisible && !record.bus && !isBusLoading && record.statue !== 'active' && (
+                            {!dropdownVisible && !record.bus && !isBusLoading && record.status !== 'active' && (
                                 <li>السائق غير نشط</li>
                             )}
                         </>

@@ -77,6 +77,11 @@ const AddDriver = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent the default form submission
+
+    if (!driverFirstName.trim() || !driverFamilyName.trim() || !driverId.trim() || !driverPhone.trim()) {
+      setError('جميع الحقول مطلوبة');
+      return false;
+    }
   
     // Check if the driver's first name is provided
     if (!driverFirstName.trim()) {
@@ -86,7 +91,7 @@ const AddDriver = () => {
   
     // Validate the phone number
     if (!validatePhoneNumber(driverPhone)) {
-      setError('رقم الجوال يجب أن يتكون من 9 أرقام صحيحة.');
+      setError('رقم الجوال يجب أن يبدأ بـ 5 ويتكون من 9 أرقام');
       return; // Exit early if the phone number is invalid
     }
   
@@ -140,7 +145,7 @@ const AddDriver = () => {
                   value={driverFirstName}
                   onChange={(e) => setDriverFirstName(e.target.value)}
                   placeholder="اسم السائق الاول"
-                  required
+              
                 />
                 <label htmlFor="driverFamilyName" className="form-label">اسم عائلة السائق <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /></label>
                 <input
@@ -150,7 +155,7 @@ const AddDriver = () => {
                   value={driverFamilyName}
                   onChange={(e) => setDriverFamilyName(e.target.value)}
                   placeholder="اسم عائلة السائق "
-                  required
+           
                 />
                 <label htmlFor="driverId" className="form-label">الإقامة او الهوية الوطنية<FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /></label>
                 <input
@@ -160,7 +165,7 @@ const AddDriver = () => {
                   value={driverId}
                   onChange={(e) => setDriverId(e.target.value)}
                   placeholder="الإقامة او الهوية الوطنية"
-                  required
+           
                 />
                 <label htmlFor="driverPhone" className="form-label">رقم جوال السائق<FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /></label>
                 <div className="phone-input" style={{ display: 'flex' }}>
@@ -171,11 +176,13 @@ const AddDriver = () => {
                     value={driverPhone}
                     onChange={(e) => setDriverPhone(e.target.value)}
                     placeholder="5xxxxxxxx"
-                    required
+                 
                     style={{ direction: 'ltr' }}
                   />
-                  <input type="text" className="form-input" value="+966" disabled style={{ width: '35px' }} />
+                 
+                  <input type="text" className="form-input" value="966+" disabled style={{ width: '35px' }} />
                 </div>
+                 <p style={{marginTop:'1px', color:'#555'}}><FaStarOfLife size={6} style={{ color: 'black', marginLeft: '5px', marginBottom: '0px' }} />عند اضافة رقم السائق سيستخدم رقم الجوال لانشاء حساب للسائق </p>
                 {/* Country Dropdown */}
     {/* <label htmlFor="driverCountry" className="form-label">الجنسية<FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /></label>
                 <select

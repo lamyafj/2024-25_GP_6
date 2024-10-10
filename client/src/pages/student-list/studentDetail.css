@@ -1,0 +1,195 @@
+body {
+  background-color: #f7f7f7;
+}
+
+.student-detail-page { 
+  display: flex;
+  flex-direction: column;
+  margin-right: 220px; /* Adjust based on Sidebar width */
+  padding: 20px;
+}
+
+.student-detail-main h2 {
+  color: #0eab19;
+}
+
+.student-detail-main h1 {
+  font-size: 25px;
+  color: #0d3f11;
+}
+
+.student-detail-main {
+  display: flex;    
+  flex-direction: column;
+  margin: 0;
+}
+
+.detail-content {
+  display: flex;
+  direction: rtl;   
+  flex-direction: column;
+  height: 100%;  
+  margin-bottom: 10px;   
+}
+
+.student-details-list {
+  direction: rtl; 
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.student-details-list li {
+  margin-bottom: 12px;
+  justify-content: baseline;
+  align-items: baseline;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  font-size: 18px;
+  color: #2b4e3b;
+}
+
+.student-details-list li:last-child {
+  border-bottom: none;
+}
+
+.student-details-list strong {
+  color: #384d44;
+  font-weight: bold;
+}
+
+.student-one-detail-content {
+  display: flex;
+  flex-grow: 1;
+}
+
+.student-detail-buttons {
+  display: flex;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+}
+
+.title-container h1 {
+  margin-left: 10px;
+  padding-right: 10px; /* Adjust spacing between text and line */
+}
+
+.title-container .line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #838383; /* Adjust line color */
+}
+
+.edit-student-button,
+.save-student-button,
+.cancel-student-button,
+.choose-student-button,
+.unassign-student-button,
+.delete-student-button,
+.activate-student-button {
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+  padding: 5px;
+  color: rgb(255, 255, 255);
+}
+
+.edit-student-button {
+  background-color: #29684b;
+  width: 60px;
+  margin-top: 20px;
+  margin-left: 30px;
+}
+
+.edit-student-button:hover {
+  background-color: #1d4b3a; /* Change this color to whatever you prefer for the hover effect */
+  transform: scale(1.1);
+}
+
+.save-student-button {
+  background-color: #4db754;
+  width: 60px;
+  margin-left: 10px;
+}
+
+.save-student-button:hover {
+  background-color: #3a9e3a; /* Change this color for hover effect */
+  transform: scale(1.1);
+}
+
+.cancel-student-button {
+  background-color: #bb7569;
+  width: 60px;
+  margin-left: 30px;
+}
+
+.cancel-student-button:hover {
+  background-color: #b05252; /* Change this color for hover effect */
+  transform: scale(1.1);
+}
+
+.container-box-detail {
+  display: flex;
+  justify-content: space-between;
+}
+
+.choose-student-button {
+  background-color: #60aa6b;
+  width: 60px;
+  height: 30px;
+  margin-top: 10px;
+}
+
+.choose-student-button:hover {
+  background-color: #285c28; /* Change this color for hover effect */
+  transform: scale(1.1);
+}
+
+.student-dropdown {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.student-dropdown li:hover {
+  background-color: #ddeadf;
+}
+
+.delete-student-button {
+  background-color: #707070;
+  width: 80px;
+  margin: 20px 5px 20px 5px; /* Adjust margin for uniform spacing */
+}
+
+.delete-student-button:hover {
+  background-color: #414141; /* Change this color for hover effect */
+  transform: scale(1.1);
+}
+
+.activate-student-button {
+  background-color: #30a528;
+  width: 80px;
+  margin: 20px 5px 20px 5px; /* Adjust margin for uniform spacing */
+}
+
+.activate-student-button:hover {
+  background-color: #1c3015; /* Change this color for hover effect */
+  transform: scale(1.1);
+}
+
+.student-details-container input {
+  width: 100px;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+  margin-bottom: 10px;
+  margin-right: 10px;
+}

@@ -41,9 +41,10 @@
   border-radius: 5px;
   font-size: 12px;
   cursor: pointer;
-  margin-right: 5px;
+  margin-left: 5px;
+  margin-bottom: 20px;
   transition: transform 0.2s ease;
-  margin-top: 10px; /* Reduced margin to improve alignment */
+  margin-top: 20px;
 }
 
 .details-bus-button{
@@ -55,9 +56,10 @@
   border-radius: 5px;
   font-size: 12px;
   cursor: pointer;
-  margin-left: 2px;
+  margin-left: 5px;
+  margin-bottom: 20px;
   transition: transform 0.2s ease;
-  margin-top: 10px; /* Reduced margin to improve alignment */
+  margin-top: 20px;
 }
 
 .delete-bus-button:hover {

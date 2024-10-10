@@ -58,6 +58,7 @@
   font-size: 16px;
   color: red;
   border: none;
+  cursor: pointer; 
 }
 
 #logoutButtonDiv{
