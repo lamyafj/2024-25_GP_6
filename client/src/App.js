@@ -11,6 +11,9 @@ import BusItem from './components/Busltem/Busltem.js';
 import AddDriver from './pages/driver-list/addDriver.js'
 import DriverList from './pages/driver-list/driverList.js'
 import DriverDetail from './pages/driver-list/driverDetail.js'
+import AddStudent from './pages/student-list/addStudent.js'
+import StudentList from './pages/student-list/studentList.js'
+import StudentDetail from './pages/student-list/studentDetail.js'
 
 function App() {
   return (
@@ -84,7 +87,30 @@ function App() {
             </RequireAuth>
           } 
         />
-
+        <Route 
+          path="/studentDetail/:uid" 
+          element={
+            <RequireAuth>
+              <StudentDetail/>
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/studentList" 
+          element={
+            <RequireAuth>
+              <StudentList/>
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/addStudent" 
+          element={
+            <RequireAuth>
+              <AddStudent/>
+            </RequireAuth>
+          } 
+        />
       </Routes>
       
     </div>

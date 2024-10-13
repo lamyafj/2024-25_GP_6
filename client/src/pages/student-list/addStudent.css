@@ -1,0 +1,117 @@
+.add-student-page {
+    display: flex;
+    flex-direction: column;
+    margin-right: 220px; /* Adjust based on Sidebar width */
+}
+
+.add-student-main {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    margin: 0px;
+}
+
+.form-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.add-student-form {
+    background-color: #fff;
+    padding: 100px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    width: 80%;
+}
+
+.add-student-content {
+    direction: rtl;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    padding: 0 100px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 20px;
+    color: #555;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+    margin-bottom: 10px;
+}
+
+.form-input::placeholder {
+    font-family: "Zain";
+}
+
+.form-input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.submit-btn {
+    width: 120px;
+    padding: 8px;
+    font-size: 14px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    align-items: baseline;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+    transform: scale(1.1);
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.button-area {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.back-student-button{
+    background-color: #29684b;
+    color: white;
+    width: 60px;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-left: 30px;
+    transition: transform 0.2s ease;
+
+}
+
+.back-student-button:hover {
+    background-color: #1d4b3a; /* Change this color to whatever you prefer for the hover effect */
+    transform: scale(1.1);
+    
+  }

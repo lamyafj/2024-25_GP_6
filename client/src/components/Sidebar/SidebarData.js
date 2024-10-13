@@ -25,7 +25,7 @@ export const SidebarData = [
   {
     title: "قائمة الطلاب",
     icon:<PiStudent size={20} />, 
-    link: "/adminDashboard",
+    link: "/studentList",
   },
   {
     title: "قائمة الحافلات",

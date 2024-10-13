@@ -187,7 +187,7 @@ app.post('/api/record', async (req, res) => {
   }
 });
 
-///////////////////////// add bus
+//////////////////////////////////add bus
 app.post('/api/addbus', async (req, res) => {
   console.log('Server add  called');
   
@@ -206,7 +206,7 @@ app.post('/api/addbus', async (req, res) => {
       school: schoolRef, 
       students:[],
       driver:null,
-      testid:'',
+      current_capacity:Number(0),
     };
     const newBusRef = await db.collection('Bus').add(newbus); 
     //add uid ti the bus attributes
@@ -272,7 +272,7 @@ app.post('/api/busrecord', async (req, res) => {
 //////////////////////////////////Delete a bus
 app.post('/api/deletebus', async (req, res) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
-  const { uid } = req.body; // Assuming you are sending busuid in the request body
+  const { uid } = req.body; // Assuming you are sending bus uid in the request body
   if (!uid) {
     return res.status(400).send('Bus UID is required');
   }
@@ -293,35 +293,31 @@ app.post('/api/deletebus', async (req, res) => {
       buses: admin.firestore.FieldValue.arrayRemove(busRef)
     });
 
-    // Fetch the updated list of bus references
-    const schoolDoc = await schoolRef.get();
-    const schoolData = schoolDoc.data();
+    // Update any drivers and students that reference this bus
+    const driverQuery = db.collection('Driver').where('bus', '==', busRef);
+    const studentQuery = db.collection('Student').where('bus', '==', uid);
 
-    if (schoolData.buses && schoolData.buses.length > 0) {
-      // Fetch all remaining bus documents
-      const busPromises = schoolData.buses.map((busRef) => busRef.get());
-      const busDocs = await Promise.all(busPromises);
+    const [driverDocs, studentDocs] = await Promise.all([
+      driverQuery.get(),
+      studentQuery.get()
+    ]);
 
-      // Update the testid of each bus based on their new position
-      const updatePromises = busDocs.map((busDoc, index) => {
-        if (busDoc.exists) {
-          return busDoc.ref.update({ id: index + 1 });
-        }
-        return null;
-      });
+    // Set the bus reference to null for all affected drivers
+    const updateDriverPromises = driverDocs.docs.map(doc => doc.ref.update({ bus: null }));
+    // Set the bus reference to null for all affected students
+    const updateStudentPromises = studentDocs.docs.map(doc => doc.ref.update({ bus: null }));
 
-      await Promise.all(updatePromises);
-    }
+    // Execute all update promises
+    await Promise.all([...updateDriverPromises, ...updateStudentPromises]);
 
-    res.status(200).send({ message: 'Bus deleted and testid updated successfully' });
+    res.status(200).send({ message: 'Bus deleted and associated records updated successfully' });
   } catch (error) {
-    console.error('Error deleting bus or updating testid:', error);
-    res.status(500).send('Failed to delete bus and update testid');
+    console.error('Error deleting bus or updating records:', error);
+    res.status(500).send('Failed to delete bus and update records');
   }
 });
 
-
-///////////////////////////////////bring one bus detail
+//////////////////////////////////bring one bus detail
 app.post('/api/busdetail', async (req, res) => {
   console.log('Server bus detail called');
   const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
@@ -379,39 +375,56 @@ app.post('/api/editbus', async (req, res) => {
 });
 /////////////////////////////////add new driver
 app.post('/api/adddriver', async (req, res) => {
-  console.log('Server driver add  called');
-  
+  console.log('Server driver add called');
+
   const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
-  let {newdriver} =req.body;
-  if (!idToken ) {
+  let {newdriver} = req.body;
+  
+  if (!idToken) {
     return res.status(403).send('failed');
   }
-
+  
+  console.log(newdriver.driverPhone);
+  
+  const phone = '+966' + newdriver.driverPhone.trim();
+  console.log(phone);
+  
   try {
     const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
-    const schooluid =decodedClaims.uid;
+    const schooluid = decodedClaims.uid;
     const schoolRef = db.collection('School').doc(schooluid);
+    
+    const userRecord = await admin.auth().createUser({
+      phoneNumber: phone
+    });
+    
+    console.log('Successfully created new driver:', userRecord.uid);
+    
     newdriver = { 
       ...newdriver,
       school: schoolRef, 
-      bus:null,
-      statue:'active'
+      bus: null,
+      uid: userRecord.uid,
+      status: 'active'
     };
-    const newDriverRef = await db.collection('Driver').add(newdriver); 
-    //add uid ti the bus attributes
-    const newDriverUID = newDriverRef.id;
-    await db.collection('Driver').doc(newDriverUID).update({ uid: newDriverUID });
+    
+    // Add new driver to the 'Driver' collection
+    await db.collection('Driver').doc(userRecord.uid).set(newdriver);
+    
+    // Fetch the school document
     const schoolDoc = await admin.firestore().collection('School').doc(schooluid).get();
     const schoolData = schoolDoc.data();
+    
+    // Update school data with the new driver's UID
     const newschoolDoc = { 
       ...schoolData, // Spread the existing data
-      drivers: [...(schoolData.drivers || []), newDriverRef], // Add the new bus ID to the buses array
+      drivers: [...(schoolData.drivers || []), userRecord.uid] // Add the new driver's UID to the drivers array
     };
-    // const length = newschoolDoc.buses.length
-    // const busId = length
-    await db.collection('School').doc(schooluid).set(newschoolDoc); 
-    // await db.collection('Bus').doc(newBusUID).update({ id: busId });   
-    console.log('added driver');
+    
+    // Update the school document with the new drivers array
+    await db.collection('School').doc(schooluid).set(newschoolDoc);
+    
+    console.log('Added driver');
     res.status(200).send(true);
   } catch (error) {
     console.error('Token verification or data fetching error:', error);
@@ -438,19 +451,24 @@ app.post('/api/driverecord', async (req, res) => {
     }
 
     const userData = userDoc.data();
-    const driverRefs = userData.drivers; // Get the bus references
+    const driverUids = userData.drivers; // Get the array of driver UIDs (not references)
 
-    // If there are no bus references, return an empty array
-    if (!driverRefs || driverRefs.length === 0) {
-      return res.status(200).send([]); // No buses found
+    // If there are no driver UIDs, return an empty array
+    if (!driverUids || driverUids.length === 0) {
+      return res.status(200).send([]); // No drivers found
     }
 
-    // Fetch bus documents from the Bus collection using references
-    const driverPromises = driverRefs.map(driverRef => driverRef.get());
+    // Fetch driver documents from the Driver collection using UIDs
+    const driverPromises = driverUids.map(driverUid => 
+      db.collection('Driver').doc(driverUid).get() // Get each driver document by UID
+    );
     const driverDocs = await Promise.all(driverPromises);
 
-    const drivers = driverDocs.map(driverDoc => ({ id: driverDoc.id, ...driverDoc.data() }));
-
+    // Map through the driver documents to return their data
+    const drivers = driverDocs
+      .filter(driverDoc => driverDoc.exists) // Ensure the document exists
+      .map(driverDoc => ({ id: driverDoc.id, ...driverDoc.data() })); // Return driver data with ID
+      console.log(drivers)
     res.status(200).send(drivers); 
   } catch (error) {
     console.error('Token verification or data fetching error:', error);
@@ -463,6 +481,7 @@ app.post('/api/driverdetail', async (req, res) => {
   console.log('Server driver detail called');
   const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
   const { uid } = req.body; // Expecting uid to be in the request body
+
 
   if (!idToken ) {
     return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
@@ -518,7 +537,7 @@ app.post('/api/assignbusfordriver', async (req, res) => {
 
     // Update the driver and bus references in Firestore
     await driverRef.update({ bus: busRef });
-    await busRef.update({ driver: driverRef });
+    await busRef.update({ driver: driverDoc.data().uid });
 
     res.status(200).send('Bus assigned successfully');
   } catch (error) {
@@ -548,13 +567,17 @@ app.post('/api/UNassignbusfordriver', async (req, res) => {
     if (!driverDoc.exists) {
       return res.status(404).send('Driver not found');
     }
+   
+      console.log('heey')
+    if(busuid){
+      const busRef = admin.firestore().collection('Bus').doc(busuid);
+      await busRef.update({ driver: null });
+    }
 
-    const busRef = admin.firestore().collection('Bus').doc(busuid);
-    await busRef.update({ driver: null });
-
-    await driverRef.update({ bus: null });
-
-    res.status(200).send('Bus unassigned successfully');
+    await driverRef.update({
+       bus: null
+    });
+    res.status(200).send('driver unassigned successfully');
   } catch (error) {
     console.error('Error during bus unassignment:', error);
     res.status(500).send('Server Error: Bus unassignment failed.');
@@ -614,7 +637,7 @@ app.post('/api/inactivatedriver', async (req, res) => {
 
     // Update the driver's status and clear the bus reference
     await driverRef.update({
-      statue: 'inactive', // Make sure this is the correct field name
+      status:'inactive', // Make sure this is the correct field name
       bus: null
     });
 
@@ -652,7 +675,7 @@ app.post('/api/activatedriver', async (req, res) => {
     //const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
     const busRef = db.collection('Driver').doc(uid);
     await busRef.update({
-      statue:'active',
+      status:'active',
       bus:null
     });
 
@@ -664,25 +687,329 @@ app.post('/api/activatedriver', async (req, res) => {
 });
 
 
+///////////////////////////////////////bring all students records
+app.post('/api/studentsrecord', async (req, res) => {
+  console.log('Server student record checker called');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
 
-// app.post('/api/translate-countries', async (req, res) => {
-//   console.log('h')
-//   try {
-//     // Fetch country names from the REST Countries API
-//     const response = await fetch('https://restcountries.com/v3.1/all?fields=name');
-//     const data = await response.json();
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
 
-//     // Extract country names
-//     const countryNames = data.map(country => country.name.common);
-//     res.json(countryNames);
-//   } catch (error) {
-//     console.error('Error fetching or translating countries:', error);
-//     res.status(500).json({ error: 'Error fetching or translating countries' });
-//   }
-// });
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const userDoc = await admin.firestore().collection('School').doc(decodedClaims.uid).get();
+    
+    if (!userDoc.exists) {
+      return res.status(404).send('User not found');
+    }
+
+    const userData = userDoc.data();
+    const students = userData.students; // Get the student references
+
+    // If there are no student references, return an empty array
+    if (!students || students.length === 0) {
+      return res.status(200).send([]); // No students found
+    }
+
+    // Create promises to fetch student documents from the Student collection using references
+    const studentsPromises = students.map(studentRef => studentRef.get());
+    const studentDocs = await Promise.all(studentsPromises);
+
+    // Map student documents to return a more manageable format
+    const studentData = studentDocs.map(studentDoc => ({ id: studentDoc.id, ...studentDoc.data() }));
+
+    res.status(200).send(studentData); 
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
 
 
 
+///////////////////////////////////////add student
+app.post('/api/addstudent', async (req, res) => {
+  console.log('Server add called');
+  
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  let { newstudent } = req.body;
+  
+  if (!idToken) {
+    return res.status(403).send('failed');
+  }  
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const schooluid = decodedClaims.uid;
+    const schoolRef = db.collection('School').doc(schooluid);
+    const parent_uid = '+966' + newstudent.parent_phone.trim();
+
+    newstudent = { 
+      ...newstudent,
+      parent_uid: parent_uid,
+      school: schoolRef, 
+      status: 'active', // Set status to active
+      bus:null,
+    };
+    
+    const newstudentRef = await db.collection('Student').add(newstudent);
+    const newstudentUID = newstudentRef.id;
+
+    await db.collection('Student').doc(newstudentUID).update({ uid: newstudentUID });
+    
+    const schoolDoc = await admin.firestore().collection('School').doc(schooluid).get();
+    const schoolData = schoolDoc.data();
+
+    const newschoolDoc = { 
+      ...schoolData, // Spread the existing data
+      students: [...(schoolData.students || []), newstudentRef], // Add the new student reference to the students array
+    };
+
+    await db.collection('School').doc(schooluid).set(newschoolDoc); 
+
+    console.log('added student');
+    res.status(200).send(true);
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
+
+///////////////////////////////////bring student detail
+app.post('/api/studentdetail', async (req, res) => {
+  console.log('Server student detail called');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  const { uid } = req.body; // Expecting uid to be in the request body
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+  
+  
+  try {
+    // Token verification can be uncommented if needed
+    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const studentsRef = admin.firestore().collection('Student'); // Change collection name if necessary
+    const studentSnapshot = await studentsRef.where('uid', '==', uid).get();
+
+    if (studentSnapshot.empty) {
+      return res.status(404).send('Student not found');
+    }
+
+    const studentData = studentSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }))[0];
+
+    res.status(200).send(studentData); 
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
+
+
+/////////////////////////////////////assign a bus for student
+app.post('/api/assignstudentbus', async (req, res) => {
+  console.log('Server assign bus for student called');
+  
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; 
+  const { studentuid, busuid } = req.body; 
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+
+  try {
+    // Uncomment and implement if token verification is needed
+    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+
+    const busRef = admin.firestore().collection('Bus').doc(busuid);
+    const studentRef = admin.firestore().collection('Student').doc(studentuid);
+
+    // Fetch documents first
+    const busDoc = await busRef.get();
+    const studentDoc = await studentRef.get();
+
+    // Ensure both bus and student documents exist before updating
+    if (!busDoc.exists || !studentDoc.exists) {
+      return res.status(404).send('Bus or Student not found');
+    }
+
+    // Update the student and bus references in Firestore
+    await studentRef.update({ bus: busuid });  // Use studentRef (the document reference) to update
+    const busData = busDoc.data();
+    // Add the student to the students array in the bus document
+    const newcapacity=Number(busData.current_capacity)+1;
+    console.log(newcapacity)
+    await busRef.update({
+      students: admin.firestore.FieldValue.arrayUnion(studentuid),  // Add new student to the array
+      current_capacity:Number(newcapacity)
+    });
+
+    res.status(200).send('Bus assigned successfully');
+  } catch (error) {
+    console.error('Error during bus assignment:', error);
+    res.status(500).send('Server Error: Bus assignment failed.');
+  }
+});
+
+
+/////////////////////////////////////////unassign bus for student
+app.post('/api/unassignstudentbus', async (req, res) => {
+  console.log('Server unassign bus for student called');
+  
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; 
+  const { studentuid, busuid } = req.body; // Destructure driveruid and busuid
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+
+  try {
+    // Uncomment and implement if token verification is needed
+    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+      
+    const studentRef = admin.firestore().collection('Student').doc(studentuid);
+   
+    const studentDoc = await studentRef.get();
+   
+    console.log('hi')
+    // Check if driver document exists
+    if (!studentDoc.exists) {
+      return res.status(404).send('Driver not found');
+    }
+     
+    const busRef = admin.firestore().collection('Bus').doc(busuid);
+    const busDoc = await busRef.get();
+    const busData = busDoc.data();
+    const newcapacity=Number(busData.current_capacity)-1; 
+
+    await busRef.update({
+      students: admin.firestore.FieldValue.arrayRemove(studentuid),
+      current_capacity:Number(newcapacity)
+    });
+    
+ 
+
+    await studentRef.update({ bus: null });
+
+    res.status(200).send('Bus unassigned successfully');
+  } catch (error) {
+    console.error('Error during bus unassignment:', error);
+    res.status(500).send('Server Error: Bus unassignment failed.');
+  }
+});
+
+/////////////////////////////edit student details
+app.post('/api/editstudent', async (req, res) => {
+  console.log('Editing student');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
+  const { uid, formValues } = req.body;
+
+  if (!uid || !formValues) {
+    return res.status(400).send('Student UID and new data are required');
+  }
+  console.log(formValues)
+  console.log(uid)
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const studentRef = db.collection('Student').doc(uid);
+    await studentRef.update({
+      student_id: formValues.student_id,
+      student_first_name: formValues.student_first_name,
+      student_family_name: formValues.student_family_name,
+      city: formValues.city,
+      street: formValues.street,         // Added attribute for street
+      postal_code: formValues.postal_code,  // Added attribute for postal code
+      district: formValues.district,     // Added attribute for district
+      //parent_phone: formValues.parent_phone
+    });
+
+    res.status(200).send({ message: 'Student updated successfully' });
+  } catch (error) {
+    console.error('Error updating student:', error);
+    res.status(500).send('Failed to update student');
+  }
+});
+
+//////////////////////////////////////////reject or delete a student
+
+app.post('/api/deletestudent', async (req, res) => {
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
+  const { uid } = req.body; // UID of the student to delete
+
+  if (!uid) {
+    return res.status(400).send('Student UID is required');
+  }
+
+  try {
+    // Verify the session token
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const schoolRef = db.collection('School').doc(decodedClaims.uid);
+    const studentRef = db.collection('Student').doc(uid);
+    const studentDoc = await studentRef.get();
+
+    if (!studentDoc.exists) {
+      return res.status(404).send('Student not found');
+    }
+    
+    const studentData = studentDoc.data();
+    const busuid = studentData.bus; 
+
+    await schoolRef.update({
+      students: admin.firestore.FieldValue.arrayRemove(uid),
+    });
+    // If there's a bus reference, update the bus document
+    if (busuid) {
+      const busRef = admin.firestore().collection('Bus').doc(busuid);
+      const busDoc = await busRef.get();
+      const busData = busDoc.data();
+      const newcapacity=Number(busData.current_capacity)-1; 
+  
+      await busRef.update({
+        students: admin.firestore.FieldValue.arrayRemove(uid),
+        current_capacity:Number(newcapacity)
+      });
+      
+   
+      
+    }
+    await studentRef.delete();
+    console.log('Student deleted and bus updated successfully');
+    res.status(200).send({ message: 'Student deleted and bus updated successfully' });
+  } catch (error) {
+    console.error('Error deleting student and updating bus:', error);
+    res.status(500).send('Failed to delete student and update bus');
+  }
+});
+
+///////////////////////////////////////////accept a student
+app.post('/api/acceptstudent', async (req, res) => {
+  console.log('im activate server')
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
+  const { uid} = req.body;
+
+  if (!uid ) {
+    return res.status(400).send(' UID  are required');
+  }
+
+  try {
+    //const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const busRef = db.collection('Student').doc(uid);
+    await busRef.update({
+      status:'active',
+      bus:null
+    });
+
+    res.status(200).send({ message: 'Bus updated successfully' });
+  } catch (error) {
+    console.error('Error updating bus:', error);
+    res.status(500).send('Failed to update bus');
+  }
+});
 
 
 

@@ -21,9 +21,6 @@ body{
     flex-direction: column;
     margin: 0px;     
   }
-
-
-  
   
   .detail-content{
     display: flex; 
