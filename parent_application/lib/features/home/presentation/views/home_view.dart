@@ -73,69 +73,112 @@
 
 import 'package:flutter/material.dart';
 import 'package:parent_application/core/utils/app_colors.dart';
+import 'package:parent_application/features/addmychild/presentation/views/addmychild_view.dart';
 import 'package:parent_application/features/home/presentation/widgets/LiveLocationView.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-  title: const Text(
-    "الصفحة الرئيسية",
-    textDirection: TextDirection.rtl,
-  ),
-  centerTitle: true, // This centers the title
-),
-      body: Padding(
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text(
+        "الصفحة الرئيسية",
+        textDirection: TextDirection.rtl,
+      ),
+      centerTitle: true, // This centers the title
+    ),
+    body: SingleChildScrollView( // Wrap with SingleChildScrollView to prevent overflow
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Align(
-          alignment: Alignment.centerRight,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end, // Align all elements to the right
-            children: [
-              Text(
-                "الأبناء",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.sColor),
-                textDirection: TextDirection.rtl, // Right-to-left text direction
-              ),
-              const SizedBox(height: 20),
-              // First event card
-              buildEventCard(
-                title: "محمد", 
-                time: "وقت الوصول المتوقع؟",
-                location: "",
-                label: "في الباص",
-                labelColor: Colors.green,
-                context: context, // Pass context here
-              ),
-              const SizedBox(height: 10),
-              // Second event card
-              buildEventCard(
-                title: "سارة", 
-                time: "12:30",
-                location: "", 
-                label: "خارج الباص",
-                labelColor: Colors.red,
-                context: context, // Pass context here
-              ),
-              const SizedBox(height: 10),
-              // third event card
-              buildEventCard(
-                title: "لينا", 
-                time: "12:30",
-                location: "", 
-                label: "انتظار",
-                labelColor: Colors.grey,
-                context: context, // Pass context here
-              ),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end, // Align all elements to the right
+          children: [
+            Text(
+              "الأبناء",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.sColor),
+              textDirection: TextDirection.rtl, // Right-to-left text direction
+            ),
+            const SizedBox(height: 20),
+            // First event card
+            buildEventCard(
+              title: "محمد", 
+              time: "وقت الوصول المتوقع؟",
+              location: "",
+              label: "داخل الحافلة",
+              labelColor: Colors.green,
+              context: context,
+            ),
+            const SizedBox(height: 10),
+            // Second event card
+            buildEventCard(
+              title: "سارة", 
+              time: "12:30",
+              location: "", 
+              label: "خارج الحافلة",
+              labelColor: Colors.red,
+              context: context, 
+            ),
+          
+            
+            const SizedBox(height: 10),
+
+            Row(
+              children: const [
+                Expanded(
+                  child: Divider(
+                    thickness: 1,
+                    color: Colors.grey,
+                    endIndent: 10, // Space between text and line
+                  ),
+                ),
+                Text(
+                  "قيد المراجعة",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+                Expanded(
+                  child: Divider(
+                    thickness: 1,
+                    color: Colors.grey,
+                    indent: 10, // Space between text and line
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 10),
+
+            // third event card 
+            buildEventCard(
+              title: "لينا", 
+              time: "12:30",
+              location: "", 
+              label: "انتظار",
+              labelColor: Colors.grey,
+              context: context,
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AddmychildView()),
+        );
+      },
+      child: const Icon(Icons.add),
+      backgroundColor: Colors.white,
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+  );
+}
 
  Widget buildEventCard({
   required String title,
@@ -181,7 +224,7 @@ class HomeView extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: const Text(
-                      "انتظر لركوب الطفل الحافلة", // Message to show in snackbar
+                      "انتظر لركوب الطالب الحافلة", // Message to show in snackbar
                       textDirection: TextDirection.rtl, // Right-to-left text direction
                     ),
                     duration: const Duration(seconds: 2), // Duration for snackbar display

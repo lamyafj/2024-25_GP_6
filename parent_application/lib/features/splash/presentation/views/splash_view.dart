@@ -16,7 +16,7 @@ class _SplashViewState extends State<SplashView> {
   void initState() {
     Future.delayed(const Duration(seconds: 5),
     (){
-      context.go("/homeNavBar");
+      context.go("/login");
 
     }
     );

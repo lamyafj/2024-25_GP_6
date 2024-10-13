@@ -106,8 +106,8 @@ import 'package:parent_application/core/utils/app_colors.dart';
 //   }
 // }
 
-import 'package:flutter/material.dart';
-import 'package:parent_application/core/utils/app_colors.dart';
+// import 'package:flutter/material.dart';
+// import 'package:parent_application/core/utils/app_colors.dart';
 import 'package:parent_application/features/myaccount/presentation/views/EditMyAccountView.dart';
 
 class MyaccountView extends StatelessWidget {
@@ -118,7 +118,7 @@ class MyaccountView extends StatelessWidget {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(onPressed: () {}, icon: const Icon(Icons.person)),
+        // leading: IconButton(onPressed: () {}, icon: const Icon(Icons.person)),
 
         title: const Text(
           "الملف الشخصي",
@@ -126,11 +126,11 @@ class MyaccountView extends StatelessWidget {
         ),
         centerTitle: true, // This centers the title
 
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode))
-        ],
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {},
+        //       icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode))
+        // ],
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -235,11 +235,11 @@ class MyaccountView extends StatelessWidget {
               const Divider(),
               const SizedBox(height: 10),
               // Menu items
-              myaccountMenuWidget(
-                title: "إعدادات",
-                icon: Icons.settings,
-                onPressed: () {},
-              ),
+              // myaccountMenuWidget(
+              //   title: "إعدادات",
+              //   icon: Icons.settings,
+              //   onPressed: () {},
+              // ),
               myaccountMenuWidget(
                 title: "تسجيل خروج",
                 icon: Icons.exit_to_app,
