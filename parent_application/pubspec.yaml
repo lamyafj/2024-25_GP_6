@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_fonts: ^5.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -73,6 +74,7 @@ flutter:
     - assets/images/MaslakGif.GIF
     - assets/images/MaslakgifwithName.gif
     - assets/images/profileimage.jpg
+    - assets/images/Saudi.PNG
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -87,9 +89,10 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   # fonts:
-  #   - family: Schyler
+  #   - family: Zain
   #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Zain-Regular.ttf
+
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

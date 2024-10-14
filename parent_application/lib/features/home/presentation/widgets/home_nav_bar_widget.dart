@@ -66,7 +66,7 @@
 // }
 
 import 'package:flutter/material.dart';
-import 'package:parent_application/features/addmychild/presentation/views/addmychild_view.dart';
+// import 'package:parent_application/features/addmychild/presentation/views/addmychild_view.dart';
 import 'package:parent_application/features/home/presentation/views/home_view.dart';
 import 'package:parent_application/features/myaccount/presentation/views/myaccount_view.dart';
 import 'package:parent_application/features/notification/presentation/views/notification_view.dart';
@@ -86,18 +86,18 @@ class HomeNavBarWidget extends StatelessWidget {
       items: _navBarsItems(),
       controller: _controller,
       navBarStyle: NavBarStyle.style12,
-      backgroundColor: AppColors.sColor,
-      decoration: const NavBarDecoration(
-        borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-      ),
+      backgroundColor: Colors.white,
+      // decoration: const NavBarDecoration(
+      //   borderRadius: BorderRadius.only(
+      //       topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+      // ),
     );
   }
 
   List<Widget> _buildScreens() {
     return [
       const HomeView(),
-      const AddmychildView(),
+      // const AddmychildView(),
       const NotificationView(),
       const MyaccountView(),
     
@@ -109,25 +109,25 @@ class HomeNavBarWidget extends StatelessWidget {
       PersistentBottomNavBarItem(
         icon: const Icon(Icons.home),
         title: "Home",
-        activeColorPrimary: Colors.white,
+        activeColorPrimary: AppColors.sColor,
         inactiveColorPrimary: Colors.grey,
       ),
-      PersistentBottomNavBarItem(
-        icon: const Icon(Icons.add),
-        title: "Add",
-        activeColorPrimary: Colors.white,
-        inactiveColorPrimary: Colors.grey,
-      ),
+      // PersistentBottomNavBarItem(
+      //   icon: const Icon(Icons.add),
+      //   title: "Add",
+      //   activeColorPrimary: Colors.white,
+      //   inactiveColorPrimary: Colors.grey,
+      // ),
       PersistentBottomNavBarItem(
         icon: const Icon(Icons.notifications),
         title: "Notifications",
-        activeColorPrimary: Colors.white,
+        activeColorPrimary: AppColors.sColor,
         inactiveColorPrimary: Colors.grey,
       ),
       PersistentBottomNavBarItem(
         icon: const Icon(Icons.person),
         title: "Account",
-        activeColorPrimary: Colors.white,
+        activeColorPrimary: AppColors.sColor,
         inactiveColorPrimary: Colors.grey,
       ),
     ];
