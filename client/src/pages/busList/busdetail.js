@@ -20,6 +20,7 @@ import { LiaCreditCard } from "react-icons/lia";
 import {BringDriverDetail} from '../driver-list/driverListData.js'
 import {BringStudentRecord} from '../student-list/studentListData.js'
 import ConfirmationModal from '../../components/Confirmation/confirm.js';
+import SuccessMessage from '../../components/successMessage/successMessage.js';
 
 
 export default function BusDetail() {
@@ -36,6 +37,7 @@ export default function BusDetail() {
   const [isSaving, setIsSaving] = useState(false); // New state to track saving process
   const [formValues, setFormValues] = useState({});
   const [isModalOpen, setModalOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const fetchRecord = async () => {
@@ -144,12 +146,19 @@ const bringStudent = async () => {
       await EditbusDetail(uid, formValues);
       setRecord(formValues);
       setIsEditing(false);
+      
     } catch (err) {
       console.error('Failed to save changes', err);
     } finally {
       setIsSaving(false); // End the saving process
+      handleSuccessOperation()
     }
   };
+  const handleSuccessOperation = () => {
+    // Reset the state to show the success message
+    setShowSuccess(false); // Ensure it's hidden before showing again (reset state)
+    setTimeout(() => setShowSuccess(true), 0); // Trigger the success message
+  }; 
 
   const deletebus = async (uid) => {
     try {
@@ -228,6 +237,7 @@ const bringStudent = async () => {
           
         </div>
         {error && <p className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+        
         <FormContainer >
           <div className='detail-content'>
             <div className="title-container">
@@ -345,6 +355,9 @@ const bringStudent = async () => {
            
           </div>
         </FormContainer>
+        <>
+        {showSuccess && <SuccessMessage message="تم التعديل بنجاح" />}
+        </>
       </div>  
       <div className="sidebar">
         <Sidebar />
