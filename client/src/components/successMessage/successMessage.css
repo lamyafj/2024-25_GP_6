@@ -1,0 +1,77 @@
+/* Success Message Styling */
+.success-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 10px;
+    background-color: #6bc06c;
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.2rem;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-60%);
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Success Icon Styling */
+  .success-message .checkmark {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: white;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .success-message .checkmark::before {
+    content: "";
+    position: absolute;
+    width: 5px;
+    height: 10px;
+    border: solid #6bc06c;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+    top: 4px;
+    left: 8px;
+    opacity: 0;
+    animation: draw-checkmark 0.3s ease-in-out forwards 0.3s;
+  }
+  
+  /* Checkmark animation */
+  @keyframes draw-checkmark {
+    0% {
+      opacity: 0;
+      stroke-dashoffset: 22;
+    }
+    100% {
+      opacity: 1;
+      stroke-dashoffset: 0;
+    }
+  }
+  
+  /* CSS animations for the fade effect */
+  .fade-enter {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  
+  .fade-enter-active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: opacity 500ms, transform 500ms;
+  }
+  
+  .fade-exit {
+    opacity: 1;
+  }
+  
+  .fade-exit-active {
+    opacity: 0;
+    transition: opacity 500ms;
+  }
+  

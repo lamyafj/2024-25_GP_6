@@ -13,6 +13,7 @@
     "@vitalets/google-translate-api": "^9.2.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "firebase-admin": "^12.5.0",
     "geofire": "^6.0.0",
