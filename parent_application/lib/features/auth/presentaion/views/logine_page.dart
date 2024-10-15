@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,7 +11,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _passwordVisible = false;
 
@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -61,41 +61,29 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    // Phone TextFormField
+                    // Email TextFormField
                     TextFormField(
-                      controller: _phoneController,
+                      controller: _emailController,
                       textAlign: TextAlign.right,
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly, // Allows only numbers
-                        LengthLimitingTextInputFormatter(
-                            9), // Limit to 9 digits
-                      ],
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         label: Align(
                           alignment: Alignment.centerRight,
-                          child: Text('رقم الجوال'),
+                          child: Text('البريد الإلكتروني'),
                         ),
-                        hintText: 'رقم الجوال',
+                        hintText: 'البريد الإلكتروني',
                         hintStyle: const TextStyle(fontSize: 14),
-                        prefixText: '+966 ',
-                        counterText:
-                            '', // Hides the default counter for the max length
                       ),
-                      maxLength: 9, // Restricts to 9 digits
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'يرجى إدخال رقم الجوال';
-                        } else if (value.length != 9 ||
-                            !RegExp(r'^[5][0-9]{8}$').hasMatch(value)) {
-                          return 'يرجى إدخال رقم جوال صالح مكون من 9 أرقام يبدأ بـ 5';
+                          return 'يرجى إدخال البريد الإلكتروني';
+                        } else if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+                            .hasMatch(value)) {
+                          return 'يرجى إدخال بريد إلكتروني صالح';
                         }
                         return null;
                       },
                     ),
-
                     const SizedBox(height: 20),
                     // Password TextFormField
                     TextFormField(
@@ -182,6 +170,21 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     const SizedBox(height: 20),
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     // Handle forgot password action here
+                    //   },
+                    //   child: const Center(
+                    //     child: Text(
+                    //       'نسيت كلمة المرور؟',
+                    //       style: TextStyle(
+                    //         fontSize: 18,
+                    //         color: Color.fromRGBO(196, 174, 87, 1.0),
+                    //         decoration: TextDecoration.underline,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -197,4 +200,4 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-}
+}*/

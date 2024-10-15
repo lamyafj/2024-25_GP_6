@@ -145,7 +145,7 @@ class MyaccountView extends StatelessWidget {
                     height: 120,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: Image.asset('assets/images/profileimage.jpg'),
+                      child: Image.asset('assets/images/profilephoto1.png'),
                     ),
                   ),
                   Positioned(

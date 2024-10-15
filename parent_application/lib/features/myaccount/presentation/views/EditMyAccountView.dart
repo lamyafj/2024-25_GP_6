@@ -165,7 +165,8 @@ class EditMyAccount extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false, // Remove default back button
-        actions: [ // Add a custom back button to the right
+        actions: [
+          // Add a custom back button to the right
           IconButton(
             icon: const Icon(Icons.keyboard_arrow_right),
             onPressed: () {
@@ -185,7 +186,8 @@ class EditMyAccount extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end, // Align the column to the right
+              crossAxisAlignment:
+                  CrossAxisAlignment.end, // Align the column to the right
               children: [
                 // Profile Picture Section
                 Center(
@@ -193,7 +195,10 @@ class EditMyAccount extends StatelessWidget {
                     children: [
                       const CircleAvatar(
                         radius: 50,
-                        backgroundImage: AssetImage('assets/images/profileimage.jpg'),
+                        backgroundColor: Colors
+                            .transparent, // Make sure this matches the app's theme
+                        backgroundImage:
+                            AssetImage('assets/images/profilephoto1.png'),
                       ),
                       Positioned(
                         bottom: 0,
@@ -266,10 +271,10 @@ class EditMyAccount extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    /* Text(
                       'انضم في 31 أكتوبر 2022',
                       style: TextStyle(color: Colors.grey[600]),
-                    ),
+                    ),*/
                     TextButton(
                       onPressed: () {
                         // Handle delete account
@@ -306,7 +311,8 @@ class EditMyAccount extends StatelessWidget {
         ),
         prefixIcon: Icon(icon), // Icon on the left side in RTL layout
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       ),
       textDirection: TextDirection.rtl, // Ensure text direction is RTL
     );
