@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "404422610322",
+    "project_id": "maslak-d4678",
+    "storage_bucket": "maslak-d4678.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:404422610322:android:a8e2ea315d0b6c974ac54b",
+        "android_client_info": {
+          "package_name": "com.example.parent_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4e5eLCdqdqwFgMScrrta0LXkpnwKXEtY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
