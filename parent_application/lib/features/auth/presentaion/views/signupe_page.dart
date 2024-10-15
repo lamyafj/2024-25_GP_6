@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+/*import 'package:flutter/material.dart';
 
 class SignUpPage extends StatefulWidget {
   final VoidCallback onSignUpSuccess;
@@ -13,10 +12,9 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
 
@@ -30,7 +28,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   void dispose() {
     _nameController.dispose();
-    _phoneController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -73,41 +71,30 @@ class _SignUpPageState extends State<SignUpPage> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'يرجى إدخال الاسم';
-                    } else if (!RegExp(r'^[\u0621-\u064A\s]+$')
-                        .hasMatch(value)) {
+                    } else if (!RegExp(r'^[\u0621-\u064A\s]+$').hasMatch(value)) {
                       return 'يرجى إدخال اسم صالح باللغة العربية';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 20),
-                // Phone TextFormField
                 TextFormField(
-                  controller: _phoneController,
+                  controller: _emailController,
                   textAlign: TextAlign.right,
-                  keyboardType: TextInputType.phone,
-                  inputFormatters: [
-                    FilteringTextInputFormatter
-                        .digitsOnly, // Only numbers allowed
-                    LengthLimitingTextInputFormatter(9), // Limit to 9 digits
-                  ],
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
                     label: Align(
                       alignment: Alignment.centerRight,
-                      child: Text('رقم الجوال'),
+                      child: Text('البريد الإلكتروني'),
                     ),
-                    hintText: 'رقم الجوال',
+                    hintText: 'البريد الإلكتروني',
                     hintStyle: const TextStyle(fontSize: 14),
-                    prefixText: '+966 ',
-                    counterText: '', // Hide the counter
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'يرجى إدخال رقم الجوال';
-                    } else if (value.length != 9 ||
-                        !RegExp(r'^[5][0-9]{8}$').hasMatch(value)) {
-                      return 'يرجى إدخال رقم جوال صالح مكون من 9 أرقام يبدأ بـ 5';
+                      return 'يرجى إدخال البريد الإلكتروني';
+                    } else if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)) {
+                      return 'يرجى إدخال بريد إلكتروني صالح';
                     }
                     return null;
                   },
@@ -127,9 +114,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     hintStyle: const TextStyle(fontSize: 14),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _passwordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                        _passwordVisible ? Icons.visibility : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -162,9 +147,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     hintStyle: const TextStyle(fontSize: 14),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _confirmPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                        _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -198,8 +181,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          const Color.fromRGBO(1, 57, 31, 1.0), // Button color
+                      backgroundColor: const Color.fromRGBO(1, 57, 31, 1.0), // Button color
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
@@ -217,4 +199,4 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
     );
   }
-}
+}*/
