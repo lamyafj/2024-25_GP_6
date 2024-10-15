@@ -181,6 +181,7 @@ export const BringDriverRecord = async () => {
 
   
   export const inActivateDriver = async (uid) => {
+    console.log('hi')
     const idToken = Cookies.get('session'); 
     if (idToken) {
       try {
@@ -204,6 +205,7 @@ export const BringDriverRecord = async () => {
   };
 
   export const activateDriver = async (uid) => {
+    console.log('hey')
     const idToken = Cookies.get('session'); 
     if (idToken) {
       try {

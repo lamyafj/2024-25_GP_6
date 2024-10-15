@@ -612,6 +612,7 @@ app.post('/api/editdriver', async (req, res) => {
 });
 ////////////////////////////////inactivate a driver
 app.post('/api/inactivatedriver', async (req, res) => {
+  console.log('im inactivate')
   const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
   const { uid } = req.body;
 
@@ -626,6 +627,7 @@ app.post('/api/inactivatedriver', async (req, res) => {
     // Reference to the driver document
     const driverRef = db.collection('Driver').doc(uid);
     const driverDoc = await driverRef.get();
+    console.log(uid)
 
     // Check if the driver document exists
     if (!driverDoc.exists) {
@@ -1008,6 +1010,40 @@ app.post('/api/acceptstudent', async (req, res) => {
   } catch (error) {
     console.error('Error updating bus:', error);
     res.status(500).send('Failed to update bus');
+  }
+});
+
+
+//////////////////////////////////////////////////////////////////parent functions
+app.post('/api/parentstudentdetail', async (req, res) => {
+  console.log('Server student detail called');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  const { uid } = req.body; // Expecting uid to be in the request body
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+  
+  
+  try {
+    // Token verification can be uncommented if needed
+    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const studentsRef = admin.firestore().collection('Student') // Change collection name if necessary
+    const studentSnapshot = await studentsRef.where('uid', '==', uid).get();
+
+    if (studentSnapshot.empty) {
+      return res.status(404).send('Student not found');
+    }
+
+    const studentData = studentSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }))[0];
+
+    res.status(200).send(studentData); 
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
   }
 });
 

@@ -208,6 +208,7 @@ export const BringStudentRecord = async () => {
   };
 
   export const AcceptStudent = async (uid) => {
+  
     const idToken = Cookies.get('session'); 
     if (idToken) {
       try {

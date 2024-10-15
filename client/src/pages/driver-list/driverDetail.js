@@ -36,6 +36,7 @@ export default function DriverDetail() {
   const [isBusLoading, setIsBusLoading] = useState(false);
   const [isDriverActiveLoading, setIsDriverActiveLoading] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isActivating, setIsActivating] = useState(false);
  
 
   // Fetch driver record and bus list
@@ -159,6 +160,7 @@ export default function DriverDetail() {
   const inactivateDriver = async () => {
     setIsDriverActiveLoading(true)
     try {
+      console.log('test')
       // Call the function to inactivate the driver
       await inActivateDriver(uid);
   
@@ -221,8 +223,9 @@ export default function DriverDetail() {
   };
 
   const activatedriver = async () => {
+    console.log('test2')
     setIsDriverActiveLoading(true)
-    setModalOpen(false)
+
     try {
       await activateDriver(uid); // Unassign bus from driver
       setSelectedBus(null); // Clear selected bus
@@ -240,7 +243,7 @@ export default function DriverDetail() {
       console.error('Error unassigning bus:', error);
     }finally{
         setIsDriverActiveLoading(false)
-        setModalOpen(false)
+       
     }
   };
   if (loading) {
@@ -257,47 +260,55 @@ export default function DriverDetail() {
           {!isEditing && (
             <button className='edit-bus-button' onClick={() => navigate('/driverList')}>عودة</button>
           )}
-  <>
-      {!isEditing && record.status === 'active' && (
-        <button 
-          value={record.uid} 
-          className="delete-driver-button" 
-          onClick={() => setModalOpen(true)} // Open the modal instead of inactivating directly
-          disabled={isDriverActiveLoading}
-          style={{ width: '80px' }}
-        >
-          {isDriverActiveLoading ? <CgSpinnerAlt className='spinner' /> : 'الغاء التسجيل'}
-        </button>
-      )}
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
-        onConfirm={() => inactivateDriver(record.uid)}
-      >
-        هل أنت متأكد من أنك تريد إلغاء تسجيل السائق؟
-      </ConfirmationModal>
-    </>
 
 
-    <>
+<>
+  {/* Inactivation Button */}
+  {!isEditing && record.status === 'active' && (
+    <button 
+      value={record.uid} 
+      className="delete-driver-button" 
+      onClick={() => {
+        setIsActivating(false); // Set to inactivate
+        setModalOpen(true); // Open the modal
+      }}
+      disabled={isDriverActiveLoading}
+      style={{ width: '80px' }}
+    >
+      {isDriverActiveLoading ? <CgSpinnerAlt className='spinner' /> : 'الغاء التسجيل'}
+    </button>
+  )}
+
+  {/* Activation Button */}
   {!isEditing && record.status === 'inactive' && (
     <button 
       className="activate-driver-button" 
-      onClick={() => setModalOpen(true)} // Prepare to open the modal
+      onClick={() => {
+        setIsActivating(true); // Set to activate
+        setModalOpen(true); // Open the modal
+      }}
       disabled={isDriverActiveLoading}
     >
       {isDriverActiveLoading ? <CgSpinnerAlt className='spinner' /> : 'تنشيط'}
     </button>
   )}
+
+  {/* Confirmation Modal */}
   <ConfirmationModal
     isOpen={isModalOpen}
     onClose={() => setModalOpen(false)}
     onConfirm={() => {
-      setModalOpen(false); // Ensure modal is closed when confirming
-      activatedriver();
+      if (isActivating) {
+        activatedriver(record.uid); // Activate the driver
+      } else {
+        inactivateDriver(record.uid); // Inactivate the driver
+      }
+      setModalOpen(false); // Close the modal after the action
     }}
   >
-    هل أنت متأكد من أنك تريد تنشيط السائق؟
+    {isActivating 
+      ? 'هل أنت متأكد من أنك تريد تنشيط السائق؟' 
+      : 'هل أنت متأكد من أنك تريد إلغاء تسجيل السائق؟'}
   </ConfirmationModal>
 </>
 
