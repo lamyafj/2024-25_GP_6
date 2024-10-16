@@ -381,6 +381,15 @@ class StudentDetailsView extends StatelessWidget {
                   style: TextStyle(fontSize: 18, color: Colors.black87),
                   textAlign: TextAlign.right,
                 ),
+
+                const SizedBox(height: 10),
+
+                // Student Details
+                const Text(
+                  'رقم الحافلة:1',
+                  style: TextStyle(fontSize: 18, color: Colors.black87),
+                  textAlign: TextAlign.right,
+                ),
                 const SizedBox(height: 30),
 
                 // Cancel Registration Button (Aligned Center)
