@@ -11,6 +11,7 @@ app.use(cookieParser());
 const { FieldValue } = require('firebase-admin').firestore;
 const translate = require('@vitalets/google-translate-api');
 const fetch = require('node-fetch');
+const nodemailer = require('nodemailer');
 //const GeoFire = require('geofire');
 
 
@@ -59,33 +60,44 @@ const verifyToken = async (req, res, next) => {
 
 app.post('/api/auth/register', async (req, res) => {
   const { email, password, schoolCode } = req.body;
+  const formatemail = email.trim();
 
   try {
     // Create a new user with Firebase Authentication
     const userRecord = await admin.auth().createUser({
-      email,
+      email: formatemail,
       password,
-      displayName: schoolCode, // Optional     
+      displayName: schoolCode, // Optional   
     });
+
     console.log('Successfully created new user:', userRecord.uid);
-    //////////////////set up the data attributes
-    //////////////Geo exapmple
-      const lat = 51.5074;
-      const lng = 0.1278;
-      //const hash = geoFire.geohashForLocation([lat, lng]);;
+
+    // Setup the data attributes
+    const lat = 51.5074;
+    const lng = 0.1278;
+
     const userData = {
-      email,
+      email: formatemail,
       schoolCode,
-      Role:"School",
-      buses:[],
-      students:[],
-      drivers:[],
+      Role: "School",
+      buses: [],
+      students: [],
+      drivers: [],
       coordinates: new admin.firestore.GeoPoint(Number(lat), Number(lng)),
       createdAt: admin.firestore.FieldValue.serverTimestamp(), // Add timestamp
     };
-    // Add the user data to the 'users' collection in Firestore
+
+    // Add the user data to the 'School' collection in Firestore
     await db.collection('School').doc(userRecord.uid).set(userData);
-    res.status(201).send({ message: 'User registered and document created successfully' });
+
+
+    /////////////////////////////////////الفنكشن اللي ترسل ايميل تحقق
+    await sendEmailVerification(userRecord);
+
+    // Send the verification link or handle it as needed
+    res.status(201).send({
+      message: 'User registered and document created successfully' // Optionally return the link
+    });
 
   } catch (error) {
     console.error('Error creating new user:', error.message);
@@ -93,6 +105,135 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
+
+
+
+async function sendEmailVerification(userRecord) {
+  try {
+    // Generate a verification link
+    const verificationLink = await admin.auth().generateEmailVerificationLink(userRecord.email);
+
+    // Configure your email transport using nodemailer
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'maslakproject@gmail.com',
+        pass: 'rfrn uqpe kmcw zeqs',
+      },
+    });
+
+    // Setup email data
+    const mailOptions = {
+      from: 'maslakproject@gmail.com',
+      to: userRecord.email,
+      subject: 'تأكيد عنوان البريد الإلكتروني الخاص بك', // Subject in Arabic
+      html: `<a href="https://ibb.co/T0v0ZLF"><img src="https://i.ibb.co/LgkgM52/maslakheader.jpg" alt="maslakheader" border="0"></a>
+        <p>مرحبًا بك في منصه مسلك. يرجى تأكيد بريدك الإلكتروني بالنقر على الرابط التالي:</p>
+        <a href="${verificationLink}">تأكيد البريد الإلكتروني</a>
+        <p>إذا لم تطلب هذا البريد، يرجى تجاهل هذه الرسالة.</p>
+      `,
+    };
+
+    // Send the verification email
+    await transporter.sendMail(mailOptions);
+    console.log('Verification email sent successfully');
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+  }
+}
+
+///////////////////////reset password email
+async function sendPasswordResetLink(userRecord) {
+  try {
+    // Generate a password reset link
+    const resetLink = await admin.auth().generatePasswordResetLink(userRecord.email);
+
+    // Configure your email transport using nodemailer
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'maslakproject@gmail.com',
+        pass: 'rfrn uqpe kmcw zeqs', // Use your app password
+      },
+    });
+
+    // Setup email data
+    const mailOptions = {
+      from: 'maslakproject@gmail.com',
+      to: userRecord.email,
+      subject: 'إعادة تعيين كلمة المرور', // Subject in Arabic
+      html: `<a href="https://ibb.co/T0v0ZLF"><img src="https://i.ibb.co/LgkgM52/maslakheader.jpg" alt="maslakheader" border="0"></a>
+        <p>لقد طلبت إعادة تعيين كلمة المرور الخاصة بك. يرجى النقر على الرابط التالي لإعادة تعيين كلمة المرور:</p>
+        <a href="${resetLink}">إعادة تعيين كلمة المرور</a>
+        <p>إذا لم تطلب هذا البريد، يرجى تجاهل هذه الرسالة.</p>
+      `,
+    };
+
+    // Send the password reset email
+    await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent successfully');
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+  }
+}
+
+
+//////////////////////resend email verfication
+
+app.post('/api/emailverification', async (req, res) => {
+  console.log('Verification endpoint hit');
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(403).send('no email'); // No email provided
+  }
+  
+  try {
+    // Check if a user with the provided email exists
+    const userRecord = await admin.auth().getUserByEmail(email);
+
+    // If the user exists, send the verification email
+    await sendEmailVerification(userRecord);
+    
+    res.status(200).send(true);
+  } catch (error) {
+    // Handle errors when the user is not found or other issues
+    if (error.code === 'auth/user-not-found') {
+      return res.status(401).send('no account with this email!');
+    }
+    console.error('Error verifying email:', error);
+    res.status(500).send('An error occurred while verifying the email.');
+  }
+});
+
+////////////////////////////reset password from client
+
+app.post('/api/passwordreset', async (req, res) => {
+  console.log('password reset endpoint hit');
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(403).send('no email'); // No email provided
+  }
+  
+  try {
+    // Check if a user with the provided email exists
+    const formatemail=email.trim()
+    const userRecord = await admin.auth().getUserByEmail(formatemail);
+
+    // If the user exists, send the verification email
+    await sendPasswordResetLink(userRecord);
+    
+    res.status(200).send(true);
+  } catch (error) {
+    // Handle errors when the user is not found or other issues
+    if (error.code === 'auth/user-not-found') {
+      return res.status(401).send('no account with this email!');
+    }
+    console.error('Error verifying email:', error);
+    res.status(500).send('An error occurred while verifying the email.');
+  }
+});
 
 
 //////////////////////Routing
@@ -123,11 +264,14 @@ app.post('/api/sessionLogin', async (req, res) => {
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
+    if (!decodedToken.email_verified) {
+      return res.status(404).send('الرجاء التحقق من البريد الالكتروني');
+    }
 
     // Fetch user document from the database
     const userDoc = await db.collection('School').doc(decodedToken.uid).get();
     if (!userDoc.exists) {
-      return res.status(404).send('User not found');
+      return res.status(404).send('لا يوجد هذا المستخدم');
     }
 
     //////only sign in if the account is School account
@@ -146,7 +290,7 @@ app.post('/api/sessionLogin', async (req, res) => {
       });
       return res.status(200).send({ status: 'success' });
     } else {
-      return res.status(403).send('Forbidden: User is not a School');
+      return res.status(403).send('الحساب ليس حساب موثق لمدرسه');
     }
   } catch (error) {
     console.error('Token verification error:', error);
@@ -1048,6 +1192,15 @@ app.post('/api/parentstudentdetail', async (req, res) => {
 });
 
 
+///////////////////////////rfid 
+// Middleware to parse JSON bodies
+app.post('/api/rfid', (req, res) => {
+  const cardUID = req.body.card_uid;
+  
+  console.log(`Received UID: ${cardUID}`);
+  
+  res.status(200).send("Received");
+});
 
 app.listen(5000, () => {
   console.log('Server is running on port 5000');

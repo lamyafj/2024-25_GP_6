@@ -10,7 +10,7 @@ export default function Textinput({ width, type, content ,value,onChange ,name})
         value={value}
         onChange={onChange}
         name={name}
-        required
+
       />
       <label className="label-name">
         <span className="content-name">{content}</span>

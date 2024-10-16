@@ -9,6 +9,10 @@ export const LOGOUT ='logout';
 
 export const RECORD ='record';
 
+export const EMAILVERIFICATION ='emailverification';
+
+export const PASSWORDRESET ='passwordreset';
+
 //////////////////////////////bus related path
 
 export const BUSRECORD ='busrecord'
@@ -56,6 +60,8 @@ export const  UNASSIGNBUSFORSTUDENT='unassignstudentbus';
 export const  DELETESTUDENT='deletestudent';
 
 export const  ACCEPTSTUDENT='Acceptstudent';
+
+/////////////////////////resend
 
 
 
