@@ -18,6 +18,7 @@ import { FaRegIdCard } from "react-icons/fa";
 import { FaBus } from "react-icons/fa";
 import { IoTrashBinOutline } from "react-icons/io5";
 import ConfirmationModal from '../../components/Confirmation/confirm.js';
+import SuccessMessage from '../../components/successMessage/successMessage.js';
 
 export default function DriverDetail() {
   const params = useParams();
@@ -37,6 +38,9 @@ export default function DriverDetail() {
   const [isDriverActiveLoading, setIsDriverActiveLoading] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showSuccessbus, setShowSuccessbus] = useState(false);
+  const [showSuccessactivate, setShowSuccessactivate] = useState(false);
  
 
   // Fetch driver record and bus list
@@ -145,6 +149,7 @@ export default function DriverDetail() {
       setError('فشل في حفظ التغييرات. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSaving(false); // End the saving process
+      handleSuccessOperation('1')
     }
   };
   
@@ -197,6 +202,7 @@ export default function DriverDetail() {
       console.error('Error assigning bus:', error);
     } finally {
       setIsBusLoading(false);
+      handleSuccessOperation('2')
     }
   };
   const deleteDriverBus = async () => {
@@ -243,16 +249,41 @@ export default function DriverDetail() {
       console.error('Error unassigning bus:', error);
     }finally{
         setIsDriverActiveLoading(false)
-       
+        handleSuccessOperation('3')
     }
   };
   if (loading) {
     return <Loading />;
   }
 
+  const handleSuccessOperation = (number) => {
+    // Reset the state to show the success message
+    if(number==='1'){
+    setShowSuccess(false); // Ensure it's hidden before showing again (reset state)
+    setTimeout(() => setShowSuccess(true), 0); // Trigger the success message
+    }
+    if(number==='2'){
+      setShowSuccessbus(false); // Ensure it's hidden before showing again (reset state)
+      setTimeout(() => setShowSuccessbus(true), 0); // Trigger the success message
+    }
+    if(number==='3'){
+      setShowSuccessactivate(false); // Ensure it's hidden before showing again (reset state)
+      setTimeout(() => setShowSuccessactivate(true), 0); // Trigger the success message
+    }
+  }; 
+
 
   return (
     <div className='bus-detail-page'>
+              <>
+        {showSuccess && <SuccessMessage message="تم التعديل بنجاح" />}
+        </>
+        <>
+        {showSuccessbus && <SuccessMessage message="تم التعيين بنجاح" />}
+        </>
+        <>
+        {showSuccessactivate && <SuccessMessage message="تم التنشيط بنجاح" />}
+        </>
       <Header />
       <div className="bus-detail-main">
         <div className="bus-detail-buttons">

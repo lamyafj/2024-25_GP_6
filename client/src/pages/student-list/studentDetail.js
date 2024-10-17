@@ -19,6 +19,7 @@ import { FaBus } from "react-icons/fa";
 import { IoTrashBinOutline } from "react-icons/io5";
 import { MdOutlineOtherHouses } from "react-icons/md";
 import ConfirmationModal from '../../components/Confirmation/confirm.js';
+import SuccessMessage from '../../components/successMessage/successMessage.js';
 
 
 
@@ -41,6 +42,10 @@ export default function StudentDetail() {
   const [isDelete, setIsDelete] = useState(null);
   const [isAccept, setIsAccept] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showSuccessbus, setShowSuccessbus] = useState(false);
+  const [showSuccessaccept, setShowSuccessaccept] = useState(false);
+
   
 
 const validateCityAndDistrict = input => input.trim().length >= 2;
@@ -86,6 +91,7 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
       console.error('فشل في جلب الحافلات', err);
     }
   };
+
 
   useEffect(() => {
     if (buses.length > 0 && student.bus) {
@@ -167,6 +173,7 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
       setError('فشل في حفظ التغييرات. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSaving(false);
+      handleSuccessOperation('1')
     }
   };
   
@@ -191,6 +198,7 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
       setError('خطأ في تعيين الحافلة');
     }finally{
         setIsassigning(false)
+        handleSuccessOperation('2')
     }
   };
 
@@ -236,6 +244,7 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
       setError('خطأ في قبول الطالب');
     }finally{
       setIsAccept(false)
+      handleSuccessOperation('3')
     }
   };
 
@@ -243,8 +252,34 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
     return <Loading />;
   }
 
+  const handleSuccessOperation = (number) => {
+    // Reset the state to show the success message
+    if(number==='1'){
+    setShowSuccess(false); // Ensure it's hidden before showing again (reset state)
+    setTimeout(() => setShowSuccess(true), 0); // Trigger the success message
+    }
+    if(number==='2'){
+      setShowSuccessbus(false); // Ensure it's hidden before showing again (reset state)
+      setTimeout(() => setShowSuccessbus(true), 0); // Trigger the success message
+    }
+    if(number==='3'){
+      setShowSuccessaccept(false); // Ensure it's hidden before showing again (reset state)
+      setTimeout(() => setShowSuccessaccept(true), 0); // Trigger the success message
+    }
+  }; 
+
+
   return (
     <div className="student-detail-page">
+        <>
+        {showSuccess && <SuccessMessage message="تم التعديل بنجاح" />}
+        </>
+        <>
+        {showSuccessbus && <SuccessMessage message="تم التعيين بنجاح" />}
+        </>
+        <>
+        {showSuccessaccept && <SuccessMessage message="تم القبول بنجاح" />}
+        </>
       <Header />
       <div className="student-detail-main">
         <div className="student-detail-buttons">
@@ -258,10 +293,10 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
           )}
 
           {student.status==='inactive'&&(
-            <>
+          <>
           <button className="details-driver-button" onClick={acceptStudent} disabled={isAccept}>
           {isAccept ? <CgSpinnerAlt className="spinner" /> : 'قبول'}
-        </button>
+         </button>
       
         <>
       <button 
@@ -541,7 +576,10 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
     </ItemContainer>
   </div>
 )}
+<div id='map'>
+  
 
+</div>
             </div>
           </div>
         </FormContainer>
