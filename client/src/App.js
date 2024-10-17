@@ -14,6 +14,8 @@ import DriverDetail from './pages/driver-list/driverDetail.js'
 import AddStudent from './pages/student-list/addStudent.js'
 import StudentList from './pages/student-list/studentList.js'
 import StudentDetail from './pages/student-list/studentDetail.js'
+import Emailverification from './pages/login/emailverification.js';
+import PasswordReset from './pages/login/passwordreset.js';
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/loading" element={<Loading/>}/>
+        <Route path="/emailverification" element={<Emailverification/>}/>
+        <Route path="/passwordreset" element={<PasswordReset/>}/>
         <Route 
           path="/adminDashboard" 
           element={
