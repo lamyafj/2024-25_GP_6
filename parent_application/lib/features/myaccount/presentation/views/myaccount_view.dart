@@ -1,31 +1,86 @@
 import 'package:flutter/material.dart';
-// import 'package:maslak/core/utils/app_assets.dart';
-import 'package:parent_application/core/utils/app_colors.dart';
-// import 'package:flutter/material.dart';
-// import 'package:parent_application/core/utils/app_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:parent_application/features/auth/presentaion/views/login_page.dart'; // Ensure the correct path
 import 'package:parent_application/features/myaccount/presentation/views/EditMyAccountView.dart';
+import 'package:parent_application/core/utils/app_colors.dart'; // Make sure AppColors is imported
 
 class MyaccountView extends StatelessWidget {
-  const MyaccountView({super.key});
+  // Removed `const` keyword since storage is non-constant
+  MyaccountView({super.key});
+
+  // Secure storage for token management
+  final storage = FlutterSecureStorage();
+
+  // Function to handle user logout
+  Future<void> handleLogout(BuildContext context) async {
+    // Show the verification dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primaryColor, // Set background color
+          title: Text(
+            "تأكيد تسجيل الخروج",
+            style: TextStyle(
+              color: AppColors.sColor, // Set title text color to sColor
+            ),
+            textAlign: TextAlign.right, // Align the title text to the right
+          ),
+          content: Text(
+            "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+            style: TextStyle(
+              color: AppColors.sColor, // Set content text color to sColor
+            ),
+            textAlign: TextAlign.right, // Align the content text to the right
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(
+                "إلغاء",
+                style: TextStyle(
+                  color: AppColors.sColor, // Set text color for 'إلغاء' button
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Log out the user
+                await FirebaseAuth.instance.signOut();
+                await storage.delete(key: 'firebaseToken'); // Delete the token
+                print("User logged out and token deleted.");
+
+                // Navigate to login page after logging out
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              },
+              child: Text(
+                "موافق",
+                style: TextStyle(
+                  color: AppColors.sColor, // Set text color for 'موافق' button
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        // leading: IconButton(onPressed: () {}, icon: const Icon(Icons.person)),
-
         title: const Text(
           "الملف الشخصي",
           textDirection: TextDirection.rtl,
         ),
         centerTitle: true, // This centers the title
-
-        // actions: [
-        //   IconButton(
-        //       onPressed: () {},
-        //       icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode))
-        // ],
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -59,13 +114,13 @@ class MyaccountView extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.thColor,
+                          color: AppColors.thColor, // Apply thColor here
                         ),
                         padding: const EdgeInsets.all(4.0),
                         child: const Icon(
                           Icons.edit,
                           size: 20,
-                          color: Colors.white,
+                          color: Colors.white, // Keep the icon white
                         ),
                       ),
                     ),
@@ -94,14 +149,8 @@ class MyaccountView extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Text(
-                "noramohamed@gmail.com",
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w300,
-                    ),
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 20), // Removed the email as requested
+
               // تعديل button to navigate to EditMyAccount page
               SizedBox(
                 width: 200,
@@ -117,7 +166,7 @@ class MyaccountView extends StatelessWidget {
                   },
                   child: const Text("تعديل"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.thColor,
+                    backgroundColor: AppColors.thColor, // Apply thColor here
                     foregroundColor: Colors.white,
                     textStyle: const TextStyle(
                       fontSize: 18,
@@ -130,17 +179,14 @@ class MyaccountView extends StatelessWidget {
               const Divider(),
               const SizedBox(height: 10),
               // Menu items
-              // myaccountMenuWidget(
-              //   title: "إعدادات",
-              //   icon: Icons.settings,
-              //   onPressed: () {},
-              // ),
               myaccountMenuWidget(
                 title: "تسجيل خروج",
                 icon: Icons.exit_to_app,
                 textColor: Colors.red,
                 endIcon: false,
-                onPressed: () {},
+                onPressed: () {
+                  handleLogout(context); // Call logout function
+                },
               ),
             ],
           ),

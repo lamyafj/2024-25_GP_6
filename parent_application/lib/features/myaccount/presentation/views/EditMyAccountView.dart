@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:parent_application/core/utils/app_colors.dart';
 
@@ -70,28 +71,17 @@ class EditMyAccount extends StatelessWidget {
                 const SizedBox(height: 20),
                 // Full Name Field
                 buildTextField(
-                  labelText: 'الاسم الكامل',
+                  labelText: 'الاسم',
                   icon: Icons.person,
                 ),
                 const SizedBox(height: 10),
-                // Email Field
-                buildTextField(
-                  labelText: 'البريد الإلكتروني',
-                  icon: Icons.email,
-                ),
-                const SizedBox(height: 10),
+
                 // Phone Number Field
-                buildTextField(
-                  labelText: 'رقم الهاتف',
+                buildPhoneNumberField(
+                  labelText: 'رقم الجوال',
                   icon: Icons.phone,
                 ),
                 const SizedBox(height: 10),
-                // Password Field
-                buildTextField(
-                  labelText: 'كلمة المرور',
-                  icon: Icons.lock,
-                  isPassword: true,
-                ),
                 const SizedBox(height: 20),
                 // Edit Profile Button
                 SizedBox(
@@ -115,10 +105,6 @@ class EditMyAccount extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    /* Text(
-                      'انضم في 31 أكتوبر 2022',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),*/
                     TextButton(
                       onPressed: () {
                         // Handle delete account
@@ -153,6 +139,34 @@ class EditMyAccount extends StatelessWidget {
           fontSize: 16,
           color: Colors.grey,
         ),
+        prefixIcon: Icon(icon), // Icon on the left side in RTL layout
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      ),
+      textDirection: TextDirection.rtl, // Ensure text direction is RTL
+    );
+  }
+
+  // Phone Number Field with +966 prefix and 9-digit validation
+  Widget buildPhoneNumberField({
+    required String labelText,
+    required IconData icon,
+  }) {
+    return TextField(
+      textAlign: TextAlign.right, // Align text input to the right
+      keyboardType: TextInputType.phone,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(9),
+      ],
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: const TextStyle(
+          fontSize: 16,
+          color: Colors.grey,
+        ),
+        prefixText: '+966 ', // Add the +966 prefix
         prefixIcon: Icon(icon), // Icon on the left side in RTL layout
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         contentPadding:
