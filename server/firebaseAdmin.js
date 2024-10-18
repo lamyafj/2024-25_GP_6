@@ -1,9 +1,16 @@
+// Load environment variables
+require('dotenv').config();
+
+// Log to check if environment variables are being loaded correctly
+console.log('Private Key ID:', process.env.private_key_id);
+console.log('Private Key:', process.env.private_key);
+
 // src/firebaseAdmin.js
 const admin = require('firebase-admin');
 //const serviceAccount = require('./credentials.json'); // Ensure this path is correct
 const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
 const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
-require('dotenv').config();
+
 
 serviceAccount={
   "type": "service_account",
