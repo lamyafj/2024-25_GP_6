@@ -134,9 +134,7 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: "/sign_up",
-      builder: (context, state) => SignUpPage(
-        onSignUpSuccess: () => GoRouter.of(context).go("/login"),
-      ),
+      builder: (context, state) => SignUpPage(),
     ),
     GoRoute(
       path: "/home",

@@ -16,6 +16,8 @@ const nodemailer = require('nodemailer');
 //const GeoFire = require('geofire');
 
 
+
+
 // Middleware to handle cookies
 app.use((req, res, next) => {
   const cookies = new UniversalCookie(req.headers.cookie);
@@ -1269,3 +1271,41 @@ app.listen(5000, () => {
 });
 
 
+///////////////////////////////////////////////////////////////////////////////// parent application from here
+
+
+
+
+// Middleware to parse JSON
+app.use(express.json());
+
+// Route to fetch parent data
+app.get('/getParentData/:phoneNumber', async (req, res) => {
+  const phoneNumber = req.params.phoneNumber; // Extract phone number from URL
+
+  try {
+    const parentRef = admin.firestore().collection('Parent').doc(phoneNumber);
+    const parentDoc = await parentRef.get();
+
+    if (!parentDoc.exists) {
+      return res.status(404).send('Parent data not found');
+    }
+
+    // Fetch the data from the document
+    const parentData = parentDoc.data();
+
+    res.send({
+      name: parentData.name,
+      phoneNumber: parentData.phoneNumber,
+    });
+  } catch (error) {
+    console.error('Error fetching parent data:', error);
+    res.status(500).send('Error fetching parent data');
+  }
+});
+
+// Start the server
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
