@@ -36,7 +36,6 @@ export default function AdminDashboard() {
     return () => unsubscribe();
   }, []);
 
-  // Render a loading spinner until the fetch is done
   if (loading) {
     return <Loading />;
   }
