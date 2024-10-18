@@ -17,6 +17,14 @@ export const PASSWORDRESET ='passwordreset';
 
 export const BUSRECORD ='busrecord'
 
+
+
+///
+export const UPDATEDSCHOOL = 'schooldata';
+export const SCHOOLDATA = 'getschooldata';
+
+
+//
 export const ADDBUS ='addbus';
 
 export const DELETEBUS ='deletebus';
@@ -63,6 +71,7 @@ export const  ACCEPTSTUDENT='Acceptstudent';
 
 /////////////////////////resend
 
+export const COMPLETREGISTER='auth/complete-registration';
 
 
 ////////to copy
