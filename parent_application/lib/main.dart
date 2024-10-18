@@ -75,11 +75,15 @@
  import 'package:flutter/material.dart';
  import 'package:parent_application/core/routes/app_router.dart';
  import 'package:parent_application/core/utils/app_colors.dart';
+ import 'package:firebase_app_check/firebase_app_check.dart';
 
  void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp();  
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: AndroidProvider.playIntegrity, // Use Play Integrity for production
+    );
     print('Firebase Initialized Successfully');
   } catch (e) {
     print('Error Initializing Firebase: $e');

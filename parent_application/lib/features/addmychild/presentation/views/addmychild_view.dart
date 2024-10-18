@@ -39,7 +39,7 @@ class _AddMyChildViewState extends State<AddmychildView> {
           ),
           title: const Text(
             "تسجيل طالب في الحافلة",
-            style: TextStyle(color: Color(0xFF01391F)),
+            style: TextStyle(color: Color(0xFF01391F),fontFamily: 'Zain'),
           ),
           backgroundColor: Colors.white,
           iconTheme: const IconThemeData(color: Color(0xFF01391F)),
@@ -59,6 +59,7 @@ class _AddMyChildViewState extends State<AddmychildView> {
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF01391F),
+                      fontFamily: 'Zain'
                     ),
                   ),
                 ),
@@ -75,6 +76,7 @@ class _AddMyChildViewState extends State<AddmychildView> {
                         textDirection: TextDirection.rtl,
                         decoration: InputDecoration(
                           labelText: "رمز المدرسة",
+                          
                           border:
                               const OutlineInputBorder(), // Default border shape
                           focusedBorder: OutlineInputBorder(
@@ -82,8 +84,13 @@ class _AddMyChildViewState extends State<AddmychildView> {
                                 color: AppColors.sColor,
                                 width: 2.0), // Change only color and width
                           ),
-                          labelStyle: const TextStyle(fontSize: 18),
-                          floatingLabelStyle: TextStyle(color: AppColors.sColor), // Change label color when focused
+                          labelStyle: const TextStyle(fontSize: 18, fontFamily: 'Zain', ),
+                          floatingLabelStyle: TextStyle(color: AppColors.sColor , fontFamily: 'Zain', ), 
+                              errorStyle: const TextStyle(
+                              fontFamily: 'Zain', // Custom font for error messages
+                              fontSize: 14,
+                              color: Colors.red, // Error message color
+                            ),// Change label color when focused
                         ),
                         keyboardType: TextInputType.number,
                         validator: (value) {
@@ -109,8 +116,8 @@ class _AddMyChildViewState extends State<AddmychildView> {
                                 color: AppColors.sColor,
                                 width: 2.0), // Change only color and width
                           ),
-                          labelStyle: const TextStyle(fontSize: 18),
-                          floatingLabelStyle: TextStyle(color: AppColors.sColor), // Change label color when focused
+                          labelStyle: const TextStyle(fontSize: 18,fontFamily: 'Zain', ),
+                          floatingLabelStyle: TextStyle(color: AppColors.sColor , fontFamily: 'Zain', ), // Change label color when focused
                         ),
                         keyboardType: TextInputType.text,
                         validator: (value) {
@@ -132,9 +139,10 @@ class _AddMyChildViewState extends State<AddmychildView> {
                                 color: AppColors.sColor,
                                 width: 2.0), // Change only color and width
                           ),
-                          labelStyle: const TextStyle(fontSize: 18),
-                          floatingLabelStyle: TextStyle(color: AppColors.sColor), // Change label color when focused
+                          labelStyle: const TextStyle(fontSize: 18, fontFamily: 'Zain', ),
+                          floatingLabelStyle: TextStyle(color: AppColors.sColor , fontFamily: 'Zain', ), // Change label color when focused
                         ),
+                          dropdownColor: Color(0xFFE7F0EC), // Custom dropdown menu background color
                         items: <String>[
                           'الصف الأول',
                           'الصف الثاني',
@@ -151,7 +159,10 @@ class _AddMyChildViewState extends State<AddmychildView> {
                         ].map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
-                            child: Text(value, textAlign: TextAlign.right),
+                            child: Text(value, textAlign: TextAlign.right ,
+                              style: TextStyle(
+                                fontFamily: 'Zain', // Custom font family
+                              ),),
                           );
                         }).toList(),
                         onChanged: (String? newValue) {
@@ -184,6 +195,7 @@ class _AddMyChildViewState extends State<AddmychildView> {
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.grey,
+                              fontFamily: 'Zain', 
                             ),
                           ),
                           Expanded(
@@ -211,8 +223,8 @@ class _AddMyChildViewState extends State<AddmychildView> {
                                 color: AppColors.sColor,
                                 width: 2.0), // Change only color and width
                           ),
-                          labelStyle: const TextStyle(fontSize: 18),
-                          floatingLabelStyle: TextStyle(color: AppColors.sColor), // Change label color when focused
+                          labelStyle: const TextStyle(fontSize: 18 , fontFamily: 'Zain', ),
+                          floatingLabelStyle: TextStyle(color: AppColors.sColor , fontFamily: 'Zain', ), // Change label color when focused
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -237,8 +249,8 @@ class _AddMyChildViewState extends State<AddmychildView> {
                                 color: AppColors.sColor,
                                 width: 2.0), // Change only color and width
                           ),
-                          labelStyle: const TextStyle(fontSize: 18),
-                          floatingLabelStyle: TextStyle(color: AppColors.sColor), // Change label color when focused
+                          labelStyle: const TextStyle(fontSize: 18 , fontFamily: 'Zain', ),
+                          floatingLabelStyle: TextStyle(color: AppColors.sColor, fontFamily: 'Zain', ), // Change label color when focused
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -263,8 +275,8 @@ class _AddMyChildViewState extends State<AddmychildView> {
                                 color: AppColors.sColor,
                                 width: 2.0), // Change only color and width
                           ),
-                          labelStyle: const TextStyle(fontSize: 18),
-                          floatingLabelStyle: TextStyle(color: AppColors.sColor), // Change label color when focused
+                          labelStyle: const TextStyle(fontSize: 18 , fontFamily: 'Zain', ),
+                          floatingLabelStyle: TextStyle(color: AppColors.sColor , fontFamily: 'Zain', ), // Change label color when focused
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -289,8 +301,8 @@ class _AddMyChildViewState extends State<AddmychildView> {
                                 color: AppColors.sColor,
                                 width: 2.0), // Change only color and width
                           ),
-                          labelStyle: const TextStyle(fontSize: 18),
-                          floatingLabelStyle: TextStyle(color: AppColors.sColor), // Change label color when focused
+                          labelStyle: const TextStyle(fontSize: 18 , fontFamily: 'Zain', ),
+                          floatingLabelStyle: TextStyle(color: AppColors.sColor, fontFamily: 'Zain', ), // Change label color when focused
                         ),
                         keyboardType: TextInputType.number,
                         validator: (value) {
@@ -327,7 +339,7 @@ class _AddMyChildViewState extends State<AddmychildView> {
                                       content: Center(
                                         child: Text('!تم إضافة الطالب بنجاح',
                                             style:
-                                                TextStyle(color: Colors.black)),
+                                                TextStyle(color: Colors.black , fontFamily: 'Zain', )),
                                       ),
                                       backgroundColor: Color(0xFFE7F0EC),
                                     ),
@@ -349,7 +361,7 @@ class _AddMyChildViewState extends State<AddmychildView> {
                                       content: Center(
                                         child: Text('!حدث خطأ أثناء الإضافة.',
                                             style:
-                                                TextStyle(color: Colors.black)),
+                                                TextStyle(color: Colors.black , fontFamily: 'Zain', )),
                                       ),
                                       backgroundColor: Colors.red,
                                     ),
@@ -361,7 +373,7 @@ class _AddMyChildViewState extends State<AddmychildView> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Color(0xFF01391F),
                               foregroundColor: Colors.white,
-                              textStyle: const TextStyle(fontSize: 18),
+                              textStyle: const TextStyle(fontSize: 18 , fontFamily: 'Zain', ),
                             ),
                           ),
                         ),

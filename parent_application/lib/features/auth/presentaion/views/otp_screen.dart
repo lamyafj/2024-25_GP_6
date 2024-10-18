@@ -98,27 +98,29 @@ class _OTPScreenState extends State<OTPScreen> {
   Widget otpTextField(TextEditingController controller,
       {required bool first, required bool last}) {
     return Container(
-      width: 50, // Set the square size
-      height: 50,
+      width: 45, // Set the square size
+      height: 45,
+        margin: const EdgeInsets.symmetric(horizontal: 0.6), 
       decoration: BoxDecoration(
         border: Border.all(
           width: 1,
           color: correct ? Colors.blueGrey : Colors.red,
         ), // Red border on error
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(6),
         color: const Color.fromARGB(255, 255, 255, 255),
       ),
       child: TextField(
         controller: controller,
         autofocus: first, // Only autofocus the first field
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 24),
+        style: const TextStyle(fontSize: 24 ,fontFamily: 'Zain',),
         keyboardType: TextInputType.number,
         maxLength: 1,
         decoration: const InputDecoration(
           border: InputBorder.none,
           counterText: '', // Removes the character counter below the field
-        ),
+           contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+        ),  
         onChanged: (value) {
           if (value.length == 1 && last == false) {
             FocusScope.of(context).nextFocus(); // Move to next field
@@ -141,9 +143,9 @@ class _OTPScreenState extends State<OTPScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              "لقد أرسلنا رمز التحقق إلى جوالك. الرجاء إدخاله للتحقق:",
+              "لقد أرسلنا رمز التحقق إلى جوالك\n :الرجاء إدخاله للتحقق",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontFamily: 'Zain',),
             ),
             const SizedBox(height: 40),
             // OTP Text Fields in a square format
@@ -162,12 +164,12 @@ class _OTPScreenState extends State<OTPScreen> {
             // Display error message if OTP is incorrect
             if (!correct)
               const Text(
-                'الرمز المدخل غير صحيح. حاول مرة أخرى.',
-                style: TextStyle(color: Colors.red),
+                'الرمز المدخل غير صحيح. حاول مرة أخرى',
+                style: TextStyle(color: Colors.red,  fontFamily: 'Zain'),
               ),
             const SizedBox(height: 20),
             isLoading
-                ? const CircularProgressIndicator()
+                ? const CircularProgressIndicator( color: Color.fromRGBO(196, 174, 87, 1.0), )
                 : ElevatedButton(
                     onPressed: verifyOtp,
                     style: ElevatedButton.styleFrom(
@@ -181,7 +183,7 @@ class _OTPScreenState extends State<OTPScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Zain'
                       ),
                     ),
                   ),

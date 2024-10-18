@@ -18,6 +18,9 @@ class MyaccountView extends StatelessWidget {
         title: const Text(
           "الملف الشخصي",
           textDirection: TextDirection.rtl,
+              style: TextStyle(
+      fontFamily: 'Zain',
+    ),
         ),
         centerTitle: true, // This centers the title
 
