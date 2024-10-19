@@ -16,6 +16,7 @@ import StudentList from './pages/student-list/studentList.js'
 import StudentDetail from './pages/student-list/studentDetail.js'
 import Emailverification from './pages/login/emailverification.js';
 import PasswordReset from './pages/login/passwordreset.js';
+import SettingsForm from './components/SettingsForm/SettingsForm.js';
 
 function App() {
   return (
@@ -112,6 +113,14 @@ function App() {
           element={
             <RequireAuth>
               <AddStudent/>
+            </RequireAuth>
+          } 
+        />
+         <Route 
+          path="/setting" 
+          element={
+            <RequireAuth>
+              <SettingsForm/>
             </RequireAuth>
           } 
         />

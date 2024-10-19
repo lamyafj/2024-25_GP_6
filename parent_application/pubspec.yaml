@@ -58,6 +58,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
   flutter_native_splash: ^2.4.1
+  flutter_launcher_icons: ^0.14.1
 
 flutter_native_splash:
  image: assets/images/MaslakGif.GIF
@@ -86,6 +87,7 @@ flutter:
     - assets/images/profilephoto1.png
     - assets/images/profilephoto2.png
     - assets/images/profilephoto3.png
+    - assets/images/appicon.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -99,10 +101,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Zain
-  #     fonts:
-  #       - asset: fonts/Zain-Regular.ttf
+  fonts:
+    - family: Zain
+      fonts:
+        - asset: font/Zain-Regular.ttf
 
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
@@ -120,3 +122,9 @@ flutter_assets:
   output_path: lib/core/utils/
   filename: app_assets.dart
   field_prefix:
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/appicon.png"
+  min_sdk_android: 23

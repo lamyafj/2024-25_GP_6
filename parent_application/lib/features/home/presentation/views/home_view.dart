@@ -13,6 +13,9 @@ class HomeView extends StatelessWidget {
         title: const Text(
           "الصفحة الرئيسية",
           textDirection: TextDirection.rtl,
+           style: TextStyle(
+           fontFamily: 'Zain', // Set the desired font family
+           ),
         ),
         centerTitle: true, // This centers the title
       ),
@@ -29,8 +32,9 @@ class HomeView extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
+                    fontFamily: 'Zain', 
                     color: AppColors.sColor),
-                textDirection:
+                     textDirection:
                     TextDirection.rtl, // Right-to-left text direction
               ),
               const SizedBox(height: 20),
@@ -69,6 +73,7 @@ class HomeView extends StatelessWidget {
                     "قيد المراجعة",
                     style: TextStyle(
                       fontSize: 16,
+                      fontFamily: 'Zain', 
                       fontWeight: FontWeight.bold,
                       color: Colors.grey,
                     ),
@@ -105,7 +110,7 @@ class HomeView extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const AddmychildView()),
           );
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add   ,color: Color(0xFF01391F)),
         backgroundColor: Colors.white,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -176,19 +181,26 @@ class HomeView extends StatelessWidget {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text(
-                              "انتظر لركوب الطالب الحافلة",
+                              "انتظر لركوب الطالب الحافلة"  ,  
+                                 style: TextStyle(
+                                fontFamily: 'Zain', 
+                                 ),
                               textDirection: TextDirection.rtl,
                             ),
                             duration: const Duration(seconds: 2),
                             behavior: SnackBarBehavior.floating,
                             backgroundColor: Colors.black54,
+                            
                           ),
                         );
                       } else if (labelColor == Colors.grey) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text(
-                              "جاري مراجعة الطلب",
+                              "جاري مراجعة الطلب",   
+                                   style: TextStyle(
+                                fontFamily: 'Zain', // Set font for title
+                              ),
                               textDirection: TextDirection.rtl,
                             ),
                             duration: const Duration(seconds: 2),
@@ -212,6 +224,7 @@ class HomeView extends StatelessWidget {
                           color: labelColor,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
+                          fontFamily: 'Zain', 
                         ),
                         textDirection: TextDirection.rtl,
                       ),
@@ -226,6 +239,7 @@ class HomeView extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18, // Reduced font size
                             fontWeight: FontWeight.bold,
+                            fontFamily: 'Zain', 
                             color: AppColors.sColor,
                           ),
                           textDirection: TextDirection.rtl,
@@ -233,7 +247,7 @@ class HomeView extends StatelessWidget {
                         Text(
                           time,
                           style: const TextStyle(
-                              fontSize: 12), // Reduced font size
+                              fontSize: 12, fontFamily: 'Zain'), 
                           textDirection: TextDirection.rtl,
                         ),
                       ],
@@ -267,6 +281,7 @@ class HomeView extends StatelessWidget {
                               AppColors.sColor, // Use fthColor for text color
                           fontSize: 13, // Reduced font size
                           fontWeight: FontWeight.bold,
+                          fontFamily: 'Zain', 
                           decoration: TextDecoration.underline,
                         ),
                         textDirection: TextDirection.rtl,
@@ -336,6 +351,7 @@ class StudentDetailsView extends StatelessWidget {
                           'محمد خالد',
                           style: const TextStyle(
                             fontSize: 20,
+                            fontFamily: 'Zain', 
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -372,13 +388,13 @@ class StudentDetailsView extends StatelessWidget {
                 // Student Details
                 const Text(
                   'الصف: الرابع',
-                  style: TextStyle(fontSize: 18, color: Colors.black87),
+                  style: TextStyle(fontSize: 18, color: Colors.black87,fontFamily: 'Zain', ),
                   textAlign: TextAlign.right,
                 ),
                 const SizedBox(height: 10),
                 const Text(
                   'العنوان: شارع الملك فيصل، الرياض',
-                  style: TextStyle(fontSize: 18, color: Colors.black87),
+                  style: TextStyle(fontSize: 18, color: Colors.black87, fontFamily: 'Zain', ),
                   textAlign: TextAlign.right,
                 ),
 
@@ -387,7 +403,7 @@ class StudentDetailsView extends StatelessWidget {
                 // Student Details
                 const Text(
                   'رقم الحافلة:1',
-                  style: TextStyle(fontSize: 18, color: Colors.black87),
+                  style: TextStyle(fontSize: 18, color: Colors.black87, fontFamily: 'Zain', ),
                   textAlign: TextAlign.right,
                 ),
                 const SizedBox(height: 30),
@@ -406,7 +422,7 @@ class StudentDetailsView extends StatelessWidget {
                                 AppColors.primaryColor, // Set the background color to primaryColor
                             title: Text(
                               "إلغاء التسجيل",
-                              style: TextStyle(
+                              style: TextStyle( fontFamily: 'Zain', 
                                 color: 
                                     AppColors.sColor, // Set text color to sColor
                               ),
@@ -415,7 +431,7 @@ class StudentDetailsView extends StatelessWidget {
                             ),
                             content: Text(
                               "هل أنت متأكد من إلغاء تسجيل الطالب؟",
-                              style: TextStyle(
+                              style: TextStyle(fontFamily: 'Zain', 
                                 color: 
                                     AppColors.sColor, // Set text color to sColor
                               ),
@@ -430,7 +446,7 @@ class StudentDetailsView extends StatelessWidget {
                                 },
                                 child: Text(
                                   "إلغاء",
-                                  style: TextStyle(
+                                  style: TextStyle(fontFamily: 'Zain', 
                                     color: AppColors.sColor, // Text color for 'إلغاء' button
                                   ),
                                 ),
@@ -440,7 +456,10 @@ class StudentDetailsView extends StatelessWidget {
                                   Navigator.of(context).pop();
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('تم إلغاء التسجيل بنجاح!'),
+                                      content: Text('تم إلغاء التسجيل بنجاح!'   ,
+                                          style: TextStyle(
+                                          fontFamily: 'Zain', // Set font for title
+                                        ),),
                                       backgroundColor: Colors.red,
                                     ),
                                   );
@@ -448,6 +467,7 @@ class StudentDetailsView extends StatelessWidget {
                                 child: Text(
                                   "تأكيد",
                                   style: TextStyle(
+                                    fontFamily: 'Zain', 
                                     color: AppColors.sColor, // Text color for 'تأكيد' button
                                   ),
                                 ),
@@ -460,7 +480,7 @@ class StudentDetailsView extends StatelessWidget {
                     // icon: const Icon(Icons.undo, color: Colors.white),
                     label: const Text(
                       "إلغاء  تسجيل الطالب",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      style: TextStyle(fontSize: 18, color: Colors.white,fontFamily: 'Zain', ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor:

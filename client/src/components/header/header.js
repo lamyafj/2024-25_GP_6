@@ -1,11 +1,11 @@
-import './header.css';
-import React, { useContext } from 'react';
-import { FaUser } from 'react-icons/fa';
-import { SchoolRecordContext } from '../../context/UserContext';
+import './header.css'; // Importing the CSS for styling
+import React, { useContext } from 'react'; // Importing React and useContext
+import { FaUser, FaCog } from 'react-icons/fa'; // Importing user and settings icons
+import { SchoolRecordContext } from '../../context/UserContext'; // Context to access school record
 
-const Header = () => {
-  const { schoolRecord } = useContext(SchoolRecordContext); // Access context
-  const schoolCode = schoolRecord?.schoolCode; // Safely access schoolCode
+const Header = ({ toggleSettingsForm }) => {
+  const { schoolRecord } = useContext(SchoolRecordContext); // Accessing the school record context
+  const schoolCode = schoolRecord?.schoolCode; // Safely accessing the school code
 
   return (
     <div className="header-container">
@@ -22,17 +22,13 @@ const Header = () => {
           )}
           <p className="header-subtitle">قسم نقل الحافلات</p>
         </div>
+        {/* Settings Icon */}
+        <div className="header-settings-icon" onClick={toggleSettingsForm} title="Settings">
+          <FaCog size={24} style={{ cursor: 'pointer', color: 'grey' }} />
+        </div>
       </div>
     </div>
   );
 };
 
 export default Header;
-
-
-        /* Uncomment for actions */
-        /* <div className="header-actions">
-          <input type="checkbox" />
-          <button className="notification-button">🔔</button>
-          <button className="three-dots-button">⋮</button>
-        </div> */

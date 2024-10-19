@@ -2,6 +2,12 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+
+import { getDatabase, ref, onValue } from 'firebase/database';
+import { getFirestore } from "firebase/firestore"; // Add Firestore
+import { getStorage } from "firebase/storage";
+
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -10,6 +16,7 @@ import { getAuth } from "firebase/auth";
 const firebaseConfig = {
   apiKey: "AIzaSyBEmmKehFtK7RPmf1xNPmb-iXlJaoXh1Lc",
   authDomain: "maslak-d4678.firebaseapp.com",
+  databaseURL: "https://maslak-d4678-default-rtdb.firebaseio.com",
   projectId: "maslak-d4678",
   storageBucket: "maslak-d4678.appspot.com",
   messagingSenderId: "404422610322",
@@ -21,4 +28,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+const auth = getAuth(app);
+export const db = getFirestore(app); // Export Firestore (db)
+export const storage = getStorage(app);
+const database = getDatabase(app);
+export { database, ref, onValue ,auth};

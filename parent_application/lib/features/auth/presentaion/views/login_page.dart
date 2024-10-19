@@ -435,7 +435,7 @@ class _LoginPageState extends State<LoginPage> {
     return document.exists; // Return true if the user exists
   }
 
-  void startPhoneVerification(String phoneNumber) async {
+void startPhoneVerification(String phoneNumber) async {
     setState(() {
       isLoading = true;
       errorMessage = null;
@@ -453,13 +453,13 @@ class _LoginPageState extends State<LoginPage> {
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: '+966' + phoneNumber,
       verificationCompleted: (phoneAuthCredential) {
-        // Automatically complete the verification process (Android)
+        // Automatically complete the verification process (Android)   
         _handleLoginAfterVerification(phoneNumber);
       },
       verificationFailed: (FirebaseAuthException error) {
         setState(() {
           isLoading = false;
-          errorMessage = 'فشل التحقق. يرجى المحاولة مرة أخرى.';
+          errorMessage = 'فشل التحقق. يرجى المحاولة مرة أخرى. ${error.message}';
         });
       },
       codeSent: (verificationId, forceResendingToken) {
@@ -518,13 +518,13 @@ class _LoginPageState extends State<LoginPage> {
                     const Text(
                       '!أهلاً بك',
                       style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 24, fontFamily: 'Zain'),
                     ),
                     const SizedBox(height: 10),
                     const Text(
                       'تسجيل الدخول',
                       style:
-                          TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 28, fontFamily: 'Zain'),
                     ),
                     const SizedBox(height: 40),
                     TextFormField(
@@ -536,13 +536,24 @@ class _LoginPageState extends State<LoginPage> {
                         LengthLimitingTextInputFormatter(9),
                       ],
                       decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        label: Align(
-                          alignment: Alignment.centerRight,
-                          child: Text('رقم الجوال'),
-                        ),
-                        hintText: 'رقم الجوال',
-                        prefixText: '+966 ',
+                              border: const OutlineInputBorder(),
+                              label: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  'رقم الجوال',
+                                  style: TextStyle(
+                                    fontFamily: 'Zain', // Apply custom font style here
+                                  ),
+                                ),
+                              ),
+                          hintText: 'رقم الجوال',
+                          hintStyle: TextStyle(
+                            fontFamily: 'Zain', // Custom font for the hint text
+                          ),
+                          prefixText: '+966 ',
+                          prefixStyle: TextStyle(
+                            fontFamily: 'Zain', // Custom font for the prefix text
+                          ),
                       ),
                       maxLength: 9,
                       validator: (value) {
@@ -582,7 +593,7 @@ class _LoginPageState extends State<LoginPage> {
                             : const Text(
                                 'تسجيل الدخول',
                                 style: TextStyle(
-                                    fontSize: 18, color: Colors.white),
+                                    fontSize: 18, color: Colors.white , fontFamily: 'Zain'),
                               ),
                       ),
                     ),
@@ -598,13 +609,14 @@ class _LoginPageState extends State<LoginPage> {
                               'للتسجيل',
                               style: TextStyle(
                                   fontSize: 18,
+                                  fontFamily: 'Zain',
                                   color: Color.fromRGBO(196, 174, 87, 1.0),
-                                  decoration: TextDecoration.underline),
+                                  decoration: TextDecoration.underline,  decorationColor:  Color.fromRGBO(196, 174, 87, 1.0), ),
                             ),
                           ),
                         ),
-                        const Text('مستخدم جديد؟ ',
-                            style: TextStyle(fontSize: 18)),
+                        const Text(' مستخدم جديد؟ ',
+                            style: TextStyle(fontSize: 18, fontFamily: 'Zain')),
                       ],
                     ),
                     const SizedBox(height: 20),

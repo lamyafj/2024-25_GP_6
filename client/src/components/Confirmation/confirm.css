@@ -31,7 +31,7 @@
     padding: 10px 20px;
     margin-left: 10px;
     color: #fff;
-    background-color: #57d659;
+    background-color: #d76d62;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -39,7 +39,7 @@
   }
   
   .modal-button:hover {
-    background-color: #5ec15e;
+    background-color: #b55350;
   }
   
   .modal-button.cancel {

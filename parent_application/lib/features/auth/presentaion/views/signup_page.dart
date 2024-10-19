@@ -269,12 +269,17 @@ class _SignUpPageState extends State<SignUpPage> {
     await saveUserData(phoneNumber, name);
 
     // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("تم التسجيل بنجاح"),
-        backgroundColor: const Color(0xFFE7F0EC),
-      ),
-    );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "تم التسجيل بنجاح",
+              style: TextStyle(
+                fontFamily: 'Zain', 
+              ),
+            ),
+            backgroundColor: const Color(0xFFE7F0EC),
+          ),
+        );
 
     // Redirect to login page
     GoRouter.of(context).go('/login');
@@ -304,16 +309,17 @@ class _SignUpPageState extends State<SignUpPage> {
       return; // Exit the function without updating or creating the user
     }
 
-    await FirebaseAuth.instance.verifyPhoneNumber(
+      await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: phoneNumber,
-      verificationCompleted: (phoneAuthCredential) {
+      verificationCompleted: (phoneAuthCredential)async {
         // Auto verification (not commonly used with OTP)
+       await FirebaseAuth.instance.signInWithCredential(phoneAuthCredential);
       },
       verificationFailed: (FirebaseAuthException error) {
         print("Verification failed: ${error.message}");
         setState(() {
           isLoading = false;
-          errorMessage = 'فشل التحقق. يرجى المحاولة مرة أخرى.';
+          errorMessage = 'فشل التحقق. يرجى المحاولة مرة أخرى.  ${error.message}';
         });
       },
       codeSent: (verificationId, forceResendingToken) {
@@ -357,7 +363,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         'تسجيل جديد',
                         style: TextStyle(
                           fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Zain', 
                         ),
                       ),
                       const SizedBox(height: 40),
@@ -369,10 +375,13 @@ class _SignUpPageState extends State<SignUpPage> {
                           border: const OutlineInputBorder(),
                           label: Align(
                             alignment: Alignment.centerRight,
-                            child: Text('الاسم'),
+                            child: Text('الاسم' ,           
+                         style: TextStyle(
+                                    fontFamily: 'Zain', // Apply custom font style here
+                                  ),),
                           ),
                           hintText: 'الاسم',
-                          hintStyle: const TextStyle(fontSize: 14),
+                          hintStyle: const TextStyle(fontSize: 14,  fontFamily: 'Zain', ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -398,10 +407,14 @@ class _SignUpPageState extends State<SignUpPage> {
                           border: const OutlineInputBorder(),
                           label: Align(
                             alignment: Alignment.centerRight,
-                            child: Text('رقم الجوال'),
+                            child: Text('رقم الجوال' ,                            
+                                   style: TextStyle(
+                                    fontFamily: 'Zain', // Apply custom font style here
+                                  ),),
+                            
                           ),
                           hintText: 'رقم الجوال',
-                          hintStyle: const TextStyle(fontSize: 14),
+                          hintStyle: const TextStyle(fontSize: 14,   fontFamily: 'Zain'),
                           prefixText: '+966 ',
                           counterText: '',
                         ),
@@ -419,7 +432,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       if (errorMessage != null)
                         Text(
                           errorMessage!,
-                          style: TextStyle(color: Colors.red),
+                          style: TextStyle(color: Colors.red,  fontFamily: 'Zain', ),
                         ),
                       const SizedBox(height: 20),
                       // Sign Up Button
@@ -451,7 +464,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               : const Text(
                                   'تسجيل',
                                   style: TextStyle(
-                                      fontSize: 18, color: Colors.white),
+                                      fontSize: 18, color: Colors.white,   fontFamily: 'Zain', ),
                                 ),
                         ),
                       ),
@@ -470,14 +483,16 @@ class _SignUpPageState extends State<SignUpPage> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: Color.fromRGBO(196, 174, 87, 1.0),
+                                    fontFamily: 'Zain', 
                                   decoration: TextDecoration.underline,
+                                  decorationColor: Color.fromRGBO(196, 174, 87, 1.0)
                                 ),
                               ),
                             ),
                           ),
                           const Text(
                             'لديك حساب بالفعل؟ ',
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(fontSize: 18,  fontFamily: 'Zain', ),
                           ),
                         ],
                       ),

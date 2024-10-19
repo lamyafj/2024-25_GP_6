@@ -4,6 +4,7 @@ const admin = require('./firebaseAdmin'); // Ensure this import path is correct
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+const router = express.Router();
 const db = admin.firestore();
 const UniversalCookie = require('universal-cookie');
 const cookieParser = require('cookie-parser');
@@ -13,8 +14,6 @@ const translate = require('@vitalets/google-translate-api');
 const fetch = require('node-fetch');
 const nodemailer = require('nodemailer');
 //const GeoFire = require('geofire');
-
-
 
 
 // Middleware to handle cookies
@@ -60,55 +59,116 @@ const verifyToken = async (req, res, next) => {
 
 //////////////////////Sign up School
 
+
+
 app.post('/api/auth/register', async (req, res) => {
-  const { email, password, schoolCode } = req.body;
-  const formatemail = email.trim();
+  const { email, password, schoolName, phoneNumber, district, street, streetAlt, postalCode } = req.body;
+  const lat = 51.5074;
+  const lng = 0.1278;
 
   try {
-    // Create a new user with Firebase Authentication
+    // Retrieve school count and generate school code
+    const schoolsSnapshot = await admin.firestore().collection('School').get();
+    const schoolCount = schoolsSnapshot.size;
+    const schoolCode = `SH${String(schoolCount + 1).padStart(2, '0')}`;
+
+    // Create user in Firebase Authentication
     const userRecord = await admin.auth().createUser({
-      email: formatemail,
+      email,
       password,
-      displayName: schoolCode, // Optional   
+      displayName: schoolCode,
     });
 
-    console.log('Successfully created new user:', userRecord.uid);
-
-    // Setup the data attributes
-    const lat = 51.5074;
-    const lng = 0.1278;
-
+    // Prepare user data for Firestore
     const userData = {
-      email: formatemail,
+      email,
       schoolCode,
       Role: "School",
+      schoolName,
+      phoneNumber,
+      address: {
+        district,
+        street,
+        streetAlt,
+        postalCode,
+      },
       buses: [],
       students: [],
       drivers: [],
       coordinates: new admin.firestore.GeoPoint(Number(lat), Number(lng)),
-      createdAt: admin.firestore.FieldValue.serverTimestamp(), // Add timestamp
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    // Add the user data to the 'School' collection in Firestore
-    await db.collection('School').doc(userRecord.uid).set(userData);
+    // Store user data in Firestore
+    await admin.firestore().collection('School').doc(userRecord.uid).set(userData);
 
+    // Send verification email
+   
+   await sendEmailVerification(userRecord);  
 
-    /////////////////////////////////////الفنكشن اللي ترسل ايميل تحقق
-    await sendEmailVerification(userRecord);
-
-    // Send the verification link or handle it as needed
-    res.status(201).send({
-      message: 'User registered and document created successfully' // Optionally return the link
-    });
-
+    // Respond with success
+    res.status(201).json({ uid: userRecord.uid });
   } catch (error) {
-    console.error('Error creating new user:', error.message);
-    res.status(500).send({ message: 'Failed to register user', error: error.message });
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 });
 
 
 
+
+router.post('/api/getschooldata', async (req, res) => {
+  console.log('Server school data fetcher called');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+
+  try {
+    
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const schoolDoc = await admin.firestore().collection('School').doc(decodedClaims.uid).get();
+    
+    if (!schoolDoc.exists) {
+      return res.status(404).send('School not found');
+    }
+
+    const schoolData = schoolDoc.data();
+    res.status(200).send(schoolData);
+  } catch (error) {
+    console.error('Token verification or data fetching error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+  }
+});
+
+// Update school data
+router.put('/api/schooldata', async (req, res) => {
+  console.log('Server school data updater called');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const schoolDocRef = admin.firestore().collection('School').doc(decodedClaims.uid);
+    
+    const { phoneNumber, address } = req.body; // Extract data from request body
+
+    await schoolDocRef.update({
+      phoneNumber,
+      address
+    });
+
+    res.status(200).send('School data updated successfully.');
+  } catch (error) {
+    console.error('Token verification or data updating error:', error);
+    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data update failed.');
+  }
+});
+ 
 
 async function sendEmailVerification(userRecord) {
   try {
@@ -1161,35 +1221,26 @@ app.post('/api/acceptstudent', async (req, res) => {
 
 
 //////////////////////////////////////////////////////////////////parent functions
-app.post('/api/parentstudentdetail', async (req, res) => {
-  console.log('Server student detail called');
-  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
-  const { uid } = req.body; // Expecting uid to be in the request body
+app.use(express.json());
 
-  if (!idToken) {
-    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
-  }
-  
-  
+app.get('/getParentData/:phoneNumber', async (req, res) => {
+  console.log('server get parent data endpoint')
+  const phoneNumber = req.params.phoneNumber; // Extract phone number from URL
   try {
-    // Token verification can be uncommented if needed
-    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
-    const studentsRef = admin.firestore().collection('Student') // Change collection name if necessary
-    const studentSnapshot = await studentsRef.where('uid', '==', uid).get();
-
-    if (studentSnapshot.empty) {
-      return res.status(404).send('Student not found');
+    const parentRef = admin.firestore().collection('Parent').doc(phoneNumber);
+    const parentDoc = await parentRef.get();
+    if (!parentDoc.exists) {
+      return res.status(404).send('Parent data not found');
     }
-
-    const studentData = studentSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }))[0];
-
-    res.status(200).send(studentData); 
+    // Fetch the data from the document
+    const parentData = parentDoc.data();
+    res.send({
+      name: parentData.name,
+      phoneNumber: parentData.phoneNumber,
+    });
   } catch (error) {
-    console.error('Token verification or data fetching error:', error);
-    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+    console.error('Error fetching parent data:', error);
+    res.status(500).send('Error fetching parent data');
   }
 });
 
@@ -1202,44 +1253,6 @@ app.post('/api/rfid', (req, res) => {
   console.log(`Received UID: ${cardUID}`);
   
   res.status(200).send("Received");
-});
-
-app.listen(5000, () => {
-  console.log('Server is running on port 5000');
-});
-
-
-///////////////////////////////////////////////////////////////////////////////// parent application from here
-
-
-
-
-// Middleware to parse JSON
-app.use(express.json());
-
-// Route to fetch parent data
-app.get('/getParentData/:phoneNumber', async (req, res) => {
-  const phoneNumber = req.params.phoneNumber; // Extract phone number from URL
-
-  try {
-    const parentRef = admin.firestore().collection('Parent').doc(phoneNumber);
-    const parentDoc = await parentRef.get();
-
-    if (!parentDoc.exists) {
-      return res.status(404).send('Parent data not found');
-    }
-
-    // Fetch the data from the document
-    const parentData = parentDoc.data();
-
-    res.send({
-      name: parentData.name,
-      phoneNumber: parentData.phoneNumber,
-    });
-  } catch (error) {
-    console.error('Error fetching parent data:', error);
-    res.status(500).send('Error fetching parent data');
-  }
 });
 
 // Start the server

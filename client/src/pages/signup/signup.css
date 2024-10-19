@@ -1,34 +1,86 @@
 .Signup {
-    overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center; /* Corrected the property name from 'align-Items' to 'align-items' */
-    }
+  overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Corrected the property name from 'align-Items' to 'align-items' */
+  }
 
-    .signup-button{
-      right:0;
-      font-family: 'zain';
-      width: 100%;
-      margin-top: 20px;
-      background-color: #084327;
-      color: aliceblue;
-      font-size: 20px;
-      border-radius: 5px;
-      box-shadow: none;
-      border: none;
-      cursor: pointer;
-    }
+  .signup-button{
+    right:0;
+    font-family: 'zain';
+    width: 100%;
+    margin-top: 20px;
+    background-color: #084327;
+    color: aliceblue;
+    font-size: 20px;
+    border-radius: 5px;
+    box-shadow: none;
+    border: none;
+    cursor: pointer;
+  }
 
-    .signup-button:hover{
-      background-color: #06341e;
-    } 
-    .no-button-signup{
-      background: transparent; 
-      border: none;
-      color: rgb(0, 67, 0);
-      font-size: 15px;
-      width:75px;
-      cursor: pointer;
-      font-family: "Zain";
-    }
-  
+  .signup-button:hover{
+    background-color: #06341e;
+  } 
+  .no-button-signup{
+    background: transparent; 
+    border: none;
+    color: rgb(0, 67, 0);
+    font-size: 15px;
+    width:75px;
+    cursor: pointer;
+    font-family: "Zain";
+  }
+
+
+  /* Style for the horizontal line */
+.hLine {
+border-top: 1px solid #ddd;
+margin: 20px 0;
+width: 100%;
+}
+
+/* Style for the signup button */
+.signup-button {
+background-color: #084327;
+color: white;
+padding: 12px 20px;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+text-align: center;
+font-size: 16px;
+margin-top: 20px;
+}
+
+.signup-button:hover {
+background-color: #45a049;
+}
+
+/* No-account signup button */
+.no-button-signup {
+background: none;
+border: none;
+color: #084327;
+cursor: pointer;
+font-size: 15px;
+text-decoration: underline;
+padding: 0;
+margin: 0;
+font-weight: bold;
+}
+
+.no-button-signup:hover {
+color: #45a049;
+}
+
+/* Scrollable form container */
+.scrollable-form {
+max-height: 400px; /* Set the height limit */
+overflow-y: auto; /* Enable vertical scrolling */
+padding-right: 15px; /* Optional padding for aesthetics */
+}
+
+.error-text{
+color:red;
+}
