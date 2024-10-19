@@ -82,9 +82,9 @@ void main() async {
   try {
     await Firebase.initializeApp();
     await FirebaseAppCheck.instance.activate(
-      androidProvider:
-          AndroidProvider.debug, // Use Play Integrity for production
+      androidProvider: AndroidProvider.debug,
     );
+
     print('Firebase Initialized Successfully');
   } catch (e) {
     print('Error Initializing Firebase: $e');

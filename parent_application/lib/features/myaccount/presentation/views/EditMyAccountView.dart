@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:parent_application/core/utils/app_colors.dart';
 import 'package:flutter/services.dart';
+import 'package:parent_application/core/utils/app_colors.dart';
+import 'package:parent_application/features/myaccount/presentation/views/myaccount_view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:parent_application/features/auth/presentaion/views/login_page.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Add secure storage package
 
-class EditMyAccount extends StatelessWidget {
+class EditMyAccount extends StatefulWidget {
   final String currentName;
   final String currentPhoneNumber;
 
@@ -13,16 +18,43 @@ class EditMyAccount extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _EditMyAccountState createState() => _EditMyAccountState();
+}
+
+class _EditMyAccountState extends State<EditMyAccount> {
+  late String newName;
+  late String newPhoneNumber;
+  final storage = FlutterSecureStorage(); // Instance of secure storage
+
+  late TextEditingController _nameController;
+  late TextEditingController _phoneController;
+
+  @override
+  void initState() {
+    super.initState();
+    newName = widget.currentName;
+    newPhoneNumber = widget.currentPhoneNumber.replaceFirst('+966', '');
+    _nameController = TextEditingController(text: newName);
+    _phoneController = TextEditingController(text: newPhoneNumber);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Remove default back button
+        automaticallyImplyLeading: false,
         actions: [
-          // Add a custom back button to the right
           IconButton(
             icon: const Icon(Icons.keyboard_arrow_right),
             onPressed: () {
-              Navigator.of(context).pop(); // Handle back navigation
+              Navigator.of(context).pop();
             },
           ),
         ],
@@ -30,17 +62,16 @@ class EditMyAccount extends StatelessWidget {
           "تعديل الملف الشخصي",
           textAlign: TextAlign.center,
         ),
-        centerTitle: true, // Center the title
+        centerTitle: true,
       ),
       body: Directionality(
-        textDirection: TextDirection.rtl, // Set RTL layout
+        textDirection: TextDirection.rtl,
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // Profile Picture Section
                 Center(
                   child: Stack(
                     children: [
@@ -54,38 +85,12 @@ class EditMyAccount extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Full Name Field
-                buildTextField(
-                  labelText: 'الاسم',
-                  icon: Icons.person,
-                  initialValue: currentName,
-                ),
-                const SizedBox(height: 10),
-
-                // Phone Number Field
-                buildPhoneNumberField(
-                  labelText: 'رقم الجوال',
-                  icon: Icons.phone,
-                  initialValue: currentPhoneNumber,
-                ),
+                _buildNameField(),
+                const SizedBox(height: 15),
+                _buildPhoneNumberField(),
                 const SizedBox(height: 20),
-                // Edit Profile Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Handle edit profile action
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.thColor,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text(
-                      'حفظ التعديلات',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
+                _buildSaveButton(),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -94,61 +99,361 @@ class EditMyAccount extends StatelessWidget {
     );
   }
 
-  // Helper method for creating text fields
-  Widget buildTextField({
-    required String labelText,
-    required IconData icon,
-    required String initialValue,
-    bool isPassword = false,
-  }) {
-    return TextField(
-      textAlign: TextAlign.right, // Align text input to the right
-      obscureText: isPassword,
-      controller: TextEditingController(text: initialValue),
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: const TextStyle(
-          fontSize: 16,
-          color: Colors.grey,
+  Widget _buildNameField() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Expanded(
+          flex: 2,
+          child: TextField(
+            controller: _nameController,
+            onChanged: (value) {
+              setState(() {
+                newName = value;
+              });
+            },
+            textAlign: TextAlign.right,
+            decoration: InputDecoration(
+              labelText: 'الاسم',
+              labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+              prefixIcon: const Icon(Icons.person),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            ),
+          ),
         ),
-        prefixIcon: Icon(icon), // Icon on the left side in RTL layout
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      ),
-      textDirection: TextDirection.rtl, // Ensure text direction is RTL
+      ],
     );
   }
 
-  // Phone Number Field with +966 prefix and 9-digit validation
-  Widget buildPhoneNumberField({
-    required String labelText,
-    required IconData icon,
-    required String initialValue,
-  }) {
-    String formattedPhoneNumber =
-        initialValue.startsWith('+966') ? initialValue : '+966' + initialValue;
-
-    return TextField(
-      textAlign: TextAlign.right, // Align text input to the right
-      keyboardType: TextInputType.phone,
-      controller: TextEditingController(text: formattedPhoneNumber),
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(12), // Limit to 9 digits +966
-      ],
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: const TextStyle(
-          fontSize: 16,
-          color: Colors.grey,
+  Widget _buildPhoneNumberField() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 2,
+          child: TextField(
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(9),
+            ],
+            onChanged: (value) {
+              setState(() {
+                newPhoneNumber = value;
+              });
+            },
+            textAlign: TextAlign.left,
+            decoration: InputDecoration(
+              labelText: 'رقم الجوال',
+              labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+              prefixIcon: const Icon(Icons.phone),
+              prefixText: '966+ ',
+              prefixStyle: const TextStyle(fontSize: 16, color: Colors.black),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            ),
+          ),
         ),
-        prefixIcon: Icon(icon), // Icon on the left side in RTL layout
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      ),
-      textDirection: TextDirection.rtl, // Ensure text direction is RTL
+      ],
     );
+  }
+
+  Widget _buildSaveButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _onSavePressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.thColor,
+          foregroundColor: Colors.white,
+        ),
+        child: const Text(
+          'حفظ التعديلات',
+          style: TextStyle(fontSize: 18),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onSavePressed() async {
+    if (_validateInputs()) return;
+
+    String updatedPhoneNumber = '+966$newPhoneNumber';
+    String oldPhoneNumber = widget.currentPhoneNumber;
+
+    if (!_isPhoneNumberValid(newPhoneNumber)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Center(
+            child: Text(
+              'رقم الجوال يجب أن يبدأ بـ 5 ويحتوي على 9 أرقام',
+              textAlign: TextAlign.center,
+            ),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    bool phoneNumberChanged = updatedPhoneNumber != oldPhoneNumber;
+
+    if (phoneNumberChanged && await _checkPhoneNumberExists(updatedPhoneNumber))
+      return;
+
+    if (phoneNumberChanged) {
+      _showConfirmationDialog(updatedPhoneNumber, oldPhoneNumber);
+    } else {
+      await _updatePhoneNumber(oldPhoneNumber, oldPhoneNumber);
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MyaccountView()));
+    }
+  }
+
+  bool _isPhoneNumberValid(String phoneNumber) {
+    return phoneNumber.startsWith('5') && phoneNumber.length == 9;
+  }
+
+  bool _validateInputs() {
+    if (newName == widget.currentName &&
+        newPhoneNumber == widget.currentPhoneNumber.replaceFirst('+966', '')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Center(
+            child: Text(
+              'لم يتم إجراء أي تغييرات',
+              textAlign: TextAlign.center,
+            ),
+          ),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> _checkPhoneNumberExists(String phoneNumber) async {
+    try {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      var snapshot =
+          await firestore.collection('Parent').doc(phoneNumber).get();
+      if (snapshot.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Center(
+              child: Text(
+                'رقم الجوال مستخدم بالفعل، يرجى استخدام رقم آخر',
+                textAlign: TextAlign.center,
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return true;
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Center(
+            child: Text(
+              'خطأ: $e',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.black87),
+            ),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+    return false;
+  }
+
+  void _showConfirmationDialog(
+      String updatedPhoneNumber, String oldPhoneNumber) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primaryColor, // Set the background color
+          title: Text(
+            'تأكيد تعديل رقم الجوال',
+            style: TextStyle(
+              color: AppColors.sColor, // Set the text color
+            ),
+            textAlign: TextAlign.center, // Align title to center
+          ),
+          content: Text(
+            'هل أنت متأكد من تعديل رقم الجوال؟',
+            style: TextStyle(
+              color: AppColors.sColor, // Set the text color
+            ),
+            textAlign: TextAlign.center, // Align content to center
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'إلغاء',
+                style: TextStyle(
+                  color: AppColors.sColor, // Set the text color for "إلغاء"
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Show loading indicator
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
+                );
+
+                try {
+                  // If phone number changed, update it and transfer children data
+                  await _updatePhoneNumber(updatedPhoneNumber, oldPhoneNumber);
+
+                  // After updating, log the user out
+                  await FirebaseAuth.instance.signOut();
+                  await storage.delete(
+                      key: 'firebaseToken'); // Delete the token
+                  print("User logged out and token deleted.");
+
+                  // Navigate to login page after logging out
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
+                } catch (e) {
+                  Navigator.of(context).pop(); // Dismiss the loading indicator
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'خطأ: $e',
+                        textAlign: TextAlign.center,
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                "موافق",
+                style: TextStyle(
+                  color: AppColors.sColor, // Set the text color for 'موافق'
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _updatePhoneNumber(
+      String updatedPhoneNumber, String oldPhoneNumber) async {
+    try {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Step 1: Retrieve the old document
+      DocumentSnapshot<Map<String, dynamic>> oldDocument =
+          await firestore.collection('Parent').doc(oldPhoneNumber).get();
+
+      // Step 2: Log the full contents of the old document
+      if (oldDocument.exists) {
+        print(
+            "Old Document Data: ${oldDocument.data()}"); // Log the data for debugging
+      } else {
+        print("Old document with phone number $oldPhoneNumber does not exist.");
+        return;
+      }
+
+      // Step 3: Extract and log the children field from the old document
+      List<dynamic> children = oldDocument.data()?['children'] ?? [];
+      print("Retrieved children array: $children");
+
+      // Step 4: Handle phone number update
+      if (updatedPhoneNumber != oldPhoneNumber) {
+        // Step 5: Delete the old document
+        await firestore.collection('Parent').doc(oldPhoneNumber).delete();
+
+        // Step 6: Create a new document with the updated phone number
+        await saveUserData(updatedPhoneNumber, newName, children);
+      } else {
+        // If phone number hasn't changed, just update the name and children
+        await saveUserData(oldPhoneNumber, newName, children);
+      }
+
+      // Step 7: Confirm update success
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Center(
+            child: Text(
+              'تم التحديث بنجاح',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.black87),
+            ),
+          ),
+          backgroundColor: AppColors.primaryColor,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => MyaccountView()),
+      );
+    } catch (e) {
+      print("Error occurred: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Center(
+            child: Text(
+              'خطأ: لم يتم تحديث البيانات: $e',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.black87),
+            ),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+
+  // Helper method to save user data including children array
+  Future<void> saveUserData(
+      String phoneNumber, String name, List<dynamic> children) async {
+    CollectionReference parents =
+        FirebaseFirestore.instance.collection('Parent');
+
+    // Format the phone number to ensure it starts with +966
+    String formattedPhoneNumber =
+        phoneNumber.startsWith('+966') ? phoneNumber : '+966' + phoneNumber;
+
+    try {
+      // Save the new parent data along with the children array
+      await parents.doc(formattedPhoneNumber).set({
+        'name': name,
+        'phoneNumber': formattedPhoneNumber,
+        'children': children // Include the children array
+      }, SetOptions(merge: false)); // Do not merge data if it exists already
+
+      print("User data saved successfully.");
+    } catch (error) {
+      print("Failed to save user data: $error");
+    }
   }
 }

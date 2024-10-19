@@ -47,4 +47,6 @@ flutter {
 dependencies {
   // Import the Firebase BoM
   implementation platform('com.google.firebase:firebase-bom:33.4.0')
+  implementation 'com.google.firebase:firebase-appcheck-playintegrity'
+implementation 'com.google.firebase:firebase-appcheck-safetynet'
 }
