@@ -84,14 +84,14 @@ class _MyaccountViewState extends State<MyaccountView> {
           title: Text(
             "تأكيد تسجيل الخروج",
             style: TextStyle(
-              color: AppColors.sColor, // Set title text color to sColor
+              color: AppColors.sColor,fontFamily: "zain" // Set title text color to sColor
             ),
             textAlign: TextAlign.right, // Align the title text to the right
           ),
           content: Text(
             "هل أنت متأكد أنك تريد تسجيل الخروج؟",
             style: TextStyle(
-              color: AppColors.sColor, // Set content text color to sColor
+              color: AppColors.sColor,fontFamily: "zain", // Set content text color to sColor
             ),
             textAlign: TextAlign.right, // Align the content text to the right
           ),
@@ -103,7 +103,7 @@ class _MyaccountViewState extends State<MyaccountView> {
               child: Text(
                 "إلغاء",
                 style: TextStyle(
-                  color: AppColors.sColor, // Set text color for 'إلغاء' button
+                  color: AppColors.sColor, fontFamily: "zain"// Set text color for 'إلغاء' button
                 ),
               ),
             ),
@@ -123,7 +123,7 @@ class _MyaccountViewState extends State<MyaccountView> {
               child: Text(
                 "موافق",
                 style: TextStyle(
-                  color: AppColors.sColor, // Set text color for 'موافق' button
+                  color: AppColors.sColor,fontFamily: "zain" // Set text color for 'موافق' button
                 ),
               ),
             ),
@@ -147,7 +147,7 @@ class _MyaccountViewState extends State<MyaccountView> {
         centerTitle: true, // This centers the title
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator()) // Show a loading spinner
+          ? Center(child: CircularProgressIndicator( color: Color.fromRGBO(196, 174, 87, 1.0),)) // Show a loading spinner
           : SingleChildScrollView(
               child: Container(
                 padding: const EdgeInsets.all(4),
@@ -208,6 +208,7 @@ class _MyaccountViewState extends State<MyaccountView> {
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 24,
+                                    
                                   ),
                         ),
                         const SizedBox(height: 5),
@@ -245,7 +246,7 @@ class _MyaccountViewState extends State<MyaccountView> {
                           foregroundColor: Colors.white,
                           textStyle: const TextStyle(
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                           fontFamily: "zain"
                           ),
                         ),
                       ),
@@ -262,7 +263,7 @@ class _MyaccountViewState extends State<MyaccountView> {
                       onPressed: () {
                         handleLogout(context); // Call logout function
                       },
-                    ),
+                    )
                   ],
                 ),
               ),

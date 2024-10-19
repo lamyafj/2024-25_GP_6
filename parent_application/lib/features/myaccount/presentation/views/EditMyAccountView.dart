@@ -28,7 +28,10 @@ class EditMyAccount extends StatelessWidget {
         ],
         title: const Text(
           "تعديل الملف الشخصي",
-          textAlign: TextAlign.center,
+          textAlign: TextAlign.center,   
+           style: TextStyle(
+          fontFamily: "Zain", // Apply custom font
+        ),
         ),
         centerTitle: true, // Center the title
       ),
@@ -82,7 +85,7 @@ class EditMyAccount extends StatelessWidget {
                     ),
                     child: const Text(
                       'حفظ التعديلات',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 18 ,fontFamily: 'Zain',),
                     ),
                   ),
                 ),
@@ -99,6 +102,7 @@ class EditMyAccount extends StatelessWidget {
     required String labelText,
     required IconData icon,
     required String initialValue,
+    String fontFamily = 'Zain',
     bool isPassword = false,
   }) {
     return TextField(
@@ -110,6 +114,7 @@ class EditMyAccount extends StatelessWidget {
         labelStyle: const TextStyle(
           fontSize: 16,
           color: Colors.grey,
+          fontFamily: 'Zain',
         ),
         prefixIcon: Icon(icon), // Icon on the left side in RTL layout
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -142,6 +147,7 @@ class EditMyAccount extends StatelessWidget {
         labelStyle: const TextStyle(
           fontSize: 16,
           color: Colors.grey,
+          fontFamily : 'Zain',
         ),
         prefixIcon: Icon(icon), // Icon on the left side in RTL layout
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),

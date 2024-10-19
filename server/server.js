@@ -1159,35 +1159,26 @@ app.post('/api/acceptstudent', async (req, res) => {
 
 
 //////////////////////////////////////////////////////////////////parent functions
-app.post('/api/parentstudentdetail', async (req, res) => {
-  console.log('Server student detail called');
-  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
-  const { uid } = req.body; // Expecting uid to be in the request body
+app.use(express.json());
 
-  if (!idToken) {
-    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
-  }
-  
-  
+app.get('/getParentData/:phoneNumber', async (req, res) => {
+  console.log('server get parent data endpoint')
+  const phoneNumber = req.params.phoneNumber; // Extract phone number from URL
   try {
-    // Token verification can be uncommented if needed
-    // const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
-    const studentsRef = admin.firestore().collection('Student') // Change collection name if necessary
-    const studentSnapshot = await studentsRef.where('uid', '==', uid).get();
-
-    if (studentSnapshot.empty) {
-      return res.status(404).send('Student not found');
+    const parentRef = admin.firestore().collection('Parent').doc(phoneNumber);
+    const parentDoc = await parentRef.get();
+    if (!parentDoc.exists) {
+      return res.status(404).send('Parent data not found');
     }
-
-    const studentData = studentSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }))[0];
-
-    res.status(200).send(studentData); 
+    // Fetch the data from the document
+    const parentData = parentDoc.data();
+    res.send({
+      name: parentData.name,
+      phoneNumber: parentData.phoneNumber,
+    });
   } catch (error) {
-    console.error('Token verification or data fetching error:', error);
-    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+    console.error('Error fetching parent data:', error);
+    res.status(500).send('Error fetching parent data');
   }
 });
 
@@ -1202,8 +1193,8 @@ app.post('/api/rfid', (req, res) => {
   res.status(200).send("Received");
 });
 
-app.listen(5000, () => {
-  console.log('Server is running on port 5000');
+// Start the server
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
-
-
