@@ -24,7 +24,7 @@
 // //         ),
 // //         // You can customize other theme properties as needed
 // //       ),
-      
+
 // //     );
 // //   }
 // // }
@@ -53,7 +53,7 @@
 //         ),
 //         // Global TextFormField theme
 //         inputDecorationTheme: InputDecorationTheme(
-//           border: const OutlineInputBorder(), 
+//           border: const OutlineInputBorder(),
 //           focusedBorder: OutlineInputBorder(
 //             borderSide: BorderSide(color: AppColors.sColor, width: 2.0), // Focused border color
 //           ),
@@ -62,8 +62,8 @@
 //         ),
 //         // Global text selection and cursor color
 //         textSelectionTheme: TextSelectionThemeData(
-//           cursorColor: AppColors.sColor, 
-//           selectionColor: AppColors.sColor.withOpacity(0.3), 
+//           cursorColor: AppColors.sColor,
+//           selectionColor: AppColors.sColor.withOpacity(0.3),
 //           selectionHandleColor: AppColors.sColor,
 //         ),
 //       ),
@@ -71,18 +71,19 @@
 //   }
 // }
 
- import 'package:firebase_core/firebase_core.dart';
- import 'package:flutter/material.dart';
- import 'package:parent_application/core/routes/app_router.dart';
- import 'package:parent_application/core/utils/app_colors.dart';
- import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:parent_application/core/routes/app_router.dart';
+import 'package:parent_application/core/utils/app_colors.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
- void main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp();  
+    await Firebase.initializeApp();
     await FirebaseAppCheck.instance.activate(
-      androidProvider: AndroidProvider.playIntegrity, // Use Play Integrity for production
+      androidProvider:
+          AndroidProvider.debug, // Use Play Integrity for production
     );
     print('Firebase Initialized Successfully');
   } catch (e) {
@@ -114,7 +115,8 @@ class _MaslakState extends State<Maslak> {
       routerConfig: router, // Use routerConfig to manage routes
       theme: ThemeData(
         brightness: Brightness.light,
-        scaffoldBackgroundColor: Colors.white, // Background color for the entire app
+        scaffoldBackgroundColor:
+            Colors.white, // Background color for the entire app
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white, // AppBar background color
           foregroundColor: AppColors.sColor, // Color for AppBar text and icons
@@ -122,10 +124,12 @@ class _MaslakState extends State<Maslak> {
         inputDecorationTheme: InputDecorationTheme(
           border: const OutlineInputBorder(),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.sColor, width: 2.0), // Focused border color
+            borderSide: BorderSide(
+                color: AppColors.sColor, width: 2.0), // Focused border color
           ),
           labelStyle: const TextStyle(fontSize: 18),
-          floatingLabelStyle: TextStyle(color: AppColors.sColor), // Focused label color
+          floatingLabelStyle:
+              TextStyle(color: AppColors.sColor), // Focused label color
         ),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: AppColors.sColor,
@@ -180,10 +184,6 @@ class _MaslakState extends State<Maslak> {
     );
   }
 }
-
-
-
-
 
 // class Maslak extends StatelessWidget {
 //   @override

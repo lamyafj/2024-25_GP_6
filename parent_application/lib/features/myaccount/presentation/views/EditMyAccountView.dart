@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:parent_application/core/utils/app_colors.dart';
+import 'package:flutter/services.dart';
 
 class EditMyAccount extends StatelessWidget {
-  const EditMyAccount({super.key});
+  final String currentName;
+  final String currentPhoneNumber;
+
+  const EditMyAccount({
+    Key? key,
+    required this.currentName,
+    required this.currentPhoneNumber,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +38,7 @@ class EditMyAccount extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.end, // Align the column to the right
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 // Profile Picture Section
                 Center(
@@ -39,30 +46,9 @@ class EditMyAccount extends StatelessWidget {
                     children: [
                       const CircleAvatar(
                         radius: 50,
-                        backgroundColor: Colors
-                            .transparent, // Make sure this matches the app's theme
+                        backgroundColor: Colors.transparent,
                         backgroundImage:
                             AssetImage('assets/images/profilephoto1.png'),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            // Handle profile picture change
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppColors.thColor,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -70,27 +56,17 @@ class EditMyAccount extends StatelessWidget {
                 const SizedBox(height: 20),
                 // Full Name Field
                 buildTextField(
-                  labelText: 'الاسم الكامل',
+                  labelText: 'الاسم',
                   icon: Icons.person,
+                  initialValue: currentName,
                 ),
                 const SizedBox(height: 10),
-                // Email Field
-                buildTextField(
-                  labelText: 'البريد الإلكتروني',
-                  icon: Icons.email,
-                ),
-                const SizedBox(height: 10),
+
                 // Phone Number Field
-                buildTextField(
-                  labelText: 'رقم الهاتف',
+                buildPhoneNumberField(
+                  labelText: 'رقم الجوال',
                   icon: Icons.phone,
-                ),
-                const SizedBox(height: 10),
-                // Password Field
-                buildTextField(
-                  labelText: 'كلمة المرور',
-                  icon: Icons.lock,
-                  isPassword: true,
+                  initialValue: currentPhoneNumber,
                 ),
                 const SizedBox(height: 20),
                 // Edit Profile Button
@@ -105,30 +81,10 @@ class EditMyAccount extends StatelessWidget {
                       foregroundColor: Colors.white,
                     ),
                     child: const Text(
-                      'تعديل الملف',
+                      'حفظ التعديلات',
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                // Join Date and Delete Button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    /* Text(
-                      'انضم في 31 أكتوبر 2022',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),*/
-                    TextButton(
-                      onPressed: () {
-                        // Handle delete account
-                      },
-                      child: const Text(
-                        'إلغاء',
-                        style: TextStyle(fontSize: 18, color: Colors.red),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -142,11 +98,45 @@ class EditMyAccount extends StatelessWidget {
   Widget buildTextField({
     required String labelText,
     required IconData icon,
+    required String initialValue,
     bool isPassword = false,
   }) {
     return TextField(
       textAlign: TextAlign.right, // Align text input to the right
       obscureText: isPassword,
+      controller: TextEditingController(text: initialValue),
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: const TextStyle(
+          fontSize: 16,
+          color: Colors.grey,
+        ),
+        prefixIcon: Icon(icon), // Icon on the left side in RTL layout
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      ),
+      textDirection: TextDirection.rtl, // Ensure text direction is RTL
+    );
+  }
+
+  // Phone Number Field with +966 prefix and 9-digit validation
+  Widget buildPhoneNumberField({
+    required String labelText,
+    required IconData icon,
+    required String initialValue,
+  }) {
+    String formattedPhoneNumber =
+        initialValue.startsWith('+966') ? initialValue : '+966' + initialValue;
+
+    return TextField(
+      textAlign: TextAlign.right, // Align text input to the right
+      keyboardType: TextInputType.phone,
+      controller: TextEditingController(text: formattedPhoneNumber),
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(12), // Limit to 9 digits +966
+      ],
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: const TextStyle(
