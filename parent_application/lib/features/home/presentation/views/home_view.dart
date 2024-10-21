@@ -1,10 +1,69 @@
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:parent_application/core/utils/app_colors.dart';
 import 'package:parent_application/features/addmychild/presentation/views/addmychild_view.dart';
 import 'package:parent_application/features/home/presentation/widgets/LiveLocationView.dart';
+import 'child_service.dart'; // Import your ChildService
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
+
+  @override
+  _HomeViewState createState() => _HomeViewState();
+}
+
+
+class _HomeViewState extends State<HomeView> {
+  late Future<List<dynamic>> childrenFuture;
+  final ChildService childService = ChildService();
+  final storage = const FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    childrenFuture = Future.value([]); // Initialize the Future
+    _loadChildrenData();
+  }
+
+  // Load children data from the service
+  void _loadChildrenData() async {
+    String? idToken = await storage.read(key: 'firebaseToken'); // Get the token
+    print('Fetched idToken: $idToken'); // Log the token for debugging
+
+    if (idToken != null) {
+      try {
+        setState(() {
+          childrenFuture = childService.fetchChildren(idToken); // Fetch children with token
+        });
+      } catch (error) {
+        _showErrorSnackbar('Error loading children: $error');
+      }
+    } else {
+      setState(() {
+        childrenFuture = Future.error('Missing idToken');
+      });
+      _showErrorSnackbar('Authentication error: No token found.');
+    }
+  }
+
+  // This function will refresh the children list when a new child is added
+  void _onChildAdded() {
+    _loadChildrenData(); // Refresh the data
+  }
+
+  // Show a snackbar for errors
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, textDirection: TextDirection.rtl),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,283 +72,196 @@ class HomeView extends StatelessWidget {
         title: const Text(
           "الصفحة الرئيسية",
           textDirection: TextDirection.rtl,
-           style: TextStyle(
-           fontFamily: 'Zain', // Set the desired font family
-           ),
         ),
-        centerTitle: true, // This centers the title
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        // Wrap with SingleChildScrollView to prevent overflow
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.end, // Align all elements to the right
-            children: [
-              Text(
-                "الأبناء",
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Zain', 
-                    color: AppColors.sColor),
-                     textDirection:
-                    TextDirection.rtl, // Right-to-left text direction
-              ),
-              const SizedBox(height: 20),
-              // First event card
-              buildEventCard(
-                title: "محمد",
-                time: "",
-                location: "",
-                label: "داخل الحافلة",
-                labelColor: Colors.green,
-                context: context, // Pass context here
-              ),
-              const SizedBox(height: 10),
-              // Second event card
-              buildEventCard(
-                title: "سارة",
-                time: "",
-                location: "",
-                label: "خارج الحافلة",
-                labelColor: Colors.red,
-                context: context,
-              ),
-
-              const SizedBox(height: 10),
-
-              Row(
-                children: const [
-                  Expanded(
-                    child: Divider(
-                      thickness: 1,
-                      color: Colors.grey,
-                      endIndent: 10, // Space between text and line
-                    ),
+      body: FutureBuilder<List<dynamic>>(
+        future: childrenFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'فشل في تحميل الأبناء',
+                    textDirection: TextDirection.rtl,
+                    style: TextStyle(color: Colors.red, fontSize: 18),
                   ),
-                  Text(
-                    "قيد المراجعة",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Zain', 
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      thickness: 1,
-                      color: Colors.grey,
-                      indent: 10, // Space between text and line
+                  ElevatedButton(
+                    onPressed: _loadChildrenData,
+                    child: const Text('حاول مرة أخرى',
+                        textDirection: TextDirection.rtl),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.thColor,
                     ),
                   ),
                 ],
               ),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('لا يوجد أبناء مسجلين',
+                  textDirection: TextDirection.rtl),
+            );
+          }
 
-              const SizedBox(height: 10),
+          final children = snapshot.data!;
+          final activeChildren =
+              children.where((child) => child['status'] == 'active').toList();
+          final inactiveChildren =
+              children.where((child) => child['status'] == 'inactive').toList();
 
-              // z card
-              buildEventCard(
-                title: "لينا",
-                time: "",
-                location: "",
-                label: "انتظار",
-                labelColor: Colors.grey,
-                context: context, // Pass context here
-              ),
+          return ListView(
+            children: [
+              // Active children section
+              if (activeChildren.isNotEmpty)
+                ...activeChildren.map((child) => buildEventCard(
+                      child: child,
+                      title: child['studentFirstName'] ?? 'بدون اسم',
+                      status: child['status'] ?? 'غير معروف',
+                      context: context,
+                      isInactive: false,
+                    )),
+
+              // Inactive children section
+              if (inactiveChildren.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Divider(
+                          color: Colors.grey, // Line color
+                          thickness: 1, // Line thickness
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          'قيد المراجعة',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Zain',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                          textDirection: TextDirection.rtl,
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          color: Colors.grey, // Line color
+                          thickness: 1, // Line thickness
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ...inactiveChildren.map((child) => buildEventCard(
+                      child: child,
+                      title: child['studentFirstName'] ?? 'بدون اسم',
+                      status: child['status'] ?? 'غير معروف',
+                      context: context,
+                      isInactive: true, // Mark as inactive
+                    )),
+              ],
             ],
-          ),
-        ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          // Use Navigator.push and wait for the result from the AddChildView
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddmychildView()),
-          );
+          ).then((value) {
+            if (value == true) {
+              print('hii');
+              _onChildAdded(); // If a child was added, refresh the list
+            }
+          });
         },
-        child: const Icon(Icons.add   ,color: Color(0xFF01391F)),
         backgroundColor: Colors.white,
+        child: const Icon(Icons.add, color: Colors.black),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
   Widget buildEventCard({
+    required dynamic child,
     required String title,
-    required String time,
-    required String location,
-    required String label,
-    required Color labelColor,
+    required String status,
     required BuildContext context,
+    required bool isInactive, // New parameter to identify inactive children
   }) {
-    // Automatically show the "تتبع الحافلة" button if the label is green
-    bool showFollowButton = labelColor == Colors.green;
+    // Combine first and family name
+    final String fullName =
+        "${child['studentFirstName']} ${child['studentFamilyName']}";
 
     return GestureDetector(
-      onTap: () {
-        // Navigate to the student details page when the card is tapped
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => StudentDetailsView(
-                studentName: title), // Replace with your student details page
-          ),
-        );
-      },
-      child: SizedBox(
-        width: double.infinity, // Full width available
-        height: 120, // Increased height to accommodate all elements
-        child: Container(
-          padding: const EdgeInsets.all(8), // Padding for the card
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Event label, positioned on the left
-                  InkWell(
-                    onTap: () {
-                      if (labelColor == Colors.green) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                              " الطالب داخل الحافلة",
-                              textDirection: TextDirection.rtl,
-                            ),
-                            duration: const Duration(seconds: 2),
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.black54,
-                          ),
-                        );
-                      } else if (labelColor == Colors.red) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                              "انتظر لركوب الطالب الحافلة"  ,  
-                                 style: TextStyle(
-                                fontFamily: 'Zain', 
-                                 ),
-                              textDirection: TextDirection.rtl,
-                            ),
-                            duration: const Duration(seconds: 2),
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.black54,
-                            
-                          ),
-                        );
-                      } else if (labelColor == Colors.grey) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                              "جاري مراجعة الطلب",   
-                                   style: TextStyle(
-                                fontFamily: 'Zain', // Set font for title
-                              ),
-                              textDirection: TextDirection.rtl,
-                            ),
-                            duration: const Duration(seconds: 2),
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.black54,
-                          ),
-                        );
-                      }
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 2, horizontal: 6),
-                      decoration: BoxDecoration(
-                        color: labelColor.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        label.isNotEmpty ? label : "بدون تسمية",
-                        style: TextStyle(
-                          color: labelColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Zain', 
-                        ),
-                        textDirection: TextDirection.rtl,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 18, // Reduced font size
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Zain', 
-                            color: AppColors.sColor,
-                          ),
-                          textDirection: TextDirection.rtl,
-                        ),
-                        Text(
-                          time,
-                          style: const TextStyle(
-                              fontSize: 12, fontFamily: 'Zain'), 
-                          textDirection: TextDirection.rtl,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8), // Space between rows
-              // Follow button, only shown if the label is green
-              if (showFollowButton)
-                Align(
-                  alignment:
-                      Alignment.centerLeft, // Align the button to the left
-                  child: InkWell(
-                    onTap: () {
-                      // Navigate to live location page
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LiveLocationView(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 2, horizontal: 6),
-                      child: Text(
-                        "تتبع الحافلة",
-                        style: TextStyle(
-                          color:
-                              AppColors.sColor, // Use fthColor for text color
-                          fontSize: 13, // Reduced font size
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Zain', 
-                          decoration: TextDecoration.underline,
-                        ),
-                        textDirection: TextDirection.rtl,
-                      ),
-                    ),
-                  ),
+      onTap: isInactive
+          ? null // Disable tap for inactive children
+          : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StudentDetailsView(studentData: child),
                 ),
-            ],
+              ).then((value) {
+                if (value == true) {
+                  _loadChildrenData(); // Refresh the list after a student is deleted
+                }
+              });
+            },
+      child: Opacity(
+        opacity: isInactive ? 0.5 : 1.0, // Reduce opacity for inactive children
+        child: SizedBox(
+          width: double.infinity, // Full width available
+          height: 120, // Increased height to accommodate all elements
+          child: Container(
+            padding: const EdgeInsets.all(8), // Padding for the card
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            fullName, // Display both first name and family name
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.sColor),
+                            textDirection: TextDirection.rtl,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -297,26 +269,59 @@ class HomeView extends StatelessWidget {
   }
 }
 
+// Helper to show the status in a snackbar
+  void _showStatusSnackBar(
+      BuildContext context, String label, Color labelColor) {
+    String message = '';
+
+    if (labelColor == Colors.green) {
+      message = "الطالب داخل الحافلة";
+    } else if (labelColor == Colors.red) {
+      message = "انتظر لركوب الطالب الحافلة";
+    } else {
+      message = "جاري مراجعة الطلب";
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, textDirection: TextDirection.rtl),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.black54,
+      ),
+    );
+  }
 
 class StudentDetailsView extends StatelessWidget {
-  final String studentName;
-
-  const StudentDetailsView({Key? key, required this.studentName})
-      : super(key: key);
+  final dynamic studentData; // Receive the student data
+  const StudentDetailsView({super.key, required this.studentData});
 
   @override
   Widget build(BuildContext context) {
+    // Combine first and family name, handle if fields are null
+    final String fullName =
+        "${studentData['studentFirstName'] ?? 'لا يوجد اسم'} ${studentData['studentFamilyName'] ?? ''}";
+
+    // Safely extract the address fields with null checks
+    final address = studentData['address'] ?? {};
+    final String street = address['street'] ?? 'غير متوفر';
+    final String district = address['district'] ?? 'غير متوفر';
+    final String city = address['city'] ?? 'غير متوفر';
+    final String postalCode = address['postalCode'] ?? 'غير متوفر';
+
+    // Extract the bus number safely
+    final String bus = studentData['bus'] ?? 'غير متوفر';
+    final String grade = studentData['grade'] ?? 'غير متوفر';
+
     return Scaffold(
       backgroundColor: Colors.white, // Light background color
       appBar: AppBar(
         automaticallyImplyLeading: false, // Hide the default back button
-        title: Text(studentName),
+        title: Text(studentData['studentFirstName'] ?? 'No Name'),
         centerTitle: true, // Center the title
         actions: [
           IconButton(
             icon: const Icon(Icons.keyboard_arrow_right),
             onPressed: () {
-              // Navigate back when the button is pressed
               Navigator.of(context).pop();
             },
           ),
@@ -338,160 +343,67 @@ class StudentDetailsView extends StatelessWidget {
               crossAxisAlignment:
                   CrossAxisAlignment.end, // Align text to the right
               children: [
-                // Student Name and Picture
                 Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.end, // Align to the right
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.end, // Align text to the right
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          'محمد خالد',
+                          fullName, // Display full name
                           style: const TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'Zain', 
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
                           textAlign: TextAlign.right,
                         ),
-                        // const SizedBox(height: 4),
-                        // Text(
-                        //   'طالب بالصف الثاني المتوسط',
-                        //   style: const TextStyle(
-                        //     fontSize: 16,
-                        //     color: Colors.black54,
-                        //   ),
-                        //   textAlign: TextAlign.right,
-                        // ),
                       ],
                     ),
-                    const SizedBox(
-                        width: 16), // Spacing between text and picture
+                    const SizedBox(width: 16),
                     const CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage(
-                          'assets/images/profilephoto1.png'), // Replace with actual profile image
+                      backgroundImage:
+                          AssetImage('assets/images/profilephoto1.png'),
                       backgroundColor: Colors.transparent,
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Divider(
-                  thickness: 1,
-                  color: Colors.grey,
-                ),
+                const Divider(thickness: 1, color: Colors.grey),
                 const SizedBox(height: 10),
-
-                // Student Details
-                const Text(
-                  'الصف: الرابع',
-                  style: TextStyle(fontSize: 18, color: Colors.black87,fontFamily: 'Zain', ),
+                Text('الصف: $grade', // Display grade if available
+                    style: const TextStyle(fontSize: 18, color: Colors.black87),
+                    textAlign: TextAlign.right),
+                const SizedBox(height: 10),
+                // Custom Address Display with null checks
+                Text(
+                  'العنوان: $street, $district, $city - $postalCode',
+                  style: const TextStyle(fontSize: 18, color: Colors.black87),
                   textAlign: TextAlign.right,
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'العنوان: شارع الملك فيصل، الرياض',
-                  style: TextStyle(fontSize: 18, color: Colors.black87, fontFamily: 'Zain', ),
-                  textAlign: TextAlign.right,
-                ),
-
-                const SizedBox(height: 10),
-
-                // Student Details
-                const Text(
-                  'رقم الحافلة:1',
-                  style: TextStyle(fontSize: 18, color: Colors.black87, fontFamily: 'Zain', ),
+                Text(
+                  'رقم الحافلة: $bus',
+                  style: const TextStyle(fontSize: 18, color: Colors.black87),
                   textAlign: TextAlign.right,
                 ),
                 const SizedBox(height: 30),
-
-                // Cancel Registration Button (Aligned Center)
                 Align(
                   alignment: Alignment.center,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // Trigger cancel registration action
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            backgroundColor: 
-                                AppColors.primaryColor, // Set the background color to primaryColor
-                            title: Text(
-                              "إلغاء التسجيل",
-                              style: TextStyle( fontFamily: 'Zain', 
-                                color: 
-                                    AppColors.sColor, // Set text color to sColor
-                              ),
-                              textAlign: TextAlign
-                                  .right, // Align the title text to the right
-                            ),
-                            content: Text(
-                              "هل أنت متأكد من إلغاء تسجيل الطالب؟",
-                              style: TextStyle(fontFamily: 'Zain', 
-                                color: 
-                                    AppColors.sColor, // Set text color to sColor
-                              ),
-                              textAlign: TextAlign
-                                  .right, // Align the content text to the right
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pop(); // Close the dialog on 'إلغاء'
-                                },
-                                child: Text(
-                                  "إلغاء",
-                                  style: TextStyle(fontFamily: 'Zain', 
-                                    color: AppColors.sColor, // Text color for 'إلغاء' button
-                                  ),
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('تم إلغاء التسجيل بنجاح!'   ,
-                                          style: TextStyle(
-                                          fontFamily: 'Zain', // Set font for title
-                                        ),),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  "تأكيد",
-                                  style: TextStyle(
-                                    fontFamily: 'Zain', 
-                                    color: AppColors.sColor, // Text color for 'تأكيد' button
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                      _confirmCancelDialog(context);
                     },
-                    // icon: const Icon(Icons.undo, color: Colors.white),
-                    label: const Text(
-                      "إلغاء  تسجيل الطالب",
-                      style: TextStyle(fontSize: 18, color: Colors.white,fontFamily: 'Zain', ),
-                    ),
+                    label: const Text("إلغاء تسجيل الطالب",
+                        style: TextStyle(fontSize: 18, color: Colors.white)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          AppColors.thColor, // Light red background
+                      backgroundColor: AppColors.thColor,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10), // Rounded corners
-                      ),
+                          borderRadius: BorderRadius.circular(10)),
                     ),
+                    icon: const Icon(Icons.cancel),
                   ),
                 ),
               ],
@@ -501,4 +413,100 @@ class StudentDetailsView extends StatelessWidget {
       ),
     );
   }
+
+  // Confirmation dialog for cancellation
+  void _confirmCancelDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primaryColor,
+          title: Text(
+            "إلغاء التسجيل",
+            style: TextStyle(color: AppColors.sColor),
+            textAlign: TextAlign.right,
+          ),
+          content: Text(
+            "هل أنت متأكد من إلغاء تسجيل الطالب؟",
+            style: TextStyle(color: AppColors.sColor),
+            textAlign: TextAlign.right,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog only
+              },
+              child: Text("إلغاء", style: TextStyle(color: AppColors.sColor)),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Close the dialog first
+                Navigator.of(context).pop();
+
+                // Call the delete method and wait for the result
+                bool success = await deleteStudent( studentData['uid']); // Make sure studentId is correct
+
+                // Show a snack bar based on the result
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('تم إلغاء التسجيل بنجاح!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+
+                  // Pop the StudentDetailsView and return true to indicate success
+                  Navigator.of(context).pop(true);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('حدث خطأ أثناء الإلغاء'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text("تأكيد", style: TextStyle(color: AppColors.sColor)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> deleteStudent(String studentUid) async {
+  const url = 'http://10.0.2.2:5000/api/deletestudent'; // Backend URL
+    // Get the Firebase token from the current user
+    String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
+
+    if (idToken == null) {
+      print('Error: No token found');
+      return false; // Return false if token is missing
+    }
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $idToken', // Firebase ID token
+      },
+      body: jsonEncode({'uid': studentUid}),
+    );
+
+    if (response.statusCode == 200) {
+      print('Student deleted successfully');
+      return true; // Deletion successful
+    } else {
+      print('Failed to delete student: ${response.body}');
+      return false; // Deletion failed
+    }
+  } catch (error) {
+    print('Error deleting student: $error');
+    return false; // Error occurred
+  }
 }
+
+}
+
+

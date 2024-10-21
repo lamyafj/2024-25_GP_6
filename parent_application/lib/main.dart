@@ -89,7 +89,7 @@ void main() async {
   } catch (e) {
     print('Error Initializing Firebase: $e');
   }
-  runApp(Maslak());
+  runApp(const Maslak());
 }
 
 class Maslak extends StatefulWidget {

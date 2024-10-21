@@ -25,8 +25,8 @@ class HomeNavBarWidget extends StatelessWidget {
 
   List<Widget> _buildScreens() {
     return [
-      HomeView(), // Removed const
-      NotificationView(), // Removed const
+      const HomeView(), // Removed const
+      const NotificationView(), // Removed const
       MyaccountView(), // Removed const
     ];
   }
