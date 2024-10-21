@@ -121,11 +121,7 @@ final GoRouter router = GoRouter(
   routes: [
     GoRoute(
       path: "/",
-      builder: (context, state) => const SplashView(),
-      redirect: (context, state) async {
-        await Future.delayed(const Duration(seconds: 3));
-        return "/login";
-      },
+      builder: (context, state) => const IntroPage(),
     ),
     GoRoute(
       path: "/login",

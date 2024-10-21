@@ -9,7 +9,7 @@ class BackgroundWidget extends StatelessWidget {
       decoration: BoxDecoration(
         image: DecorationImage(
           image: AssetImage(
-              'assets/images/backgmaslak3.png'), // Your shared background image
+              'assets/images/backgmaslak3.png'), // shared background image
           fit: BoxFit.cover,
         ),
       ),
