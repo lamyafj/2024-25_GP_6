@@ -5,7 +5,7 @@ import 'package:parent_application/features/myaccount/presentation/views/myaccou
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:parent_application/features/auth/presentaion/views/login_page.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Add secure storage package
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class EditMyAccount extends StatefulWidget {
   final String currentName;
@@ -214,12 +214,70 @@ class _EditMyAccountState extends State<EditMyAccount> {
     if (phoneNumberChanged && await _checkPhoneNumberExists(updatedPhoneNumber))
       return;
 
+    // If phone number has changed, show confirmation dialog
     if (phoneNumberChanged) {
-      _showConfirmationDialog(updatedPhoneNumber, oldPhoneNumber);
-    } else {
-      await _updatePhoneNumber(oldPhoneNumber, oldPhoneNumber);
+      bool? confirmLogout = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("تأكيد تعديل رقم الجوال"),
+            content:
+                Text("سيتم تسجيل خروجك, هل أنت متأكد من تعديل رقم الجوال؟"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false), // Cancel
+                child: Text("إلغاء"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true), // Confirm
+                child: Text("موافق"),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmLogout == true) {
+        await FirebaseAuth.instance.signOut();
+        await storage.delete(key: 'uid'); // Delete the UID
+        print("User logged out and UID deleted.");
+
+        // Update user data in Firestore after logging out
+        String? uid =
+            await storage.read(key: 'uid'); // Fetch UID from secure storage
+        if (uid != null) {
+          await _updateUserData(
+              uid, newName, updatedPhoneNumber, oldPhoneNumber);
+        }
+
+        // Navigate to login page after logging out
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+        return;
+      } else {
+        return; // User chose not to log out
+      }
+    }
+
+    // Update the user's data in Firestore
+    String? uid =
+        await storage.read(key: 'uid'); // Fetch UID from secure storage
+
+    if (uid != null) {
+      await _updateUserData(uid, newName, updatedPhoneNumber, oldPhoneNumber);
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => MyaccountView()));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Center(
+            child: Text('خطأ في استرداد المعرف الخاص بالمستخدم'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -282,195 +340,39 @@ class _EditMyAccountState extends State<EditMyAccount> {
     return false;
   }
 
-  void _showConfirmationDialog(
-      String updatedPhoneNumber, String oldPhoneNumber) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: AppColors.primaryColor, // Set the background color
-          title: Text(
-            'تأكيد تعديل رقم الجوال',
-            style: TextStyle(
-              color: AppColors.sColor, // Set the text color
-            ),
-            textAlign: TextAlign.center, // Align title to center
-          ),
-          content: Text(
-            'هل أنت متأكد من تعديل رقم الجوال؟',
-            style: TextStyle(
-              color: AppColors.sColor, // Set the text color
-            ),
-            textAlign: TextAlign.center, // Align content to center
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'إلغاء',
-                style: TextStyle(
-                  color: AppColors.sColor, // Set the text color for "إلغاء"
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                // Show loading indicator
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  },
-                );
-
-                try {
-                  // First, update the phone number in Firestore
-                  FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-                  // If the phone number has changed, delete the old one and save the new one
-                  if (updatedPhoneNumber != oldPhoneNumber) {
-                    await firestore
-                        .collection('Parent')
-                        .doc(oldPhoneNumber)
-                        .delete(); // Delete the old phone number
-                    await firestore
-                        .collection('Parent')
-                        .doc(updatedPhoneNumber)
-                        .set({
-                      'name': newName,
-                      'phoneNumber': updatedPhoneNumber,
-                      'children': [] // Include an empty children array
-                    });
-                  } else {
-                    // If the phone number hasn't changed, just update the name
-                    await firestore
-                        .collection('Parent')
-                        .doc(oldPhoneNumber)
-                        .update({
-                      'name': newName,
-                    });
-                  }
-
-                  // After updating, log the user out
-                  await FirebaseAuth.instance.signOut();
-                  await storage.delete(
-                      key: 'firebaseToken'); // Delete the token
-                  print("User logged out and token deleted.");
-
-                  // Navigate to login page after logging out
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                } catch (e) {
-                  Navigator.of(context).pop(); // Dismiss the loading indicator
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'خطأ: $e',
-                        textAlign: TextAlign.center,
-                      ),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              child: Text(
-                "موافق",
-                style: TextStyle(
-                  color: AppColors.sColor, // Set the text color for 'موافق'
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Add the missing _updatePhoneNumber method here
-  Future<void> _updatePhoneNumber(
+  Future<void> _updateUserData(String uid, String name,
       String updatedPhoneNumber, String oldPhoneNumber) async {
     try {
       FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-      // Step 1: Retrieve the old document
-      DocumentSnapshot<Map<String, dynamic>> oldDocument =
-          await firestore.collection('Parent').doc(oldPhoneNumber).get();
+      // Step 1: Update the user data in Firestore
+      await firestore.collection('Parent').doc(uid).update({
+        'name': name,
+        'phoneNumber': updatedPhoneNumber,
+      });
 
-      // Step 2: Log the full contents of the old document
-      if (oldDocument.exists) {
-        print(
-            "Old Document Data: ${oldDocument.data()}"); // Log the data for debugging
-      } else {
-        print("Old document with phone number $oldPhoneNumber does not exist.");
-        return;
+      // Optionally, if you need to handle old phone number logic:
+      if (oldPhoneNumber != updatedPhoneNumber) {
+        // Additional logic if necessary
       }
 
-      // Step 3: Extract and log the children field from the old document
-      List<dynamic> children = oldDocument.data()?['children'] ?? [];
-      print("Retrieved children array: $children");
-
-      // Step 4: Handle phone number update
-      if (updatedPhoneNumber != oldPhoneNumber) {
-        // Step 5: Delete the old document
-        await firestore.collection('Parent').doc(oldPhoneNumber).delete();
-
-        // Step 6: Create a new document with the updated phone number
-        await firestore.collection('Parent').doc(updatedPhoneNumber).set({
-          'name': newName,
-          'phoneNumber': updatedPhoneNumber,
-          'children':
-              children, // Include the children array in the new document
-        });
-
-        print("New document created with updated phone number and children.");
-      } else {
-        // If phone number hasn't changed, just update the name and children
-        await firestore.collection('Parent').doc(oldPhoneNumber).update({
-          'name': newName,
-          'children': children, // Ensure children are still included
-        });
-
-        print("Document updated with new name and children.");
-      }
-
-      // Step 7: Confirm update success
+      // Confirmation message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Center(
-            child: Text(
-              'تم التحديث بنجاح',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black87),
-            ),
+            child: Text('تم التحديث بنجاح'),
           ),
-          backgroundColor: AppColors.primaryColor,
-          duration: const Duration(seconds: 4),
+          backgroundColor: Colors.green,
         ),
       );
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MyaccountView()),
-      );
     } catch (e) {
-      print("Error occurred: $e");
+      print("Error updating user data: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Center(
-            child: Text(
-              'خطأ: لم يتم تحديث البيانات: $e',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black87),
-            ),
+            child: Text('خطأ في تحديث البيانات: $e'),
           ),
           backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
         ),
       );
     }

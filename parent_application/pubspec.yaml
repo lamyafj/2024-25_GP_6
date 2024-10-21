@@ -88,6 +88,9 @@ flutter:
     - assets/images/profilephoto2.png
     - assets/images/profilephoto3.png
     - assets/images/appicon.png
+    - assets/images/backgmaslak.png
+    - assets/images/backgmaslak2.png
+    - assets/images/backgmaslak3.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

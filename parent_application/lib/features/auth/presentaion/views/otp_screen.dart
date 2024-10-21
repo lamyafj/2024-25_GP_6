@@ -25,14 +25,14 @@ class _OTPScreenState extends State<OTPScreen> {
   final TextEditingController c5 = TextEditingController();
   final TextEditingController c6 = TextEditingController();
 
-  bool isLoading = false;
+  bool isLoading = false; // Loading state for verification process
   bool correct = true; // Flag for indicating if the OTP is correct
 
-  // Create a secure storage instance
   final storage = const FlutterSecureStorage();
 
   @override
   void dispose() {
+    // Dispose controllers to free up resources
     c1.dispose();
     c2.dispose();
     c3.dispose();
@@ -45,18 +45,21 @@ class _OTPScreenState extends State<OTPScreen> {
   Future<void> verifyOtp() async {
     setState(() {
       isLoading = true;
-      correct = true;
+      correct = true; // Reset correctness flag
     });
 
     try {
+      // Combine OTP input from all text fields
       String smsCode =
           c1.text + c2.text + c3.text + c4.text + c5.text + c6.text;
 
+      // Create credential using verification ID and entered SMS code
       final cred = PhoneAuthProvider.credential(
         verificationId: widget.verificationId,
         smsCode: smsCode,
       );
 
+      // Sign in the user using the credential
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(cred);
 
@@ -76,11 +79,12 @@ class _OTPScreenState extends State<OTPScreen> {
       setState(() {
         correct = false; // Set flag to false if OTP is incorrect
       });
+    } finally {
+      // Ensure loading state is reset after the operation
+      setState(() {
+        isLoading = false;
+      });
     }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
   // Method to retrieve the stored token securely
@@ -100,12 +104,12 @@ class _OTPScreenState extends State<OTPScreen> {
     return Container(
       width: 45, // Set the square size
       height: 45,
-        margin: const EdgeInsets.symmetric(horizontal: 0.6), 
+      margin: const EdgeInsets.symmetric(horizontal: 0.6),
       decoration: BoxDecoration(
         border: Border.all(
           width: 1,
-          color: correct ? Colors.blueGrey : Colors.red,
-        ), // Red border on error
+          color: correct ? Colors.blueGrey : Colors.red, // Red border on error
+        ),
         borderRadius: BorderRadius.circular(6),
         color: const Color.fromARGB(255, 255, 255, 255),
       ),
@@ -113,18 +117,21 @@ class _OTPScreenState extends State<OTPScreen> {
         controller: controller,
         autofocus: first, // Only autofocus the first field
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 24 ,fontFamily: 'Zain',),
+        style: const TextStyle(
+          fontSize: 24,
+          fontFamily: 'Zain',
+        ),
         keyboardType: TextInputType.number,
         maxLength: 1,
         decoration: const InputDecoration(
           border: InputBorder.none,
           counterText: '', // Removes the character counter below the field
-           contentPadding: EdgeInsets.symmetric(vertical: 4.0),
-        ),  
+          contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+        ),
         onChanged: (value) {
-          if (value.length == 1 && last == false) {
+          if (value.length == 1 && !last) {
             FocusScope.of(context).nextFocus(); // Move to next field
-          } else if (value.isEmpty && first == false) {
+          } else if (value.isEmpty && !first) {
             FocusScope.of(context).previousFocus(); // Move to previous field
           }
         },
@@ -136,7 +143,6 @@ class _OTPScreenState extends State<OTPScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // Optionally add an AppBar or other widgets here
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
@@ -145,10 +151,12 @@ class _OTPScreenState extends State<OTPScreen> {
             const Text(
               "لقد أرسلنا رمز التحقق إلى جوالك\n :الرجاء إدخاله للتحقق",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontFamily: 'Zain',),
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'Zain',
+              ),
             ),
             const SizedBox(height: 40),
-            // OTP Text Fields in a square format
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -165,11 +173,14 @@ class _OTPScreenState extends State<OTPScreen> {
             if (!correct)
               const Text(
                 'الرمز المدخل غير صحيح. حاول مرة أخرى',
-                style: TextStyle(color: Colors.red,  fontFamily: 'Zain'),
+                style: TextStyle(color: Colors.red, fontFamily: 'Zain'),
               ),
             const SizedBox(height: 20),
             isLoading
-                ? const CircularProgressIndicator( color: Color.fromRGBO(196, 174, 87, 1.0), )
+                ? const CircularProgressIndicator(
+                    color:
+                        Color.fromRGBO(196, 174, 87, 1.0), // Set loading color
+                  )
                 : ElevatedButton(
                     onPressed: verifyOtp,
                     style: ElevatedButton.styleFrom(
@@ -181,10 +192,9 @@ class _OTPScreenState extends State<OTPScreen> {
                     child: const Text(
                       'تحقق',
                       style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontFamily: 'Zain'
-                      ),
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontFamily: 'Zain'),
                     ),
                   ),
           ],
