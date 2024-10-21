@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert'; // For decoding JSON
 import 'package:parent_application/features/auth/presentaion/views/login_page.dart';
 import 'package:parent_application/features/myaccount/presentation/views/EditMyAccountView.dart';
 import 'package:parent_application/core/utils/app_colors.dart';
@@ -14,86 +13,76 @@ class MyaccountView extends StatefulWidget {
 
 class _MyaccountViewState extends State<MyaccountView> {
   bool isLoading = true; // Loading state to show a loading spinner
-  String name = '...'; // Placeholder for name
-  String phoneNumber = '...'; // Placeholder for phone number
-  final storage =
-      const FlutterSecureStorage(); // Secure storage for token management
+  String name = 'لايوجد اسم'; // Placeholder for name
+  String phoneNumber = 'لا يوجد رقم'; // Placeholder for phone number
+  final storage = FlutterSecureStorage(); // Initialize the storage instance
 
-  // Fetch user profile data from the Node.js server
-  Future<void> fetchParentData() async {
-    String? token =
-        await storage.read(key: 'firebaseToken'); // Retrieve Firebase token
-    String? userPhoneNumber = FirebaseAuth.instance.currentUser?.phoneNumber;
-
-    if (token == null || userPhoneNumber == null) {
-      print('Error: No token or phone number available');
-      setState(() {
-        isLoading = false; // Stop loading if there's an error
-      });
-      return;
-    }
-
-    try {
-      // Replace with your Node.js server IP
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:5000/getParentData/$userPhoneNumber'),
-        headers: {
-          'Authorization': 'Bearer $token', // Send token in header if needed
-          'Content-Type': 'application/json',
-        },
-      );
-
-      print('Response: ${response.body}'); // Log the server response
-
-      if (response.statusCode == 200) {
-        // Successfully fetched parent data
-        final data = json.decode(response.body);
-        setState(() {
-          name = data['name'] ?? 'No name found';
-          phoneNumber = data['phoneNumber'] ?? 'No phone number found';
-          isLoading = false; // Stop loading when data is fetched
-        });
-      } else {
-        print('Error fetching parent data: ${response.statusCode}');
-        setState(() {
-          isLoading = false; // Stop loading on error
-        });
-      }
-    } catch (e) {
-      print('Error fetching parent data: $e');
-      setState(() {
-        isLoading = false; // Stop loading on exception
-      });
-    }
-  }
+  String? uid; // National ID
 
   @override
   void initState() {
     super.initState();
-    fetchParentData(); // Fetch parent data when the page is initialized
+    fetchUserData(); // Fetch user data on initialization
+  }
+
+  // Function to fetch user data from Firestore
+  Future<void> fetchUserData() async {
+    uid = await storage.read(key: 'nationalID');
+    print("Fetched National ID from storage: $uid");
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('Parent') // Ensure this matches your Firestore structure
+          .doc(uid) // Fetch data using the national ID
+          .get();
+
+      if (snapshot.exists) {
+        if (mounted) {
+          setState(() {
+            name = snapshot['name'] ?? 'لايوجد اسم'; // Get name from document
+            phoneNumber =
+                snapshot['phoneNumber'] ?? 'لا يوجد رقم'; // Get phone number
+            isLoading = false; // Set loading to false
+          });
+          print("Fetched data: $name, $phoneNumber"); // Log the fetched data
+        }
+      } else {
+        print(
+            "Document does not exist for National ID: $uid"); // Log if document doesn't exist
+        if (mounted) {
+          setState(() {
+            isLoading = false; // Set loading to false if document doesn't exist
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching user data: $e"); // Log the error
+      if (mounted) {
+        setState(() {
+          isLoading = false; // Set loading to false on error
+        });
+      }
+    }
   }
 
   // Function to handle user logout
   Future<void> handleLogout(BuildContext context) async {
-    // Show the verification dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: AppColors.primaryColor, // Set background color
+          backgroundColor: AppColors.primaryColor,
           title: Text(
             "تأكيد تسجيل الخروج",
-            style: TextStyle(
-              color: AppColors.sColor,fontFamily: "zain" // Set title text color to sColor
-            ),
-            textAlign: TextAlign.right, // Align the title text to the right
+            style: TextStyle(color: AppColors.sColor, fontFamily: "zain"),
+            textAlign: TextAlign.right,
           ),
           content: Text(
             "هل أنت متأكد أنك تريد تسجيل الخروج؟",
             style: TextStyle(
-              color: AppColors.sColor,fontFamily: "zain", // Set content text color to sColor
+              color: AppColors.sColor,
+              fontFamily: "zain",
             ),
-            textAlign: TextAlign.right, // Align the content text to the right
+            textAlign: TextAlign.right,
           ),
           actions: [
             TextButton(
@@ -102,9 +91,7 @@ class _MyaccountViewState extends State<MyaccountView> {
               },
               child: Text(
                 "إلغاء",
-                style: TextStyle(
-                  color: AppColors.sColor, fontFamily: "zain"// Set text color for 'إلغاء' button
-                ),
+                style: TextStyle(color: AppColors.sColor, fontFamily: "zain"),
               ),
             ),
             TextButton(
@@ -122,9 +109,7 @@ class _MyaccountViewState extends State<MyaccountView> {
               },
               child: Text(
                 "موافق",
-                style: TextStyle(
-                  color: AppColors.sColor,fontFamily: "zain" // Set text color for 'موافق' button
-                ),
+                style: TextStyle(color: AppColors.sColor, fontFamily: "zain"),
               ),
             ),
           ],
@@ -140,20 +125,23 @@ class _MyaccountViewState extends State<MyaccountView> {
         title: const Text(
           "الملف الشخصي",
           textDirection: TextDirection.rtl,
-              style: TextStyle(
-      fontFamily: 'Zain',
-    ),
+          style: TextStyle(
+            fontFamily: 'Zain',
+          ),
         ),
-        centerTitle: true, // This centers the title
+        centerTitle: true, // Center the title
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator( color: Color.fromRGBO(196, 174, 87, 1.0),)) // Show a loading spinner
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Color.fromRGBO(196, 174, 87, 1.0),
+              ),
+            )
           : SingleChildScrollView(
               child: Container(
                 padding: const EdgeInsets.all(4),
                 child: Column(
                   children: [
-                    // Profile Picture with Pencil Icon Overlay
                     Stack(
                       children: [
                         SizedBox(
@@ -175,9 +163,8 @@ class _MyaccountViewState extends State<MyaccountView> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => EditMyAccount(
-                                    currentName: name, // Pass current name
-                                    currentPhoneNumber:
-                                        phoneNumber, // Pass current phone number
+                                    currentName: name,
+                                    currentPhoneNumber: phoneNumber,
                                   ),
                                 ),
                               );
@@ -185,13 +172,13 @@ class _MyaccountViewState extends State<MyaccountView> {
                             child: Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.thColor, // Apply thColor here
+                                color: AppColors.thColor,
                               ),
                               padding: const EdgeInsets.all(4.0),
                               child: const Icon(
                                 Icons.edit,
                                 size: 20,
-                                color: Colors.white, // Keep the icon white
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -199,21 +186,19 @@ class _MyaccountViewState extends State<MyaccountView> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    // Profile name and phone number
                     Column(
                       children: [
                         Text(
-                          name, // Display the name fetched from the server
+                          name,
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 24,
-                                    
                                   ),
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          phoneNumber, // Display the phone number fetched from the server
+                          phoneNumber,
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w400,
@@ -222,7 +207,6 @@ class _MyaccountViewState extends State<MyaccountView> {
                         ),
                       ],
                     ),
-                    // تعديل button to navigate to EditMyAccount page
                     SizedBox(
                       width: 200,
                       child: ElevatedButton(
@@ -232,29 +216,24 @@ class _MyaccountViewState extends State<MyaccountView> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => EditMyAccount(
-                                currentName: name, // Pass the current name
-                                currentPhoneNumber:
-                                    phoneNumber, // Pass the current phone number
+                                currentName: name,
+                                currentPhoneNumber: phoneNumber,
                               ),
                             ),
                           );
                         },
                         child: const Text("تعديل"),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              AppColors.thColor, // Apply thColor here
+                          backgroundColor: AppColors.thColor,
                           foregroundColor: Colors.white,
-                          textStyle: const TextStyle(
-                            fontSize: 18,
-                           fontFamily: "zain"
-                          ),
+                          textStyle:
+                              const TextStyle(fontSize: 18, fontFamily: "zain"),
                         ),
                       ),
                     ),
                     const SizedBox(height: 30),
                     const Divider(),
                     const SizedBox(height: 10),
-                    // Menu items
                     myaccountMenuWidget(
                       title: "تسجيل خروج",
                       icon: Icons.exit_to_app,
@@ -263,7 +242,7 @@ class _MyaccountViewState extends State<MyaccountView> {
                       onPressed: () {
                         handleLogout(context); // Call logout function
                       },
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -296,7 +275,7 @@ class myaccountMenuWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.end, // Align to the right
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
               title,

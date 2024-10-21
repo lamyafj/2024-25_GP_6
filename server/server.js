@@ -1376,7 +1376,7 @@ app.post('/api/acceptstudent', async (req, res) => {
 
 
 //////////////////////////////////////////////////////////////////parent functions
-app.use(express.json());
+/*app.use(express.json());
 
 app.get('/getParentData/:phoneNumber', async (req, res) => {
   console.log('server get parent data endpoint')
@@ -1397,7 +1397,7 @@ app.get('/getParentData/:phoneNumber', async (req, res) => {
     console.error('Error fetching parent data:', error);
     res.status(500).send('Error fetching parent data');
   }
-});
+});*/
 
 
 ///////////////////////////rfid 

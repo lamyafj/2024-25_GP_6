@@ -82,14 +82,13 @@ void main() async {
   try {
     await Firebase.initializeApp();
     await FirebaseAppCheck.instance.activate(
-      androidProvider:
-          AndroidProvider.debug, // Use Play Integrity for production
+      androidProvider: AndroidProvider.debug,
     );
     print('Firebase Initialized Successfully');
   } catch (e) {
     print('Error Initializing Firebase: $e');
   }
-  runApp(Maslak());
+  runApp(const Maslak());
 }
 
 class Maslak extends StatefulWidget {
@@ -100,11 +99,11 @@ class Maslak extends StatefulWidget {
 }
 
 class _MaslakState extends State<Maslak> {
-  bool isDarkMode = false; // Tracks whether dark mode is enabled
+  bool isDarkMode = false;
 
   void toggleTheme() {
     setState(() {
-      isDarkMode = !isDarkMode; // Toggle theme mode
+      isDarkMode = !isDarkMode;
     });
   }
 
@@ -112,92 +111,40 @@ class _MaslakState extends State<Maslak> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      routerConfig: router, // Use routerConfig to manage routes
+      routerConfig: router,
       theme: ThemeData(
         brightness: Brightness.light,
-        scaffoldBackgroundColor:
-            Colors.white, // Background color for the entire app
+        scaffoldBackgroundColor: Colors.white,
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.white, // AppBar background color
-          foregroundColor: AppColors.sColor, // Color for AppBar text and icons
+          backgroundColor: Colors.white,
+          foregroundColor: AppColors.sColor,
         ),
         inputDecorationTheme: InputDecorationTheme(
-          border: const OutlineInputBorder(),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: AppColors.sColor, width: 2.0), // Focused border color
+          hintStyle: TextStyle(
+            color: Color(0xff053A21), // لون الكتابة في النص المساعد
           ),
-          labelStyle: const TextStyle(fontSize: 18),
-          floatingLabelStyle:
-              TextStyle(color: AppColors.sColor), // Focused label color
+          labelStyle: TextStyle(
+            color: Color(0xff053A21), // لون الكتابة فوق حقل الإدخال
+          ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey), // لون الحدود العادية
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: Color(0xff053A21)), // لون الحدود عند التركيز
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: Color(0xff053A21)), // لون الحدود عند التفعيل
+          ),
         ),
-        textSelectionTheme: TextSelectionThemeData(
-          cursorColor: AppColors.sColor,
-          selectionColor: AppColors.sColor.withOpacity(0.3),
-          selectionHandleColor: AppColors.sColor,
-        ),
+        // Uncomment the following section if you want to include dark mode
+        // darkTheme: ThemeData(
+        //   brightness: Brightness.dark,
+        //   // Other dark theme properties
+        // ),
+        // themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       ),
-      // darkTheme: ThemeData(
-      //   brightness: Brightness.dark,
-      //   scaffoldBackgroundColor: Colors.black87, // Dark mode background color
-      //   appBarTheme: AppBarTheme(
-      //     backgroundColor: Colors.black54, // AppBar background color in dark mode
-      //     foregroundColor: Colors.white, // Color for AppBar text and icons in dark mode
-      //   ),
-      //   inputDecorationTheme: InputDecorationTheme(
-      //     border: const OutlineInputBorder(),
-      //     focusedBorder: OutlineInputBorder(
-      //       borderSide: BorderSide(color: Colors.cyanAccent, width: 2.0), // Focused border color for dark mode
-      //     ),
-      //     labelStyle: const TextStyle(fontSize: 18),
-      //     floatingLabelStyle: const TextStyle(color: Colors.cyanAccent), // Focused label color for dark mode
-      //   ),
-      //   textSelectionTheme: const TextSelectionThemeData(
-      //     cursorColor: Colors.cyanAccent,
-      //     selectionColor: Color(0xFF1E88E5),
-      //     selectionHandleColor: Colors.cyanAccent,
-      //   ),
-      // ),
-      // themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light, // Change theme based on isDarkMode
-      // builder: (context, child) {
-      //   return Scaffold(
-      //     body: SafeArea(
-      //       child: Stack(
-      //         children: [
-      //           if (child != null) child!,
-      //           Positioned(
-      //             top: 10,
-      //             right: 10,
-      //             child: IconButton(
-      //               icon: Icon(
-      //                 isDarkMode ? Icons.light_mode : Icons.dark_mode,
-      //                 color: isDarkMode ? Colors.yellow : Colors.black,
-      //               ),
-      //               onPressed: toggleTheme,
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   );
-      // },
     );
   }
 }
-
-// class Maslak extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Firebase Demo',
-//       home: Scaffold(
-//         appBar: AppBar(
-//           title: Text('Firebase Connection'),
-//         ),
-//         body: Center(
-//           child: Text('Firebase Initialized'),
-//         ),
-//       ),
-//     );
-//   }
-// }

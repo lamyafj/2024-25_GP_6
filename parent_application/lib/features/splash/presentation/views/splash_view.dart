@@ -1,46 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:maslak/core/functions/navigation.dart';
-// import 'package:maslak/core/utils/app_assets.dart';
+import 'package:parent_application/features/auth/presentaion/views/login_page.dart';
+import 'dart:async';
 
-class SplashView extends StatefulWidget {
-  const SplashView({super.key});
+class IntroPage extends StatefulWidget {
+  const IntroPage({super.key});
 
   @override
-  State<SplashView> createState() => _SplashViewState();
+  _IntroPageState createState() => _IntroPageState();
 }
 
-class _SplashViewState extends State<SplashView> {
+class _IntroPageState extends State<IntroPage> {
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 5),
-    (){
-      context.go("/login");
-
-    }
-    );
     super.initState();
+    Timer(const Duration(seconds: 7), () {
+      // Navigate to LoginPage using GoRouter
+      context.go('/login'); // or context.pushReplacement('/login');
+    });
   }
 
-  
   @override
   Widget build(BuildContext context) {
+    print("IntroPage is being built");
     return Scaffold(
-      body: Center(
-        // child: Image.asset(Assets.imagesMaslak) ,
-        // child: Image.asset(
-        //   'assets/images/maslak.png',
-        //   width: 200,  // Resize width
-        //   height: 200, // Resize height
-        //   fit: BoxFit.cover,  // How the image should fit
-
-        child: Image.asset(
-          'assets/images/MaslakGif.GIF',  // Path to your GIF file
-          width: 300,  // Adjust width as needed
-          height: 300,  // Adjust height as needed
-          fit: BoxFit.cover,  // How the image should fit the container 
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Image.asset(
+              'assets/images/movingbus.gif',
+              width: MediaQuery.of(context).size.width,
+              height: 750,
+              fit: BoxFit.cover,
+            ),
           ),
+        ],
       ),
     );
   }
