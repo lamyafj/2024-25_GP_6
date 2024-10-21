@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
   bool isLoading = false;
-  bool isBackgroundLoaded = false;
+  bool isBackgroundLoaded = false; // Flag to check if background is loaded
   String? errorMessage;
 
   @override
@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> loadBackground() async {
     await Future.delayed(Duration(seconds: 1)); // Simulate a loading time
     setState(() {
-      isBackgroundLoaded = true;
+      isBackgroundLoaded = true; // Set background loaded to true
     });
   }
 
@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Stack(
         children: [
           BackgroundWidget(), // Background Widget
-          if (isBackgroundLoaded) // Show content after background is loaded
+          if (isBackgroundLoaded) // Show content only after background is loaded
             Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
@@ -275,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-          if (!isBackgroundLoaded) // Loading indicator while background loads
+          if (!isBackgroundLoaded) // Show loading indicator while background loads
             Center(
               child: CircularProgressIndicator(
                 color: Color.fromRGBO(196, 174, 87, 1.0), // Loading color

@@ -91,7 +91,7 @@ flutter:
     - assets/images/backgmaslak.png
     - assets/images/backgmaslak2.png
     - assets/images/backgmaslak3.png
-
+    - assets/images/movingbus.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
