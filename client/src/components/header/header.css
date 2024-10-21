@@ -60,3 +60,11 @@
     align-items: center;
     gap: 10px; /* Increased gap */
 }
+
+.header-settings-icon {
+    transition: transform 0.3s ease; /* Smooth transition */
+  }
+  
+  .header-settings-icon:hover {
+    transform: scale(1.1); /* Scale up to 110% on hover */
+  }

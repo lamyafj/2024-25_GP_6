@@ -46,8 +46,8 @@ export default function AdminDashboard() {
       <Header schoolCode={schoolCode} />
       {/* Example of displaying real-time data */}
       <div className="realtime-data">
-        <h2>Real-time Data:</h2>
-        <pre>{JSON.stringify(cardUIDs, null, 2)}</pre>
+        <h2>Real-time RFID cards data:</h2>
+        <pre style={{fontSize:'20px'}}>{JSON.stringify(cardUIDs, null, 2)}</pre>
       </div>
     </div>
   );

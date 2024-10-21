@@ -17,7 +17,7 @@ const SignupForm = () => {
     phoneNumber: '',
     district: '',
     street: '',
-    streetAlt: '',
+    city: '',
     postalCode: '',
   });
 
@@ -109,7 +109,6 @@ const SignupForm = () => {
       <GifLogo />
       <GreenContainer>
         <h1>تسجيل حساب للمدرسة</h1>
-        <div className="hLine"></div>
 
         {formStep === 1 && (
           <form onSubmit={handleFirstFormSubmit} className="form-step">
@@ -194,8 +193,8 @@ const SignupForm = () => {
                 type="text"
                 width={100}
                 content=" المدينة"
-                name="streetAlt"
-                value={form.streetAlt}
+                name="city"
+                value={form.city}
                 onChange={handleChange}
               />
 

@@ -28,38 +28,39 @@ export const BringDriverRecord = async () => {
   }
 };
 
-  
-  export const AddDriverToDatabase = async (newdriver) => {
-    const idToken = Cookies.get('session'); 
-  
-    if (!newdriver) {
-      console.log('No bus data provided');
-      return null;
-    }
-  
-    if (!idToken) {
-      console.log('User not authenticated');
-      return null;
-    }
-  
-    try {
-      const response = await axios.post( `${baseURL}/${ADDDRIVER}`, {newdriver}, 
-        {
-          headers: {
-            Authorization: `Bearer ${idToken}`, 
-          },
-          withCredentials: true, 
-        }
-      );
-  
-      const record = response.data; 
-      return record; // Return the record after a successful request
-    } catch (error) {
-      console.error('Error accessing protected route:', error.response?.data || error);
-      return null; // Return null if an error occurs
-    }
-  };
+export const AddDriverToDatabase = async (newdriver) => { 
+  const idToken = Cookies.get('session'); 
 
+  if (!newdriver) {
+    console.log('No driver data provided');
+    return { error: 'No driver data provided' }; // Return an error object
+  }
+
+  if (!idToken) {
+    console.log('User not authenticated');
+    return { error: 'User not authenticated' }; // Return an error object
+  }
+
+  try {
+    const response = await axios.post(`${baseURL}/${ADDDRIVER}`, { newdriver }, 
+      {
+        headers: {
+          Authorization: `Bearer ${idToken}`, 
+        },
+        withCredentials: true, 
+      }
+    );
+
+    return response.data; // Return the actual data after a successful request
+  } catch (error) {
+    const errorMessage = error.response?.data?.error || error.message || 'An unexpected error occurred';
+    console.error('Error accessing protected route:', errorMessage);
+    return { error: errorMessage }; // Return a structured error object
+  }
+};
+
+
+  ////////////////////////////////////////delete driver
   export const deleteBusDatabase = async (uid) => {
     const idToken = Cookies.get('session'); 
     if (!uid) {

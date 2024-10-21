@@ -22,7 +22,6 @@ import ConfirmationModal from '../../components/Confirmation/confirm.js';
 import SuccessMessage from '../../components/successMessage/successMessage.js';
 
 
-
 export default function StudentDetail() {
   const params = useParams();
   const navigate = useNavigate();
@@ -37,7 +36,7 @@ export default function StudentDetail() {
   const [selectedBus, setSelectedBus] = useState(null);
   const [buses, setBuses] = useState([]);
   const [availableBuses, setAvailableBuses] = useState([]);
-  const [isAssigning , setIsassigning] =useState(false)
+  const [isAssigning, setIsAssigning] = useState(false);
   const [studentBus, setStudentBus] = useState(null);
   const [isDelete, setIsDelete] = useState(null);
   const [isAccept, setIsAccept] = useState(null);
@@ -46,17 +45,12 @@ export default function StudentDetail() {
   const [showSuccessbus, setShowSuccessbus] = useState(false);
   const [showSuccessaccept, setShowSuccessaccept] = useState(false);
 
-  
-
-const validateCityAndDistrict = input => input.trim().length >= 2;
-const validateStreet = street => street.trim().length >= 3;
-const validatePostalCode = postalCode => /^\d{5}$/.test(postalCode);  // Assuming 5-digit postal codes
-const validateName = name => name.trim().length >= 2;
-const validateID = id => /^\d{1,10}$/.test(id);
-const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
-
-
-
+  const validateCityAndDistrict = (input) => input.trim().length >= 2;
+  const validateStreet = (street) => street.trim().length >= 3;
+  const validatePostalCode = (postalCode) => /^\d{5}$/.test(postalCode); // Assuming 5-digit postal codes
+  const validateName = (name) => name.trim().length >= 2;
+  const validateID = (id) => /^\d{1,10}$/.test(id);
+  const validatePhoneNumber = (phone) => /^5\d{8}$/.test(phone);
 
   useEffect(() => {
     const fetchStudentDetails = async () => {
@@ -83,31 +77,44 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
   const fetchBuses = async () => {
     try {
       const allBuses = await BringBusRecord();
-      // Filter buses where currentCapacity is less than capacity
-      setBuses(allBuses)
-      const availablebuses = allBuses.filter(bus => bus.current_capacity < bus.capacity);
+      setBuses(allBuses);
+      const availablebuses = allBuses.filter(
+        (bus) => bus.currentCapacity < bus.maximumCapacity
+      );
       setAvailableBuses(availablebuses);
     } catch (err) {
       console.error('فشل في جلب الحافلات', err);
     }
   };
 
-
   useEffect(() => {
     if (buses.length > 0 && student.bus) {
-      const assignedBus = buses.find(bus => bus.uid === student.bus);
+      const assignedBus = buses.find((bus) => bus.uid === student.bus);
       setStudentBus(assignedBus);
     }
   }, [buses, student.bus]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prevValues => ({
-      ...prevValues,
-      [name]: value,
-    }));
-    console.log(formValues)
+  
+    if (["city", "street", "district", "postalCode"].includes(name)) {
+      // Update address fields separately
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        address: {
+          ...prevValues.address,
+          [name]: value,
+        },
+      }));
+    } else {
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        [name]: value,
+      }));
+    }
+    console.log(formValues);
   };
+  
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -115,77 +122,85 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
 
   const handleSave = async () => {
     setIsSaving(true);
-  
-    const { student_first_name, student_family_name, student_id, parent_phone, city, street, district, postal_code } = formValues;
-  
-    // Check if any field is empty
-    if (!student_first_name.trim() || !student_family_name.trim() || !student_id.trim() || !parent_phone.trim() || !city.trim() || !street.trim() || !district.trim() || !postal_code.trim()) {
+
+    const {
+      studentFirstName,
+      studentFamilyName,
+      parentUid,
+      uid,
+      parentPhone,
+      city,
+      street,
+      district,
+      postalCode,
+    } = formValues;
+
+    if (
+      !studentFirstName.trim() ||
+      !studentFamilyName.trim() ||
+      !uid.trim() ||
+      !parentUid.trim() ||
+      !city.trim() ||
+      !street.trim() ||
+      !district.trim() ||
+      !postalCode.trim()
+    ) {
       setError('جميع الحقول مطلوبة.');
       setIsSaving(false);
       return;
     }
-  
-    // Name validations
-    if (!validateName(student_first_name) || !validateName(student_family_name)) {
+
+    if (!validateName(studentFirstName) || !validateName(studentFamilyName)) {
       setError('الأسماء يجب أن تحتوي على حرفين على الأقل.');
       setIsSaving(false);
       return;
     }
-  
-    // ID and phone validations
-    if (!validateID(student_id)) {
-      setError('رقم الهوية يجب أن يكون بين 1 و 10 أرقام.');
+
+    if (!validateID(uid) ) {
+      setError('رقم الهوية او الأقامة يجب ان يكون 10 أرقام');
       setIsSaving(false);
       return;
     }
-  
-    // if (!validatePhoneNumber(parent_phone)) {
-    //   setError('رقم الجوال يجب أن يبدأ بـ 5 ويتكون من 9 أرقام.');
-    //   setIsSaving(false);
-    //   return;
-    // }
-  
-    // Address validations
+
     if (!validateCityAndDistrict(city) || !validateCityAndDistrict(district)) {
-      setError('المدينة والمنطقة يجب أن تحتويا على حرفين على الأقل.');
+      setError('المدينة والمنطقة يجب أن تحتويا على حرفين على الأقل');
       setIsSaving(false);
       return;
     }
-  
+
     if (!validateStreet(street)) {
       setError('اسم الشارع يجب أن يكون أطول.');
       setIsSaving(false);
       return;
     }
-  
-    if (!validatePostalCode(postal_code)) {
+
+    if (!validatePostalCode(postalCode)) {
       setError('رمز البريد يجب أن يكون مكون من 5 أرقام.');
       setIsSaving(false);
       return;
     }
-  
+
     try {
       await EditStudentDetail(uid, formValues);
       setStudent(formValues);
       setIsEditing(false);
-      setError('');  // Clear any previous errors
+      setError('');
     } catch (err) {
       setError('فشل في حفظ التغييرات. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSaving(false);
-      handleSuccessOperation('1')
+      handleSuccessOperation('1');
     }
   };
-  
 
   const handleCancel = () => {
     setFormValues(student);
-    setError(null)
+    setError(null);
     setIsEditing(false);
   };
 
   const handleBusSelect = async (bus) => {
-    setIsassigning(true)
+    setIsAssigning(true);
     try {
       setSelectedBus(bus);
       setDropdownVisible(false);
@@ -193,17 +208,16 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
       const updatedData = await BringStudentDetail(uid);
       setStudent(updatedData);
       setFormValues(updatedData);
-
     } catch (error) {
       setError('خطأ في تعيين الحافلة');
-    }finally{
-        setIsassigning(false)
-        handleSuccessOperation('2')
+    } finally {
+      setIsAssigning(false);
+      handleSuccessOperation('2');
     }
   };
 
   const handleUnassignBus = async () => {
-    setIsassigning(true)
+    setIsAssigning(true);
     try {
       await unassignStudentBus(uid, studentBus.uid);
       setSelectedBus(null);
@@ -214,8 +228,8 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
       fetchBuses();
     } catch (error) {
       setError('خطأ في إلغاء تعيين الحافلة');
-    }finally{
-        setIsassigning(false)
+    } finally {
+      setIsAssigning(false);
     }
   };
 
@@ -228,23 +242,22 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
       setError('خطأ في حذف الطالب');
     } finally {
       setIsDelete(false);
-      setModalOpen(false); // Close modal on completion
+      setModalOpen(false);
     }
   };
-  
+
   const acceptStudent = async () => {
-    setIsAccept(true)
+    setIsAccept(true);
     try {
       await AcceptStudent(uid);
       const updatedData = await BringStudentDetail(uid);
       setStudent(updatedData);
       setFormValues(updatedData);
-      //navigate('/stduentList')
     } catch (error) {
       setError('خطأ في قبول الطالب');
-    }finally{
-      setIsAccept(false)
-      handleSuccessOperation('3')
+    } finally {
+      setIsAccept(false);
+      handleSuccessOperation('3');
     }
   };
 
@@ -253,33 +266,26 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
   }
 
   const handleSuccessOperation = (number) => {
-    // Reset the state to show the success message
-    if(number==='1'){
-    setShowSuccess(false); // Ensure it's hidden before showing again (reset state)
-    setTimeout(() => setShowSuccess(true), 0); // Trigger the success message
+    if (number === '1') {
+      setShowSuccess(false);
+      setTimeout(() => setShowSuccess(true), 0);
     }
-    if(number==='2'){
-      setShowSuccessbus(false); // Ensure it's hidden before showing again (reset state)
-      setTimeout(() => setShowSuccessbus(true), 0); // Trigger the success message
+    if (number === '2') {
+      setShowSuccessbus(false);
+      setTimeout(() => setShowSuccessbus(true), 0);
     }
-    if(number==='3'){
-      setShowSuccessaccept(false); // Ensure it's hidden before showing again (reset state)
-      setTimeout(() => setShowSuccessaccept(true), 0); // Trigger the success message
+    if (number === '3') {
+      setShowSuccessaccept(false);
+      setTimeout(() => setShowSuccessaccept(true), 0);
     }
-  }; 
-
+  };
 
   return (
     <div className="student-detail-page">
-        <>
-        {showSuccess && <SuccessMessage message="تم التعديل بنجاح" />}
-        </>
-        <>
-        {showSuccessbus && <SuccessMessage message="تم التعيين بنجاح" />}
-        </>
-        <>
-        {showSuccessaccept && <SuccessMessage message="تم القبول بنجاح" />}
-        </>
+      {showSuccess && <SuccessMessage message="تم التعديل بنجاح" />}
+      {showSuccessbus && <SuccessMessage message="تم التعيين بنجاح" />}
+      {showSuccessaccept && <SuccessMessage message="تم القبول بنجاح" />}
+      
       <Header />
       <div className="student-detail-main">
         <div className="student-detail-buttons">
@@ -291,51 +297,55 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
               عودة
             </button>
           )}
-
-          {student.status==='inactive'&&(
-          <>
-          <button className="details-driver-button" onClick={acceptStudent} disabled={isAccept}>
-          {isAccept ? <CgSpinnerAlt className="spinner" /> : 'قبول'}
-         </button>
-      
-        <>
-      <button 
-        className="delete-bus-button"
-        style={{ width: '80px' }}
-        onClick={() => setModalOpen(true)} // Open the modal instead of deleting directly
-        disabled={isDelete}
-      >
-        {isDelete ? <CgSpinnerAlt className="spinner" /> : 'رفض'}
-      </button>
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
-        onConfirm={deletestudent}
-      >
-        هل أنت متأكد من أنك تريد رفض الطالب؟
-      </ConfirmationModal>
-    </>
-          </>
+  
+          {student.status === 'inactive' && (
+            <>
+              <button
+                className="details-driver-button"
+                onClick={acceptStudent}
+                disabled={isAccept}
+              >
+                {isAccept ? <CgSpinnerAlt className="spinner" /> : 'قبول'}
+              </button>
+  
+              <button
+                className="delete-bus-button"
+                style={{ width: '80px' }}
+                onClick={() => setModalOpen(true)}
+                disabled={isDelete}
+              >
+                {isDelete ? <CgSpinnerAlt className="spinner" /> : 'رفض'}
+              </button>
+              <ConfirmationModal
+                isOpen={isModalOpen}
+                onClose={() => setModalOpen(false)}
+                onConfirm={deletestudent}
+              >
+                هل أنت متأكد من أنك تريد رفض الطالب؟
+              </ConfirmationModal>
+            </>
           )}
-                {!isEditing && student.status === 'active' && (
-        <>
-          <button 
-            className="delete-bus-button"
-            style={{width: '80px'}}
-            onClick={() => setModalOpen(true)} // Open the modal instead of deleting directly
-            disabled={isDelete}
-          >
-            {isDelete ? <CgSpinnerAlt className="spinner" /> : 'حذف الطالب'}
-          </button>
-          <ConfirmationModal
-            isOpen={isModalOpen}
-            onClose={() => setModalOpen(false)}
-            onConfirm={deletestudent}
-          >
-            هل أنت متأكد من أنك تريد حذف الطالب؟
-          </ConfirmationModal>
-        </>
-      )}
+          
+          {!isEditing && student.status === 'active' && (
+            <>
+              <button
+                className="delete-bus-button"
+                style={{ width: '80px' }}
+                onClick={() => setModalOpen(true)}
+                disabled={isDelete}
+              >
+                {isDelete ? <CgSpinnerAlt className="spinner" /> : 'حذف الطالب'}
+              </button>
+              <ConfirmationModal
+                isOpen={isModalOpen}
+                onClose={() => setModalOpen(false)}
+                onConfirm={deletestudent}
+              >
+                هل أنت متأكد من أنك تريد حذف الطالب؟
+              </ConfirmationModal>
+            </>
+          )}
+  
           {isEditing && (
             <>
               <button className="cancel-student-button" onClick={handleCancel}>
@@ -351,22 +361,20 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
             </>
           )}
         </div>
-
+  
         {error && (
-          <p
-            className="error-message"
-            style={{ color: 'red', marginBottom: '10px' }}
-          >
+          <p className="error-message" style={{ color: 'red', marginBottom: '10px' }}>
             {error}
           </p>
         )}
+  
         <FormContainer>
           <div className="detail-content">
             <div className="title-container">
-              <h1>{student.student_first_name} {student.student_family_name} </h1>
+              <h1>{student.studentFirstName} {student.studentFamilyName}</h1>
               <div className="line"></div>
             </div>
-
+  
             <div className="student-one-detail-content">
               <div className="half">
                 <ItemContainer>
@@ -379,7 +387,7 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
                         }}
                       >
                         <h2>معلومات الطالب</h2>
-                        {!isEditing && student.status==='active' &&(
+                        {!isEditing && student.status === 'active' && (
                           <button className="no-button" onClick={handleEditClick}>
                             <FiEdit3 size={20} className="hover-icon" />
                           </button>
@@ -387,199 +395,197 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
                       </div>
                       <hr />
                       <li>
-                        <FaRegIdCard
-                          style={{ marginBottom: '-5px', marginLeft: '6px' }}
-                        />
-                        <strong style={{ marginLeft: '5px' }}>هوية الطالب:</strong>
-                        {student.student_id}
+                        <FaRegIdCard style={{ marginBottom: '-5px', marginLeft: '6px' }} />
+                        <strong style={{ marginLeft: '5px' }}> الهوية الوطنية أو الاقامة الخاصة بالطالب: </strong>
+                        {student.uid}
                       </li>
                       <li>
-                        <TbUser
-                          style={{ marginBottom: '-3px', marginLeft: '5px' }}
-                        />
-                        <strong style={{ marginLeft: '5px' }} >اسم الطالب الاول:</strong>
+                        <TbUser style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+                        <strong style={{ marginLeft: '5px' }}>اسم الطالب:</strong>
                         {isEditing ? (
-                          <input
-                            type="text"
-                            name="student_first_name"
-                            value={formValues.student_first_name  || ''}
-                            onChange={handleChange}
-                          />
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <input
+                              type="text"
+                              name="studentFirstName"
+                              value={formValues.studentFirstName || ''}
+                              onChange={handleChange}
+                              placeholder="الاسم الأول"
+                              style={{ flex: 1 }}
+                            />
+                            <input
+                              type="text"
+                              name="studentFamilyName"
+                              value={formValues.studentFamilyName || ''}
+                              onChange={handleChange}
+                              placeholder="اسم العائلة"
+                              style={{ flex: 1 }}
+                            />
+                          </div>
                         ) : (
-                          student.student_first_name
+                          `${student.studentFirstName} ${student.studentFamilyName}`
                         )}
                       </li>
                       <li>
-                        <TbUser
-                          style={{ marginBottom: '-3px', marginLeft: '5px' }}
-                        />
-                        <strong style={{ marginLeft: '5px' }}>اسم عائلة الطالب :</strong>
+                        <TbUser style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+                        <strong style={{ marginLeft: '5px' }}>صف الطالب: </strong>
                         {isEditing ? (
                           <input
                             type="text"
-                            name="student_family_name"
-                            value={formValues.student_family_name  || ''}
+                            name="grade"
+                            value={formValues.grade || ''}
                             onChange={handleChange}
                           />
                         ) : (
-                          student.student_family_name
+                          student.grade
                         )}
                       </li>
                       <li>
-                      <MdOutlineOtherHouses
-                          style={{ marginBottom: '-3px', marginLeft: '5px' }}
-                        />
-                                  <strong style={{ marginLeft: '5px' }}>عنوان الطالب:</strong>
-                                  {!isEditing ? (
-                                    <span>
-                                      {student.city}, {student.street}, {student.postal_code}, {student.district}
-                                    </span>
-                                  ) : (
-                                    <>
-                                      <div>
-                                        <label htmlFor="city">المدينة:</label>
-                                        <input
-                                          type="text"
-                                          name="city"
-                                          id="city"
-                                          value={formValues.city || ''}
-                                          onChange={handleChange}
-                                          placeholder="المدينة"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label htmlFor="street">الشارع:</label>
-                                        <input
-                                          type="text"
-                                          name="street"
-                                          id="street"
-                                          value={formValues.street || ''}
-                                          onChange={handleChange}
-                                          placeholder="الشارع"
-                                        />
-                                      </div>
-                                   
-                                      <div>
-                                        <label htmlFor="district">الحي:</label>
-                                        <input
-                                          type="text"
-                                          name="district"
-                                          id="district"
-                                          value={formValues.district || ''}
-                                          onChange={handleChange}
-                                          placeholder="الحي"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label htmlFor="postal_code">الرمز البريدي:</label>
-                                        <input
-                                          type="text"
-                                          name="postal_code"
-                                          id="postal_code"
-                                          value={formValues.postal_code || ''}
-                                          onChange={handleChange}
-                                          placeholder="الرمز البريدي"
-                                        />
-                                      </div>
-                                    </>
-                                  )}
-                                </li>
-
+                        <MdOutlineOtherHouses style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+                        <strong style={{ marginLeft: '5px' }}>عنوان الطالب:</strong>
+                        {!isEditing ? (
+                          <span>
+                            {student.address.city}, {student.address.street}, {student.address.postalCode}, {student.address.district}
+                          </span>
+                        ) : (
+                          <>
+                            <div>
+                              <label htmlFor="city">المدينة:</label>
+                              <input
+                                type="text"
+                                name="city"
+                                id="city"
+                                value={formValues.address.city || ''}
+                                onChange={handleChange}
+                                placeholder="المدينة"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="street">الشارع:</label>
+                              <input
+                                type="text"
+                                name="street"
+                                id="street"
+                                value={formValues.address.street || ''}
+                                onChange={handleChange}
+                                placeholder="الشارع"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="district">الحي:</label>
+                              <input
+                                type="text"
+                                name="district"
+                                id="district"
+                                value={formValues.address.district || ''}
+                                onChange={handleChange}
+                                placeholder="الحي"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="postalCode">الرمز البريدي:</label>
+                              <input
+                                type="text"
+                                name="postalCode"
+                                id="postalCode"
+                                value={formValues.address.postalCode || ''}
+                                onChange={handleChange}
+                                placeholder="الرمز البريدي"
+                              />
+                            </div>
+                          </>
+                        )}
+                      </li>
                       <li>
-                        <MdOutlineSmartphone
-                          style={{ marginBottom: '-3px', marginLeft: '5px' }}
-                        />
+                        <MdOutlineSmartphone style={{ marginBottom: '-3px', marginLeft: '5px' }} />
                         <strong style={{ marginLeft: '5px' }}>هاتف ولي الأمر:</strong>
-                        {'0'+student.parent_phone}
+                        {student.parentPhone.startsWith('+966') ? `0${student.parentPhone.slice(4)}` : student.parentPhone}
+                      </li>
+                      <li>
+                        <FaRegIdCard style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+                        <strong style={{ marginLeft: '5px' }}>الهوية الوطنية أو الاقامة الخاصة بولي الأمر</strong>
+                        {student.parentUid}
                       </li>
                     </ul>
                   </div>
                 </ItemContainer>
               </div>
+              
               {student.status === 'active' && (
-  <div className="half">
-    <ItemContainer>
-      <ul className="bus-details-list">
-        {studentBus ? (
-          <>
-            <div className="container-box-detail">
-              <h2>معلومات الحافلة</h2>
-              <button className="no-button" onClick={handleUnassignBus}>
-                {isAssigning ? (
-                  <CgSpinnerAlt className="spinner" />
-                ) : (
-                  <IoTrashBinOutline
-                    size={20}
-                    className="hover-icon"
-                    style={{ color: 'red', marginBottom: '20px' }}
-                  />
-                )}
-              </button>
-            </div>
-            <hr />
-            <li>
-              <GoHash
-                style={{ marginBottom: '-3px', marginLeft: '5px' }}
-              />
-              <strong style={{ marginLeft: '5px' }}>رقم الحافلة:</strong>
-              {studentBus.id}
-            </li>
-            <li>
-              <FaBus
-                style={{ marginBottom: '-3px', marginLeft: '5px' }}
-              />
-              <strong style={{ marginLeft: '5px' }}>اسم الحافلة:</strong>
-              {studentBus.name}
-            </li>
-          </>
-        ) : (
-          <>
-            <div className="container-box-detail">
-              <h2>معلومات الحافلة</h2>
-              <div className="some-container">
-                {isAssigning ? (
-                  <button className="choose-bus-button" disabled>
-                    <CgSpinnerAlt className="spinner" />
-                  </button>
-                ) : (
-                  <button
-                    className="choose-bus-button"
-                    onClick={() => setDropdownVisible(!dropdownVisible)}
-                  >
-                    {dropdownVisible ? 'إلغاء' : 'تعيين'}
-                  </button>
-                )}
-              </div>
-            </div>
-            <hr />
-            {dropdownVisible && availableBuses.length > 0 && (
-              <ul className="bus-dropdown">
-                {availableBuses.map((bus) => (
-                  <li
-                    key={bus.uid}
-                    onClick={() => handleBusSelect(bus)}
-                  >
-                    حافلة {bus.id} {bus.name} - عدد الطلاب بالحافلة : {bus.current_capacity}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {dropdownVisible && availableBuses.length === 0 && (
-              <li>لا يوجد حافلات متاحة</li>
-            )}
-            {!isAssigning && !dropdownVisible && studentBus === null && (
-              <li>الطالب غير معين لحافلة</li>
-            )}
-          </>
-        )}
-      </ul>
-    </ItemContainer>
-  </div>
-)}
-<div id='map'>
-  
-
-</div>
+                <div className="half">
+                  <ItemContainer>
+                    <ul className="bus-details-list">
+                      {studentBus ? (
+                        <>
+                          <div className="container-box-detail">
+                            <h2>معلومات الحافلة</h2>
+                            <button className="no-button" onClick={handleUnassignBus}>
+                              {isAssigning ? (
+                                <CgSpinnerAlt className="spinner" />
+                              ) : (
+                                <IoTrashBinOutline
+                                  size={20}
+                                  className="hover-icon"
+                                  style={{ color: 'red', marginBottom: '20px' }}
+                                />
+                              )}
+                            </button>
+                          </div>
+                          <hr />
+                          <li>
+                            <GoHash style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+                            <strong style={{ marginLeft: '5px' }}>رقم الحافلة:</strong>
+                            {studentBus.uid ? studentBus.uid.split('B')[1] : ''}
+                          </li>
+                          <li>
+                            <FaBus style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+                            <strong style={{ marginLeft: '5px' }}>اسم الحافلة:</strong>
+                            {studentBus.name}
+                          </li>
+                        </>
+                      ) : (
+                        <>
+                          <div className="container-box-detail">
+                            <h2>معلومات الحافلة</h2>
+                            <div className="some-container">
+                              {isAssigning ? (
+                                <button className="choose-bus-button" disabled>
+                                  <CgSpinnerAlt className="spinner" />
+                                </button>
+                              ) : (
+                                <button
+                                  className="choose-bus-button"
+                                  onClick={() => setDropdownVisible(!dropdownVisible)}
+                                >
+                                  {dropdownVisible ? 'إلغاء' : 'تعيين'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <hr />
+                          {dropdownVisible && availableBuses.length > 0 && (
+                            <ul className="bus-dropdown">
+                              {availableBuses.map((bus) => (
+                                <li
+                                  onClick={() => handleBusSelect(bus)}
+                                >
+                                  حافلة {bus.uid.split('B')[1] } {bus.name} - عدد الطلاب بالحافلة: {bus.currentCapacity}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          {dropdownVisible && availableBuses.length === 0 && (
+                            <li>لا يوجد حافلات متاحة</li>
+                          )}
+                          {!isAssigning && !dropdownVisible && studentBus === null && (
+                            <li>الطالب غير معين لحافلة</li>
+                          )}
+                        </>
+                      )}
+                    </ul>
+                  </ItemContainer>
+                </div>
+              )}
+              
             </div>
           </div>
         </FormContainer>
@@ -587,4 +593,5 @@ const validatePhoneNumber = phone => /^5\d{8}$/.test(phone);
       <Sidebar />
     </div>
   );
+  
 }

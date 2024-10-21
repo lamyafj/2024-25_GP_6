@@ -16,7 +16,8 @@ import StudentList from './pages/student-list/studentList.js'
 import StudentDetail from './pages/student-list/studentDetail.js'
 import Emailverification from './pages/login/emailverification.js';
 import PasswordReset from './pages/login/passwordreset.js';
-import SettingsForm from './components/SettingsForm/SettingsForm.js';
+import Setting from './pages/setting/setting.js';
+import ChangeEmailForm from  './pages/setting/changeEmail.js'
 
 function App() {
   return (
@@ -120,7 +121,15 @@ function App() {
           path="/setting" 
           element={
             <RequireAuth>
-              <SettingsForm/>
+              <Setting/>
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/changeEmail" 
+          element={
+            <RequireAuth>
+              <ChangeEmailForm/>
             </RequireAuth>
           } 
         />

@@ -7,15 +7,15 @@ import FormContainer from '../../components/FormContainer/FormContainer.js';
 import Header from '../../components/header/header.js';
 import { CgSpinnerAlt } from "react-icons/cg";
 import { FaStarOfLife } from "react-icons/fa";
+import SuccessMessage from '../../components/successMessage/successMessage.js'
 
 
 const AddDriver = () => {
   const [driverFirstName, setDriverFirstName] = useState('');
   const [driverFamilyName, setDriverFamilyName] = useState('');
   const [driverPhone, setDriverPhone] = useState('');
-  const [driverId, setDriverId] = useState('');
-  //const [countries, setCountries] = useState([]);
-  //const [driverCountry, setDriverCountry] = useState('');
+  const [uid, setUid] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -26,59 +26,45 @@ const AddDriver = () => {
   };
   
   const validateID = (ID) => {
-    const phoneRegex = /^\d{1,10}$/; // Regex to match a phone number with a maximum of 10 digits
+    const phoneRegex = /^\d{10}$/; // Regex to match a phone number with a maximum of 10 digits
     return phoneRegex.test(ID);
   };
 
   const validateName = (name) => {
-    const nameRegex = /^[A-Za-zأ-ي]{3,}$/; // Regex to match at least 3 letters (supports English and Arabic letters)
+    const nameRegex = /^[A-Za-zأ-ي]{2,}$/; // Regex to match at least 3 letters (supports English and Arabic letters)
     return nameRegex.test(name);
   };
 
-
-  // Fetch countries inside useEffect
-//   useEffect(() => {
-//     const fetchCountries = async () => {
-//         try {
-//             const response = await fetch('/countries.json'); // Adjust the path if needed
-//             if (!response.ok) {
-//               throw new Error('Network response was not ok');
-//             }
-//             const data = await response.json(); // Parse the JSON data
-//             setCountries(data); // Set the state with the
-//         } catch (error) {
-//           console.error('Error fetching countries:', error);
-//           setError('Failed to fetch countries');
-//         } finally {
-//           setLoading(false); // Always set loading to false after fetching
-//         }
-//       };
-  
-//       fetchCountries();
-//     }, []); 
-
-  const addDriver = async (driverFirstName, driverFamilyName,driverId,driverPhone) => {
+  const addDriver = async (driverFirstName, driverFamilyName, uid, driverPhone) => {
     try {
       setLoading(true);
       const newDriver = {
-        driverId:driverId,
-        driverPhone:driverPhone,
+        uid: uid,
+        driverPhone: driverPhone,
         driverFirstName: driverFirstName,
         driverFamilyName: driverFamilyName,
       };
-      await AddDriverToDatabase(newDriver);
-      navigate('/driverList');
+      
+      const response = await AddDriverToDatabase(newDriver);
+  
+      if (response.error) {
+        setError(response.error); 
+        return; 
+      }
+      handleSuccessOperation()
     } catch (err) {
-      setError('Failed to add bus');
+      const errorMessage = err.message || 'فشل باضافة السائق';
+      setError(errorMessage); 
     } finally {
       setLoading(false);
     }
   };
-
+  
+  
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent the default form submission
 
-    if (!driverFirstName.trim() || !driverFamilyName.trim() || !driverId.trim() || !driverPhone.trim()) {
+    if (!driverFirstName.trim() || !driverFamilyName.trim() || !uid.trim() || !driverPhone.trim()) {
       setError('جميع الحقول مطلوبة');
       return false;
     }
@@ -95,30 +81,37 @@ const AddDriver = () => {
       return; // Exit early if the phone number is invalid
     }
   
-    if (!validateID(driverId)) {
-        setError('رقم الهويه او الاقامة يجب ان لا يتعدى 11 رقم صحيح');
+    if (!validateID(uid)) {
+        setError('رقم الهويه او الاقامة يجب ان يتكون من 10 ارقام صحيحة');
         return; // Exit early if the phone number is invalid
       }
 
       if (!validateName(driverFamilyName)) {
-        setError('رقم الهويه او الاقامة يجب ان لا يتعدى 11 رقم صحيح');
+        setError('الاسم يجب ان يحتوي على حرفين عالاقل');
         return; // Exit early if the phone number is invalid
       }
 
       if (!validateName(driverFirstName)) {
-        setError('الاسم يجب ان يحتوي على 3 حروف عالاقل');
+        setError('الاسم يجب ان يحتوي على حرفين عالاقل');
         return; // Exit early if the phone number is invalid
       }
     // Clear error message if all validations pass
     setError('');
   
     // Proceed with adding the driver
-    addDriver(driverFirstName,driverFamilyName,driverId,driverPhone);
+    addDriver(driverFirstName,driverFamilyName,uid,driverPhone);
   };
   
-
+  const handleSuccessOperation = () => {
+    setShowSuccess(false); 
+    setTimeout(() => {
+      setShowSuccess(true);
+      setTimeout(() => navigate('/driverList'), 2000); // Navigate after 2 seconds
+    }, 0);
+  };
   return (
     <div className="add-bus-page">
+      {showSuccess && <SuccessMessage message="تمت إضافة سائق بنجاح" />}
       <Sidebar />
       <div className="add-bus-main">
         <Header />
@@ -160,13 +153,14 @@ const AddDriver = () => {
                 <label htmlFor="driverId" className="form-label">الإقامة او الهوية الوطنية<FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /></label>
                 <input
                   type="text"
-                  id="driverId"
+                  id="uid"
                   className="form-input"
-                  value={driverId}
-                  onChange={(e) => setDriverId(e.target.value)}
+                  value={uid}
+                  onChange={(e) => setUid(e.target.value)}
                   placeholder="الإقامة او الهوية الوطنية"
-           
+                   maxLength="10"
                 />
+                 <small style={{color:'gray'}}>{uid.length}/10</small>
                 <label htmlFor="driverPhone" className="form-label">رقم جوال السائق<FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /></label>
                 <div className="phone-input" style={{ display: 'flex' }}>
                   <input
@@ -176,30 +170,13 @@ const AddDriver = () => {
                     value={driverPhone}
                     onChange={(e) => setDriverPhone(e.target.value)}
                     placeholder="5xxxxxxxx"
-                 
+                     maxLength="9"
                     style={{ direction: 'ltr' }}
                   />
-                 
                   <input type="text" className="form-input" value="966+" disabled style={{ width: '35px' }} />
                 </div>
-                 <p style={{marginTop:'1px', color:'#555'}}><FaStarOfLife size={6} style={{ color: 'black', marginLeft: '5px', marginBottom: '0px' }} />عند اضافة رقم السائق سيستخدم رقم الجوال لانشاء حساب للسائق </p>
-                {/* Country Dropdown */}
-    {/* <label htmlFor="driverCountry" className="form-label">الجنسية<FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /></label>
-                <select
-        id="driverCountry"
-        className="form-input"
-        value={driverCountry} // Bind the value of the select
-        onChange={(e) => setDriverCountry(e.target.value)} // Handle change on select
-      >
-         <option value="" disabled style={{ color: 'gray' }}>اختار جنسية السائق</option>
-        {countries.map((country, index) => (
-          <option key={index} value={country}>
-            {country}
-                  </option>
-             ))}
-           </select> */}
-
-           
+                <small style={{color:'gray'}}>{driverPhone.length}/9</small>
+                 <p style={{marginTop:'1px', color:'#555'}}><FaStarOfLife size={6} style={{ color: 'black', marginLeft: '5px', marginBottom: '0px' }} />عند اضافة رقم السائق سيستخدم رقم الجوال لانشاء حساب للسائق </p>   
               </div>
               {error && <p className="error-message">{error}</p>}
               <div className='button-area'>

@@ -113,15 +113,15 @@ const bringStudent = async () => {
 
     // Validation function
     const validateForm = () => {
-      const { name, capacity, plate } = formValues;
-      const plateRegex = /^[A-Za-z\u0600-\u06FF]{3}\d{4}$/;
+      const { name, maximumCapacity, plate } = formValues;
+      const plateRegex = /^[A-Za-z\u0600-\u06FF]{3}\d{3,4}$/;
   
-      if (!name.trim() || !capacity || !plate.trim()) {
+      if (!name.trim() || !maximumCapacity || !plate.trim()) {
         setError("الرجاء قم بتعبئة جميع المعلومات المطلوبة");
         return false;
       }
   
-      if (isNaN(capacity) || parseInt(capacity) <= 0) {
+      if (isNaN(maximumCapacity) || parseInt(maximumCapacity) <= 0) {
         setError('يرجى إدخال سعة حافلة رقم صحيح');
         return false;
       }
@@ -261,7 +261,7 @@ const bringStudent = async () => {
                     <hr />
                     <li><GoHash style={{ marginBottom: '-3px', marginLeft :'5px' }}/>
                       <strong style={{ marginLeft :'5px' }}>رقم الحافلة:</strong>            
-                        {record.id }       
+                        {record.uid.split('B')[1]}       
                     </li>
                     <li><GoHash style={{ marginBottom: '-3px', marginLeft :'5px' }}/>
                       <strong style={{ marginLeft :'5px' }}>اسم الحافلة:</strong> 
@@ -281,27 +281,14 @@ const bringStudent = async () => {
                       {isEditing ? (
                         <input
                           type="text"
-                          name="capacity"
-                          value={formValues.capacity || ''}
+                          name="maximumCapacity"
+                          value={formValues.maximumCapacity || ''}
                           onChange={handleChange}
                         />
                       ) : (
-                        record.capacity
+                        record.maximumCapacity
                       )}
                     </li>
-                    {/* <li> <MdBarcodeReader style={{ marginBottom: '-3px', marginLeft :'5px' }} />
-                      <strong style={{ marginLeft :'5px' }}>رقم قارئ RFID الحافلة:</strong> 
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          name="rfid"
-                          value={formValues.rfid || ''}
-                          onChange={handleChange}
-                        />
-                      ) : (
-                        record.rfid
-                      )}
-                    </li> */}
                     <li> <LiaCreditCard  style={{ marginBottom: '-3px', marginLeft :'5px' }}/>
                       <strong style={{ marginLeft :'5px' }}>لوحة الحافلة:</strong> 
                       {isEditing ? (
@@ -336,7 +323,7 @@ const bringStudent = async () => {
                       <li>
                         <MdOutlineSmartphone style={{ marginBottom: '-3px', marginLeft: '5px' }} />
                         <strong style={{ marginLeft: '5px' }}>رقم سائق الحافلة: </strong>
-                        {'0'+driver.driverPhone} {/* Access driver's phone number */}
+                        {'0'+driver.phoneNumber.replace("+966", "")} {/* Access driver's phone number */}
                       </li>
                     </ul>
                   )}
@@ -346,13 +333,16 @@ const bringStudent = async () => {
             </div>
 
             <div className="title-container">
-              <h1>قائمه الطلاب بالحافلة {record.current_capacity}</h1>
+              <h1>قائمة الطلاب بالحافلة {record.currentCapacity}</h1>
               <div className="line"></div>
             </div>
-         
-            <ListContainer students={students} listType={'studentInbus'} loading={loading}/> 
-           
-           
+            <div>
+            {students && students.length > 0 ? (
+                <ListContainer students={students} listType={'studentInbus'} loading={loading} />
+              ) : (
+                <p>لا يوجد طلاب في الحافلة</p>  
+              )}
+            </div>
           </div>
         </FormContainer>
         <>

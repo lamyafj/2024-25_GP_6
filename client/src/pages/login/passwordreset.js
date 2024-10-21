@@ -62,7 +62,6 @@ export default function PasswordReset() {
         <GifLogo />
         <GreenContainer>
           <h1>اعادة تعيين الرمز السري  </h1>
-          <div className='hLine'></div>
           <form onSubmit={onSubmit}>
             <h2>البريد الالكتروني</h2>
             <Textinput

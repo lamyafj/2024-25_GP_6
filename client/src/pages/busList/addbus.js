@@ -7,6 +7,7 @@ import FormContainer from '../../components/FormContainer/FormContainer.js';
 import Header from '../../components/header/header.js';
 import { CgSpinnerAlt } from "react-icons/cg";
 import { FaStarOfLife } from "react-icons/fa";
+import SuccessMessage from '../../components/successMessage/successMessage.js'
 
 const AddBus = () => {
   const [busName, setBusName] = useState('');
@@ -15,6 +16,7 @@ const AddBus = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(''); // Single error state
   const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Regex for bus plate validation
   const plateRegex = /^[A-Za-z\u0600-\u06FF]{3}\d{3,4}$/;// Example format: 3 letters followed by 4 digits
@@ -25,10 +27,10 @@ const AddBus = () => {
       const newBus = { 
         name: busName,
         plate: busPlate,
-        capacity: busCapacity,
+        maximumCapacity: Number(busCapacity)
       };
       await AddBusToDatabase(newBus);
-      navigate('/buslist');
+      handleSuccessOperation()
     } catch (err) {
       setError('Failed to add bus');
     } finally {
@@ -58,9 +60,17 @@ const AddBus = () => {
     // If all validations pass, proceed to add bus
     addBus(busName, busCapacity, busPlate);
   };
+  const handleSuccessOperation = () => {
+    setShowSuccess(false); 
+    setTimeout(() => {
+      setShowSuccess(true);
+      setTimeout(() => navigate('/busList'), 2000); // Navigate after 2 seconds
+    }, 0);
+  };
 
   return (
     <div className="add-bus-page">
+       {showSuccess && <SuccessMessage message="تم إضافة حافلة بنجاح" />}
       <Sidebar />
       <div className="add-bus-main">
         <Header />

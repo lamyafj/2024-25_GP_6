@@ -5,7 +5,7 @@ function GifLogo() {
       <div >
        
         <img src="../Maslakgif.gif" alt="Logo" style={{ width: '600px', height: 'auto', marginTop: '102px' }} />
-        
+        {/* <img src="../MaslakName.png" alt="Logo" style={{ width: '200px', height: 'auto', marginTop: '102px' }} /> */}
       </div>
     );
   }

@@ -1,12 +1,12 @@
-
 .GreenContainer {
   position: relative;
   display: block;
   overflow: hidden;
-  height: 100vh; /* Use viewport height to ensure full screen height */
-  margin: 0;
+  height: 85vh; /* Use viewport height to ensure full screen height */
   width: 35%;
-  margin-left: 100px;
+  margin: 50px auto; /* Center horizontally */
+  border-radius: 15px; /* Rounded edges */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Shadow for floating effect */
   text-align: right; /* Ensure text is aligned to the right */
 }
 
@@ -19,6 +19,7 @@
   bottom: 0;
   background-color: rgba(159, 205, 183, 0.5); /* Semi-transparent background */
   z-index: -1; /* Ensures background is behind the content */
+  border-radius: 15px; /* Match the rounded edges */
 }
 
 form {

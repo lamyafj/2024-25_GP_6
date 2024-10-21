@@ -13,6 +13,7 @@ const { FieldValue } = require('firebase-admin').firestore;
 const translate = require('@vitalets/google-translate-api');
 const fetch = require('node-fetch');
 const nodemailer = require('nodemailer');
+require('dotenv').config()
 //const GeoFire = require('geofire');
 
 
@@ -62,7 +63,7 @@ const verifyToken = async (req, res, next) => {
 
 
 app.post('/api/auth/register', async (req, res) => {
-  const { email, password, schoolName, phoneNumber, district, street, streetAlt, postalCode } = req.body;
+  const { email, password, schoolName, phoneNumber, district, street, city, postalCode } = req.body;
   const lat = 51.5074;
   const lng = 0.1278;
 
@@ -74,6 +75,7 @@ app.post('/api/auth/register', async (req, res) => {
 
     // Create user in Firebase Authentication
     const userRecord = await admin.auth().createUser({
+      uid:schoolCode,
       email,
       password,
       displayName: schoolCode,
@@ -82,32 +84,32 @@ app.post('/api/auth/register', async (req, res) => {
     // Prepare user data for Firestore
     const userData = {
       email,
-      schoolCode,
+      uid: schoolCode,
       Role: "School",
       schoolName,
       phoneNumber,
       address: {
         district,
         street,
-        streetAlt,
+        city,
         postalCode,
       },
       buses: [],
       students: [],
       drivers: [],
-      coordinates: new admin.firestore.GeoPoint(Number(lat), Number(lng)),
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      //coordinates: new admin.firestore.GeoPoint(Number(lat), Number(lng)),
+      //createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
     // Store user data in Firestore
-    await admin.firestore().collection('School').doc(userRecord.uid).set(userData);
+    await admin.firestore().collection('School').doc(schoolCode).set(userData);
 
     // Send verification email
    
-   await sendEmailVerification(userRecord);  
+    await sendEmailVerification(email);  
 
     // Respond with success
-    res.status(201).json({ uid: userRecord.uid });
+    res.status(201).json({ schoolCode: userRecord.schoolCode });
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ message: 'Error creating user', error: error.message });
@@ -170,24 +172,24 @@ router.put('/api/schooldata', async (req, res) => {
 });
  
 
-async function sendEmailVerification(userRecord) {
+async function sendEmailVerification(email) {
   try {
     // Generate a verification link
-    const verificationLink = await admin.auth().generateEmailVerificationLink(userRecord.email);
+    const verificationLink = await admin.auth().generateEmailVerificationLink(email);
 
     // Configure your email transport using nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'maslakproject@gmail.com',
-        pass: 'rfrn uqpe kmcw zeqs',
+        user: process.env.EMAIL_SERVER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     // Setup email data
     const mailOptions = {
-      from: 'maslakproject@gmail.com',
-      to: userRecord.email,
+      from:process.env.EMAIL_SERVER,
+      to: email,
       subject: 'تأكيد عنوان البريد الإلكتروني الخاص بك', // Subject in Arabic
       html: `<a href="https://ibb.co/T0v0ZLF"><img src="https://i.ibb.co/LgkgM52/maslakheader.jpg" alt="maslakheader" border="0"></a>
         <p>مرحبًا بك في منصه مسلك. يرجى تأكيد بريدك الإلكتروني بالنقر على الرابط التالي:</p>
@@ -204,7 +206,7 @@ async function sendEmailVerification(userRecord) {
   }
 }
 
-///////////////////////reset password email
+////////////////////////////////////////////reset password email
 async function sendPasswordResetLink(userRecord) {
   try {
     // Generate a password reset link
@@ -214,14 +216,14 @@ async function sendPasswordResetLink(userRecord) {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'maslakproject@gmail.com',
-        pass: 'rfrn uqpe kmcw zeqs', // Use your app password
+        user: process.env.EMAIL_SERVER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     // Setup email data
     const mailOptions = {
-      from: 'maslakproject@gmail.com',
+      from: process.env.EMAIL_SERVER,
       to: userRecord.email,
       subject: 'إعادة تعيين كلمة المرور', // Subject in Arabic
       html: `<a href="https://ibb.co/T0v0ZLF"><img src="https://i.ibb.co/LgkgM52/maslakheader.jpg" alt="maslakheader" border="0"></a>
@@ -238,6 +240,75 @@ async function sendPasswordResetLink(userRecord) {
     console.error('Error sending password reset email:', error);
   }
 }
+
+
+
+/////////////////////////////////change email function
+app.post('/api/changeemail', async (req, res) => {
+  console.log('Change email server endpoint');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
+  const { newemail, password } = req.body;
+
+  if (!idToken) {
+    return res.status(403).send('UNAUTHORIZED REQUEST! No token provided.');
+  }
+
+  try {
+    // Verify the token and get the current user's details
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const currentUserId = decodedClaims.uid;
+
+    // Check if the new email already exists
+    let existingUser;
+    try {
+      existingUser = await admin.auth().getUserByEmail(newemail);
+      if (existingUser) {
+        return res.status(400).send({ message: 'The new email is already in use by another account.' });
+      }
+    } catch (error) {
+      if (error.code !== 'auth/user-not-found') {
+        return res.status(500).send({ error: 'Error checking email availability.' });
+      }
+    }
+
+    // Fetch user data from School collection
+    const schoolRef = db.collection('School').doc(currentUserId);
+    const schoolDoc = await schoolRef.get();
+
+    if (!schoolDoc.exists) {
+      return res.status(404).send('No school data found for this user.');
+    }
+    const schoolData = schoolDoc.data();
+    await admin.auth().deleteUser(currentUserId);
+    // Create a new account with the new email and password
+    const newUser = await admin.auth().createUser({
+      uid: schoolData.uid,
+      email: newemail,
+      password: password,
+    });
+
+    console.log('New user created:', newUser.uid);
+
+  
+    const newSchoolRef = db.collection('School').doc(newUser.uid);
+    await newSchoolRef.set({
+      ...schoolData,
+      email: newemail, 
+    });
+
+    sendEmailVerification(newemail)
+
+   
+
+    res.status(200).send({ message: 'Email changed successfully. Please login with the new email.' });
+  } catch (error) {
+    console.error('Error occurred while changing email:', error);
+    res.status(500).send('Failed to change email. Please try again later.');
+  }
+});
+
+
+
 
 
 //////////////////////resend email verfication
@@ -269,7 +340,6 @@ app.post('/api/emailverification', async (req, res) => {
 });
 
 ////////////////////////////reset password from client
-
 app.post('/api/passwordreset', async (req, res) => {
   console.log('password reset endpoint hit');
   const { email } = req.body;
@@ -324,14 +394,16 @@ app.post('/api/sessionLogin', async (req, res) => {
   const idToken = req.body.idToken;
   const expiresIn = 60 * 1000 *60 *24*5 ;// 5 days
 
+
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    if (!decodedToken.email_verified) {
-      return res.status(404).send('الرجاء التحقق من البريد الالكتروني');
-    }
+    // if (!decodedToken.email_verified) {
+    //   return res.status(404).send('الرجاء التحقق من البريد الالكتروني');
+    // }
 
-    // Fetch user document from the database
+    console.log(decodedToken.uid)
     const userDoc = await db.collection('School').doc(decodedToken.uid).get();
+    //const userDoc = admin.firestore().collection('School').doc(schoolCode);
     if (!userDoc.exists) {
       return res.status(404).send('لا يوجد هذا المستخدم');
     }
@@ -395,7 +467,7 @@ app.post('/api/record', async (req, res) => {
 
 //////////////////////////////////add bus
 app.post('/api/addbus', async (req, res) => {
-  console.log('Server add  called');
+  console.log('Server add  bus endpoint');
   
   const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
   let {newbus} =req.body;
@@ -403,32 +475,49 @@ app.post('/api/addbus', async (req, res) => {
     return res.status(403).send('failed');
   }
 
+
   try {
     const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
-    const schooluid =decodedClaims.uid;
+    const schooluid = decodedClaims.uid;
     const schoolRef = db.collection('School').doc(schooluid);
+    
+    // Fetch the school document
+    const schoolDoc = await schoolRef.get();
+    const schoolData = schoolDoc.data();
+    
+    // Determine the length of the existing buses array
+    const length = schoolData.buses.length;
+    
+    // Create a new bus ID based on the school UID and the next available bus index
+    const busId = `${schooluid}B0${length + 1}`;
+    console.log(busId);
+    
+    // Define the new bus object
     newbus = { 
       ...newbus,
+      uid: busId,
       school: schoolRef, 
-      students:[],
-      driver:null,
-      current_capacity:Number(0),
+      students: [],
+      driver: null,
+      currentCapacity: 0,
     };
-    const newBusRef = await db.collection('Bus').add(newbus); 
-    //add uid ti the bus attributes
-    const newBusUID = newBusRef.id;
-    await db.collection('Bus').doc(newBusUID).update({ uid: newBusUID });
-    const schoolDoc = await admin.firestore().collection('School').doc(schooluid).get();
-    const schoolData = schoolDoc.data();
-    const newschoolDoc = { 
+    console.log(newbus);
+    
+    // Set the new bus document with the specific UID
+    const newBusRef = db.collection('Bus').doc(busId);
+    await newBusRef.set(newbus);
+    
+    // Update the school document to include the new bus reference in the buses array
+    const updatedSchoolData = { 
       ...schoolData, // Spread the existing data
-      buses: [...(schoolData.buses || []), newBusRef], // Add the new bus ID to the buses array
+      buses: [...(schoolData.buses || []), newBusRef], // Add the new bus reference to the buses array
     };
-    const length = newschoolDoc.buses.length
-    const busId = length
-    await db.collection('School').doc(schooluid).set(newschoolDoc); 
-    await db.collection('Bus').doc(newBusUID).update({ id: busId });   
+    
+    // Update the school document
+    await schoolRef.set(updatedSchoolData);
+    
     console.log('added bus');
+    
     res.status(200).send(true);
   } catch (error) {
     console.error('Token verification or data fetching error:', error);
@@ -449,6 +538,7 @@ app.post('/api/busrecord', async (req, res) => {
     const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
     const userDoc = await admin.firestore().collection('School').doc(decodedClaims.uid).get();
     
+    
     if (!userDoc.exists) {
       return res.status(404).send('User not found');
     }
@@ -460,12 +550,11 @@ app.post('/api/busrecord', async (req, res) => {
     if (!busRefs || busRefs.length === 0) {
       return res.status(200).send([]); // No buses found
     }
-
     // Fetch bus documents from the Bus collection using references
     const busPromises = busRefs.map(busRef => busRef.get());
     const busDocs = await Promise.all(busPromises);
 
-    const buses = busDocs.map(busDoc => ({ id: busDoc.id, ...busDoc.data() }));
+    const buses = busDocs.map(busDoc => ({ id: busDoc.uid, ...busDoc.data() }));
 
     res.status(200).send(buses); 
   } catch (error) {
@@ -499,29 +588,51 @@ app.post('/api/deletebus', async (req, res) => {
       buses: admin.firestore.FieldValue.arrayRemove(busRef)
     });
 
-    // Update any drivers and students that reference this bus
-    const driverQuery = db.collection('Driver').where('bus', '==', busRef);
-    const studentQuery = db.collection('Student').where('bus', '==', uid);
+    // Fetch updated buses list from the school document
+    const schoolDoc = await schoolRef.get();
+    const schoolData = schoolDoc.data();
+    const currentBuses = schoolData.buses || [];
 
-    const [driverDocs, studentDocs] = await Promise.all([
-      driverQuery.get(),
-      studentQuery.get()
-    ]);
+    // Array to collect new bus references
 
-    // Set the bus reference to null for all affected drivers
-    const updateDriverPromises = driverDocs.docs.map(doc => doc.ref.update({ bus: null }));
-    // Set the bus reference to null for all affected students
-    const updateStudentPromises = studentDocs.docs.map(doc => doc.ref.update({ bus: null }));
+    const updatedBusReferences = [];
+    for (let index = 0; index < currentBuses.length; index++) {
+      const oldBusRef = currentBuses[index];
+      const newBusUid = `${schooluid}B0${index + 1}`;
+    
+      // Fetch current bus data
+      const oldBusDoc = await oldBusRef.get();
+      if (oldBusDoc.exists) {
+        const oldBusData = oldBusDoc.data();
+    
+        // Delete the old bus document
+        await oldBusRef.delete();
+    
+        // Create a new document with the new UID and copy over the old data
+        const newBusRef = db.collection('Bus').doc(newBusUid);
+        await newBusRef.set({
+          ...oldBusData,
+          uid: newBusUid // Update the UID field
+        });
+    
+        // Add the new bus reference to the list at the correct index
+        updatedBusReferences[index] = newBusRef;
+      }
+    }
+    
+    // Update the school document with new bus references
+    await schoolRef.update({
+      buses: updatedBusReferences
+    });
+    
 
-    // Execute all update promises
-    await Promise.all([...updateDriverPromises, ...updateStudentPromises]);
-
-    res.status(200).send({ message: 'Bus deleted and associated records updated successfully' });
+    res.status(200).send({ message: 'Bus deleted, all buses re-ordered, and associated records updated successfully' });
   } catch (error) {
     console.error('Error deleting bus or updating records:', error);
     res.status(500).send('Failed to delete bus and update records');
   }
 });
+
 
 //////////////////////////////////bring one bus detail
 app.post('/api/busdetail', async (req, res) => {
@@ -569,8 +680,7 @@ app.post('/api/editbus', async (req, res) => {
     await busRef.update({
       name: newbus.name,       
       plate: newbus.plate, 
-      capacity: newbus.capacity,
-      //rfid:newbus.rfid,
+      maximumCapacity: Number(newbus.maximumCapacity),
     });
 
     res.status(200).send({ message: 'Bus updated successfully' });
@@ -579,62 +689,92 @@ app.post('/api/editbus', async (req, res) => {
     res.status(500).send('Failed to update bus');
   }
 });
+
+
 /////////////////////////////////add new driver
 app.post('/api/adddriver', async (req, res) => {
   console.log('Server driver add called');
 
   const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
-  let {newdriver} = req.body;
-  
+  let { newdriver } = req.body;
+
   if (!idToken) {
-    return res.status(403).send('failed');
+    return res.status(403).send({ error: 'Authorization token is missing.' });
   }
-  
-  console.log(newdriver.driverPhone);
-  
-  const phone = '+966' + newdriver.driverPhone.trim();
-  console.log(phone);
-  
+
+  const phone = '+966' + newdriver.driverPhone.trim(); // Format the phone number correctly
+
   try {
+    // Step 1: Verify session token and get school reference
     const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
     const schooluid = decodedClaims.uid;
     const schoolRef = db.collection('School').doc(schooluid);
+
+    // Step 2: Check if UID or Phone Number already exists in Firebase Auth
+    let existingUser = null;
     
+    try {
+      existingUser = await admin.auth().getUser(newdriver.uid);
+      if (existingUser) {
+        return res.status(400).send({ error: 'يوجد سائق بهذه الهوية او الاقامة' });
+      }
+    } catch (error) {
+      if (error.code !== 'auth/user-not-found') {
+        return res.status(500).send({ error: 'Error checking UID: ' + error.message });
+      }
+    }
+
+    try {
+      existingUser = await admin.auth().getUserByPhoneNumber(phone);
+      if (existingUser) {
+        return res.status(400).send({ error: 'يوجد سائق مسجل بهذا الرقم.' });
+      }
+    } catch (error) {
+      if (error.code !== 'auth/user-not-found') {
+        return res.status(500).send({ error: 'Error checking phone number: ' + error.message });
+      }
+    }
+
+    // Step 3: Create a new user record in Firebase Auth
     const userRecord = await admin.auth().createUser({
+      uid: newdriver.uid,
       phoneNumber: phone
     });
-    
+
     console.log('Successfully created new driver:', userRecord.uid);
-    
+
+    // Step 4: Prepare new driver data
     newdriver = { 
-      ...newdriver,
+      driverFamilyName: newdriver.driverFamilyName,
+      driverFirstName:newdriver.driverFirstName,
       school: schoolRef, 
       bus: null,
       uid: userRecord.uid,
+      phoneNumber: phone,
       status: 'active'
     };
-    
-    // Add new driver to the 'Driver' collection
+
+    // Step 5: Add new driver to the 'Driver' collection
     await db.collection('Driver').doc(userRecord.uid).set(newdriver);
-    
-    // Fetch the school document
-    const schoolDoc = await admin.firestore().collection('School').doc(schooluid).get();
+
+    // Step 6: Fetch the school document
+    const schoolDoc = await schoolRef.get();
     const schoolData = schoolDoc.data();
-    
-    // Update school data with the new driver's UID
-    const newschoolDoc = { 
-      ...schoolData, // Spread the existing data
-      drivers: [...(schoolData.drivers || []), userRecord.uid] // Add the new driver's UID to the drivers array
+
+    // Step 7: Update school data with the new driver's UID
+    const updatedSchoolData = { 
+      ...schoolData,
+      drivers: [...(schoolData.drivers || []), userRecord.uid]
     };
-    
-    // Update the school document with the new drivers array
-    await db.collection('School').doc(schooluid).set(newschoolDoc);
-    
+
+    await schoolRef.set(updatedSchoolData);
+
     console.log('Added driver');
-    res.status(200).send(true);
+    res.status(200).send({ success: true, message: 'Driver added successfully' });
   } catch (error) {
-    console.error('Token verification or data fetching error:', error);
-    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+    console.error('Error occurred:', error);
+    const errorMessage = error.message || 'An unexpected error occurred';
+    res.status(500).send({ error: errorMessage });
   }
 });
 
@@ -751,6 +891,8 @@ app.post('/api/assignbusfordriver', async (req, res) => {
     res.status(500).send('Server Error: Bus assignment failed.');
   }
 });
+
+
 /////////////////////////////////////////unAssign bus for driver
 app.post('/api/UNassignbusfordriver', async (req, res) => {
   console.log('Server unassign bus for driver called');
@@ -948,30 +1090,43 @@ app.post('/api/addstudent', async (req, res) => {
   }  
 
   try {
+    const existingStudent = await db.collection('Student').doc(newstudent.studentId).get();
+    if (existingStudent.exists) {
+        console.log(`A student with ID ${newstudent.studentId} already exists.`);
+       return res.status(401).send('يوجد طالب بهذه الهوية الوطنية او الاقامة مسبقا');
+    }
+
     const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
     const schooluid = decodedClaims.uid;
     const schoolRef = db.collection('School').doc(schooluid);
-    const parent_uid = '+966' + newstudent.parent_phone.trim();
-
-    newstudent = { 
-      ...newstudent,
-      parent_uid: parent_uid,
+    const parentPhone = '+966' + newstudent.parent_phone.trim();
+    
+    newaddedstudent = { 
+      address:newstudent.address,
+      uid: newstudent.studentId,
+      studentFirstName: newstudent.studentFirstName,
+      studentFamilyName: newstudent.studentFamilyName,
+      grade:newstudent.grade,
+      parentUid: newstudent.parentUid,
+      parentPhone: parentPhone,
+      boradingStatus:null,
+      RFIDtag:null,
       school: schoolRef, 
       status: 'active', // Set status to active
       bus:null,
     };
-    
-    const newstudentRef = await db.collection('Student').add(newstudent);
-    const newstudentUID = newstudentRef.id;
+    console.log('test')
+    const newstudentRef = await db.collection('Student').doc(newstudent.studentId).set(newaddedstudent);
+    const newStudentREfrence=db.collection('Student').doc(newstudent.studentId);
 
-    await db.collection('Student').doc(newstudentUID).update({ uid: newstudentUID });
-    
+     //newstudentUID = newstudentRef.uid;
+    //await db.collection('Student').doc(newstudentUID).update({ uid: newstudentUID });
     const schoolDoc = await admin.firestore().collection('School').doc(schooluid).get();
     const schoolData = schoolDoc.data();
 
-    const newschoolDoc = { 
+    const newschoolDoc = {
       ...schoolData, // Spread the existing data
-      students: [...(schoolData.students || []), newstudentRef], // Add the new student reference to the students array
+      students: [...(schoolData.students || []), newStudentREfrence], // Add the new student reference to the students array
     };
 
     await db.collection('School').doc(schooluid).set(newschoolDoc); 
@@ -980,7 +1135,7 @@ app.post('/api/addstudent', async (req, res) => {
     res.status(200).send(true);
   } catch (error) {
     console.error('Token verification or data fetching error:', error);
-    res.status(401).send('UNAUTHORIZED REQUEST! Invalid token or data fetch failed.');
+    res.status(401).send('فشل في الاضافة');
   }
 });
 
@@ -1049,7 +1204,7 @@ app.post('/api/assignstudentbus', async (req, res) => {
     await studentRef.update({ bus: busuid });  // Use studentRef (the document reference) to update
     const busData = busDoc.data();
     // Add the student to the students array in the bus document
-    const newcapacity=Number(busData.current_capacity)+1;
+    const newcapacity=Number(busData.currentCapacity)+1;
     console.log(newcapacity)
     await busRef.update({
       students: admin.firestore.FieldValue.arrayUnion(studentuid),  // Add new student to the array
@@ -1092,11 +1247,11 @@ app.post('/api/unassignstudentbus', async (req, res) => {
     const busRef = admin.firestore().collection('Bus').doc(busuid);
     const busDoc = await busRef.get();
     const busData = busDoc.data();
-    const newcapacity=Number(busData.current_capacity)-1; 
+    const newcapacity=Number(busData.currentCapacity)-1; 
 
     await busRef.update({
       students: admin.firestore.FieldValue.arrayRemove(studentuid),
-      current_capacity:Number(newcapacity)
+      currentCapacity:Number(newcapacity)
     });
     
  

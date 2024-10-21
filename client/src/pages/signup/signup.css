@@ -61,7 +61,7 @@ background-color: #45a049;
 .no-button-signup {
 background: none;
 border: none;
-color: #084327;
+color: #C4AE57;
 cursor: pointer;
 font-size: 15px;
 text-decoration: underline;
@@ -71,7 +71,7 @@ font-weight: bold;
 }
 
 .no-button-signup:hover {
-color: #45a049;
+color: #706431;
 }
 
 /* Scrollable form container */

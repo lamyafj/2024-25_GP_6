@@ -275,15 +275,11 @@ export default function DriverDetail() {
 
   return (
     <div className='bus-detail-page'>
-              <>
+        
         {showSuccess && <SuccessMessage message="تم التعديل بنجاح" />}
-        </>
-        <>
         {showSuccessbus && <SuccessMessage message="تم التعيين بنجاح" />}
-        </>
-        <>
         {showSuccessactivate && <SuccessMessage message="تم التنشيط بنجاح" />}
-        </>
+        
       <Header />
       <div className="bus-detail-main">
         <div className="bus-detail-buttons">
@@ -381,33 +377,30 @@ export default function DriverDetail() {
                     </div>
                     <hr />
                     <li>
-                    <TbUser style={{ marginBottom: '-3px', marginLeft: '5px' }} />
-                    <strong style={{ marginLeft: '5px' }}>الاسم الاول:</strong>
-                    {isEditing ? (
-                        <input
-                        type="text"
-                        name="driverFirstName"
-                        value={formValues.driverFirstName || ''} // Use correct field
-                        onChange={handleChange}
-                        />
-                    ) : (
-                        record.driverFirstName
-                    )}
+                      <TbUser style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+                      <strong style={{ marginLeft: '5px' }}>اسم السائق:</strong>
+                      {isEditing ? (
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <input
+                            type="text"
+                            name="driverFirstName"
+                            value={formValues.driverFirstName || ''}
+                            onChange={handleChange}
+                            placeholder="الاسم الأول"
+                          />
+                          <input
+                            type="text"
+                            name="driverFamilyName"
+                            value={formValues.driverFamilyName || ''}
+                            onChange={handleChange}
+                            placeholder="اسم العائلة"
+                          />
+                        </div>
+                      ) : (
+                        `${record.driverFirstName} ${record.driverFamilyName}` // Combine first and last names for display
+                      )}
                     </li>
-                    <li>
-                    <TbUser style={{ marginBottom: '-3px', marginLeft: '5px' }} />
-                    <strong style={{ marginLeft: '5px' }}>اسم العائلة :</strong>
-                    {isEditing ? (
-                        <input
-                        type="text"
-                        name="driverFamilyName"
-                        value={formValues.driverFamilyName || ''} // Use correct field
-                        onChange={handleChange}
-                        />
-                    ) : (
-                        record.driverFamilyName
-                    )}
-                    </li>
+
                     <li>
                     <FaRegIdCard style={{ marginBottom: '-3px', marginLeft: '5px' }} />
                     <strong style={{ marginLeft: '5px' }}>الاقامة او الهوية الوطنية:</strong>
@@ -419,7 +412,7 @@ export default function DriverDetail() {
                         onChange={handleChange}
                         />
                     ) : (
-                        record.driverId
+                        record.uid
                     )}
                     </li>
                     <li>
@@ -433,7 +426,7 @@ export default function DriverDetail() {
                         onChange={handleChange}
                         />
                     ) : (
-                        "0"+record.driverPhone
+                        "0" + record.phoneNumber.replace("+966", "")
                     )}
                     </li>
                 </ul>
@@ -450,18 +443,18 @@ export default function DriverDetail() {
                      <div className='container-box-detail'>
                       <h2>معلومات الحافلة</h2>
                       <button className='no-button' onClick={deleteDriverBus}>
-    {isBusLoading ? (
-        <CgSpinnerAlt className='spinner' />
-    ) : (
-        <IoTrashBinOutline size={20} className="hover-icon" style={{ color: 'red', marginBottom: '20px' }} />
-    )}
-</button>
-</div>
+                            {isBusLoading ? (
+                                <CgSpinnerAlt className='spinner' />
+                            ) : (
+                                <IoTrashBinOutline size={20} className="hover-icon" style={{ color: 'red', marginBottom: '20px' }} />
+                            )}
+                        </button>
+                        </div>
                           <hr />
                           <li>
                             <GoHash style={{ marginBottom: '-3px', marginLeft: '5px' }} />
                             <strong style={{ marginLeft: '5px' }}>رقم الحافلة:</strong>
-                            {driverBus.id}
+                            {driverBus.uid.split('B')[1] }
                           </li>
                           <li>
                             <FaBus style={{ marginBottom: '-3px', marginLeft: '5px' }} />
@@ -492,12 +485,15 @@ export default function DriverDetail() {
                           {dropdownVisible && buses.length > 0 && (
                             <ul className="bus-dropdown">
                               {buses
-                                .filter(bus => bus.driver === null) // Filter buses where driver is null
-                                .map((bus) => (
+                                .filter(bus => bus.driver === null) 
+                                .map((bus) => {              
+                                  return (
                                     <li key={bus.uid} onClick={() => handleBusSelect(bus)}>
-                                    حافلة رقم {bus.id} - {bus.name}
+                                      حافلة رقم {bus.uid.split('B')[1] } - {bus.name}
                                     </li>
-                                ))}
+                                  );
+                                })}
+
                             </ul>
             
                           )}{dropdownVisible && buses.length === 0 &&(

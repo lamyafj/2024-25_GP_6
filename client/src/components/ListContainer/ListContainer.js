@@ -3,7 +3,7 @@ import { FaUser } from 'react-icons/fa';
 import { CgSpinnerAlt } from 'react-icons/cg';
 import './ListContainer.css';
 import { IoTrashBinOutline } from "react-icons/io5";
-
+import FormContainer from '../FormContainer/FormContainer'
 
 const ListContainer = ({ listType, buses, drivers, students, driverdelete, studentdetail,driverdetail, busdelete, busdetail, loading }) => {
   return (
@@ -65,6 +65,7 @@ const ListContainer = ({ listType, buses, drivers, students, driverdelete, stude
           <p>لا يوجد حافلات</p>
         ) : (
           <>
+     
             {/* Buses without an assigned driver */}
             <div className="title-container">
               <h3>حافلات بدون سائق</h3>
@@ -74,7 +75,7 @@ const ListContainer = ({ listType, buses, drivers, students, driverdelete, stude
               <div key={index} className="bus-list-item">
                 <div className="bus-details">
                   <FaBus size={24} style={{ direction: "rtl", marginLeft: '10px', color: 'grey' }} />
-                  <p>#رقم الحافلة {bus.id}</p>
+                  <p>#رقم الحافلة {bus.uid.split('B')[1]}</p>
                 </div>
                 <button className="details-bus-button" onClick={() => busdetail(bus.uid)}>تفاصيل</button>
                 {/* <button 
@@ -95,7 +96,8 @@ const ListContainer = ({ listType, buses, drivers, students, driverdelete, stude
               <div key={index} className="bus-list-item">
                 <div className="bus-details">
                   <FaBus size={24} style={{ direction: "rtl", marginLeft: '10px', color: 'grey' }} />
-                  <p>#رقم الحافلة {bus.id}</p>
+                  
+                  <p>#رقم الحافلة {bus.uid.split('B')[1]}</p>
                 </div>
                 <button className="details-bus-button" onClick={() => busdetail(bus.uid)}>تفاصيل</button>
                 {/* <button 
@@ -121,7 +123,7 @@ const ListContainer = ({ listType, buses, drivers, students, driverdelete, stude
           {students.filter(student => student.status === 'inactive').map((student, index) => (
             <div key={index} className="bus-list-item" >
               <div className="bus-details">
-                <p> {`${student.student_first_name} ${student.student_family_name}`}</p>
+                <p> {`${student.studentFirstName} ${student.studentFamilyName}`}</p>
               </div>
               <button className="details-driver-button"  onClick={() => studentdetail(student.uid)}>تفاصيل</button>
               {/* <button className="details-driver-button" style={{ backgroundColor: 'green' ,marginRight:'1px'}} onClick={() => studentdetail(student.uid)}>قبول</button>
@@ -137,7 +139,7 @@ const ListContainer = ({ listType, buses, drivers, students, driverdelete, stude
           {students.filter(student => student.status === 'active' && !student.bus).map((student, index) => (
             <div key={index} className="bus-list-item">
               <div className="bus-details">
-                <p>{`${student.student_first_name} ${student.student_family_name}`}</p>
+                <p>{`${student.studentFirstName} ${student.studentFamilyName}`}</p>
               </div>
               <button className="details-driver-button" onClick={() => studentdetail(student.uid)}>تفاصيل</button>
             </div>
@@ -151,7 +153,7 @@ const ListContainer = ({ listType, buses, drivers, students, driverdelete, stude
           {students.filter(student => student.status === 'active' && student.bus).map((student, index) => (
             <div key={index} className="bus-list-item">
               <div className="bus-details">
-                <p>{`${student.student_first_name} ${student.student_family_name}`}</p>
+                <p>{`${student.studentFirstName} ${student.studentFamilyName}`}</p>
               </div>
               <button className="details-driver-button" onClick={() => studentdetail(student.uid)}>تفاصيل</button>
             </div>
@@ -163,9 +165,9 @@ const ListContainer = ({ listType, buses, drivers, students, driverdelete, stude
         students.filter(student => student.bus).map((student, index) => (
           <div key={index} className="bus-list-item">
             <div className="bus-details">
-              <p> {`${student.student_first_name} ${student.student_family_name}`} </p>
+              <p> {`${student.studentFirstName} ${student.studentFamilyName}`} </p>
             </div>    
-            {`${student.city} ,${student.district} , ${student.street} ,${student.postal_code}`}
+            {`${student.address.city} ,${student.address.district} , ${student.address.street} ,${student.address.postalCode}`}
             {/* <IoTrashBinOutline size={20} className="hover-icon" style={{ color: 'red',marginLeft:'10px',marginRight:'10px', marginBottom: '1px' }} /> */}
           </div>
         ))

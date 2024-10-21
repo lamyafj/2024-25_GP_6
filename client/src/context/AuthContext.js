@@ -42,7 +42,7 @@ const RequireAuth = ({ children }) => {
   }, [isAuthenticated, navigate]);
 
   if (isAuthenticated === null) {
-    <Loading/>
+    return <Loading />; // Ensure Loading component is returned when authentication is still being checked
   }
 
   return isAuthenticated === true ? children : null; 

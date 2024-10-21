@@ -13,6 +13,10 @@ export const EMAILVERIFICATION ='emailverification';
 
 export const PASSWORDRESET ='passwordreset';
 
+export const CHANGEEMAIL ='changeemail';
+
+export const EDITSCHOOLDETAIL ='editschooldetail'
+
 //////////////////////////////bus related path
 
 export const BUSRECORD ='busrecord'
