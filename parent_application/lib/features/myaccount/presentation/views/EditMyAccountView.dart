@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:parent_application/features/auth/presentaion/views/login_page.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 
 class EditMyAccount extends StatefulWidget {
   final String currentName;
@@ -102,7 +103,6 @@ class _EditMyAccountState extends State<EditMyAccount> {
     );
   }
 
-  // Define the _buildNameField method
   Widget _buildNameField() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -133,7 +133,6 @@ class _EditMyAccountState extends State<EditMyAccount> {
     );
   }
 
-  // Define the _buildPhoneNumberField method
   Widget _buildPhoneNumberField() {
     return Row(
       children: [
@@ -170,7 +169,6 @@ class _EditMyAccountState extends State<EditMyAccount> {
     );
   }
 
-  // Define the _buildSaveButton method
   Widget _buildSaveButton() {
     return SizedBox(
       width: double.infinity,
@@ -192,7 +190,6 @@ class _EditMyAccountState extends State<EditMyAccount> {
     if (_validateInputs()) return;
 
     String updatedPhoneNumber = '+966$newPhoneNumber';
-    String oldPhoneNumber = widget.currentPhoneNumber;
 
     if (!_isPhoneNumberValid(newPhoneNumber)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -209,76 +206,125 @@ class _EditMyAccountState extends State<EditMyAccount> {
       return;
     }
 
-    bool phoneNumberChanged = updatedPhoneNumber != oldPhoneNumber;
+    String? nationalId =
+        await storage.read(key: 'nationalID'); // Fetch National ID
 
-    if (phoneNumberChanged && await _checkPhoneNumberExists(updatedPhoneNumber))
-      return;
-
-    // If phone number has changed, show confirmation dialog
-    if (phoneNumberChanged) {
-      bool? confirmLogout = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("تأكيد تعديل رقم الجوال"),
-            content:
-                Text("سيتم تسجيل خروجك, هل أنت متأكد من تعديل رقم الجوال؟"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false), // Cancel
-                child: Text("إلغاء"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true), // Confirm
-                child: Text("موافق"),
-              ),
-            ],
-          );
-        },
-      );
-
-      if (confirmLogout == true) {
-        await FirebaseAuth.instance.signOut();
-        await storage.delete(key: 'uid'); // Delete the UID
-        print("User logged out and UID deleted.");
-
-        // Update user data in Firestore after logging out
-        String? uid =
-            await storage.read(key: 'uid'); // Fetch UID from secure storage
-        if (uid != null) {
-          await _updateUserData(
-              uid, newName, updatedPhoneNumber, oldPhoneNumber);
-        }
-
-        // Navigate to login page after logging out
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
+    if (nationalId != null) {
+      // Check if only name was changed
+      if (newName != widget.currentName &&
+          newPhoneNumber ==
+              widget.currentPhoneNumber.replaceFirst('+966', '')) {
+        await _updateUserData(
+            nationalId, newName, widget.currentPhoneNumber); // Update name only
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MyaccountView()),
         );
-        return;
       } else {
-        return; // User chose not to log out
+        // Check if number changed and needs validation
+        bool isPhoneNumberChanged = newPhoneNumber !=
+            widget.currentPhoneNumber.replaceFirst('+966', '');
+
+        if (isPhoneNumberChanged) {
+          bool phoneNumberExists =
+              await _checkPhoneNumberExists(updatedPhoneNumber);
+
+          if (phoneNumberExists) {
+            // Show dialog to confirm update
+            _showConfirmationDialog(
+              onConfirm: () async {
+                await _updateUserData(nationalId, newName,
+                    updatedPhoneNumber); // Update both name and number
+                _logOutUser(); // Log user out after updating phone number
+              },
+            );
+          } else {
+            // Proceed with update as phone number does not exist
+            await _updateUserData(nationalId, newName, updatedPhoneNumber);
+            _logOutUser();
+          }
+        } else {
+          // If only name changed, update it
+          await _updateUserData(nationalId, newName, widget.currentPhoneNumber);
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MyaccountView()),
+          );
+        }
       }
-    }
-
-    // Update the user's data in Firestore
-    String? uid =
-        await storage.read(key: 'uid'); // Fetch UID from secure storage
-
-    if (uid != null) {
-      await _updateUserData(uid, newName, updatedPhoneNumber, oldPhoneNumber);
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MyaccountView()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Center(
-            child: Text('خطأ في استرداد المعرف الخاص بالمستخدم'),
+            child: Text('خطأ في استرداد الهوية الوطنية'),
           ),
           backgroundColor: Colors.red,
         ),
       );
     }
+  }
+
+  Future<bool> _checkPhoneNumberExists(String phoneNumber) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    var query = await firestore
+        .collection('Parent')
+        .where('phoneNumber', isEqualTo: phoneNumber)
+        .get();
+
+    return query.docs.isNotEmpty;
+  }
+
+  void _showConfirmationDialog({required VoidCallback onConfirm}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primaryColor, // Set the background color
+          title: Text(
+            'تأكيد',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.sColor, fontFamily: "Zain"),
+          ),
+          content: Text(
+            'هل أنت متأكد من تغيير رقم الجوال؟ سيتم تسجيل الخروج بعد التأكيد.',
+            textAlign: TextAlign.right,
+            style: TextStyle(color: AppColors.sColor, fontFamily: "Zain"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'إلغاء',
+                style: TextStyle(color: AppColors.sColor, fontFamily: "Zain"),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(
+                'تأكيد',
+                style: TextStyle(color: AppColors.sColor, fontFamily: "Zain"),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                onConfirm(); // Execute the confirmation action
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _logOutUser() {
+    FirebaseAuth.instance.signOut().then((value) {
+      GoRouter.of(context).go('/login'); // Navigate to the login page
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to log out: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    });
   }
 
   bool _isPhoneNumberValid(String phoneNumber) {
@@ -304,59 +350,17 @@ class _EditMyAccountState extends State<EditMyAccount> {
     return false;
   }
 
-  Future<bool> _checkPhoneNumberExists(String phoneNumber) async {
-    try {
-      FirebaseFirestore firestore = FirebaseFirestore.instance;
-      var snapshot =
-          await firestore.collection('Parent').doc(phoneNumber).get();
-      if (snapshot.exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Center(
-              child: Text(
-                'رقم الجوال مستخدم بالفعل، يرجى استخدام رقم آخر',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return true;
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Center(
-            child: Text(
-              'خطأ: $e',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black87),
-            ),
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-    return false;
-  }
-
-  Future<void> _updateUserData(String uid, String name,
-      String updatedPhoneNumber, String oldPhoneNumber) async {
+  Future<void> _updateUserData(
+      String nationalId, String name, String updatedPhoneNumber) async {
     try {
       FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-      // Step 1: Update the user data in Firestore
-      await firestore.collection('Parent').doc(uid).update({
+      // Update the user data in Firestore using national ID
+      await firestore.collection('Parent').doc(nationalId).update({
         'name': name,
         'phoneNumber': updatedPhoneNumber,
       });
 
-      // Optionally, if you need to handle old phone number logic:
-      if (oldPhoneNumber != updatedPhoneNumber) {
-        // Additional logic if necessary
-      }
-
-      // Confirmation message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Center(
@@ -366,7 +370,6 @@ class _EditMyAccountState extends State<EditMyAccount> {
         ),
       );
     } catch (e) {
-      print("Error updating user data: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Center(

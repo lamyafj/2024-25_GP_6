@@ -53,6 +53,36 @@ class _SignUpPageState extends State<SignUpPage> {
       errorMessage = null;
     });
 
+    // Check if the national ID already exists as a UID
+    final uidQuery = await FirebaseFirestore.instance
+        .collection('Parent')
+        .where('uid', isEqualTo: nationalId)
+        .get();
+
+    if (uidQuery.docs.isNotEmpty) {
+      // National ID already exists as UID
+      setState(() {
+        isLoading = false;
+        errorMessage = ' الهوية الوطنية مسجلة بالفعل. يرجى استخدام رقم آخر.';
+      });
+      return; // Exit the method to prevent further processing
+    }
+
+    // Check if the phone number already exists in the Firestore database
+    final phoneNumberQuery = await FirebaseFirestore.instance
+        .collection('Parent')
+        .where('phoneNumber', isEqualTo: '+966$phoneNumber')
+        .get();
+
+    if (phoneNumberQuery.docs.isNotEmpty) {
+      // Phone number already exists
+      setState(() {
+        isLoading = false;
+        errorMessage = ' الرقم مسجل بالفعل. يرجى استخدام رقم آخر.';
+      });
+      return; // Exit the method to prevent further processing
+    }
+
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: '+966$phoneNumber',
       verificationCompleted: (phoneAuthCredential) async {
@@ -106,7 +136,6 @@ class _SignUpPageState extends State<SignUpPage> {
       print("Failed to create user: $error");
     });
 
-    // Optionally, save the national ID in secure storage
     await storage.write(
         key: 'nationalID', value: nationalId); // Store National ID securely
   }

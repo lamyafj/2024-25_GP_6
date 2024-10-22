@@ -3,6 +3,7 @@ package="com.example.parent_application">
 
 <uses-permission android:name="android.permission.INTERNET" />
 
+
     <application
         android:label="Maslak"
         android:name="${applicationName}"
