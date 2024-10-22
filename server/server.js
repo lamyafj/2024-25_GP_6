@@ -1410,6 +1410,177 @@ app.post('/api/rfid', (req, res) => {
   res.status(200).send("Received");
 });
 
+
+
+/////////////////////////////////////////parent application///////////////////////////////////////////
+
+
+//////////////////////////////////////////get children data
+app.get('/getChildrenData/:uid', async (req, res) => {
+  const uid = req.params.uid;
+  console.log(`Received phone number: ${uid}`);  // Log the received phone number
+
+  try {
+    // Query the Student collection to find all students linked to the parent_uid (which is the phone number)
+    const studentRef = admin.firestore().collection('Student').where('parentUid', '==', uid);//اغيرها للهوية اذا ضبطت
+    const childrenSnapshot = await studentRef.get();
+
+    if (childrenSnapshot.empty) {
+      console.log('No children found for this parent.');
+      return res.status(404).send('No children found for this parent');
+    }
+
+    const childrenData = [];
+    
+    // Iterate over each student document and log their data to the console
+    childrenSnapshot.forEach((doc) => {
+      console.log(`${doc.id} =>`, doc.data());  // Log student ID and data
+      childrenData.push(doc.data());  // Add the student's data to the response
+    });
+
+    res.send(childrenData);  // Send the found children data back to the client
+  } catch (error) {
+    console.error('Error fetching children data:', error);
+    res.status(500).send('Error fetching children data');
+  }
+});
+
+
+
+
+////////////////////////////////////////////////add child
+app.post('/api/addchild', async (req, res) => {
+  console.log('Server add called for student');
+
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  let { newChild } = req.body;
+
+  if (!idToken) {
+    return res.status(403).send('Unauthorized request');
+  }
+
+  try {
+    // Verify the token using Firebase Admin SDK
+    const decodedClaims = await admin.auth().verifyIdToken(idToken, true);
+    const parentUid = decodedClaims.uid;
+    const parentPhone = decodedClaims.phone_number; // Extract the parent's phone number
+    const nationalId = newChild.uid; // Extract the national ID from the request
+    const schoolCode = newChild.school; // Extract the school code from the request
+
+    if (!nationalId) {
+      return res.status(400).send('National ID is required');
+    }
+
+    console.log('Decoded claims:', decodedClaims);
+    console.log('National ID:', nationalId);
+    console.log('School Code:', schoolCode);
+
+    // Check if a student with the given national ID already exists in the "Student" collection
+    const studentSnapshot = await db.collection('Student').doc(nationalId).get();
+
+    if (studentSnapshot.exists) {
+      console.log('Student with this national ID already exists');
+      return res.status(409).send('Student with this national ID already exists');
+    }
+
+    // Define the new child object with additional fields
+    newChild = {
+      ...newChild,
+      // parentUid: parentUid,
+      parentPhone: parentPhone || null,
+      status: 'inactive',
+      bus: null,
+      RFIDtag: null,
+      boradingStatus: null,
+    };
+
+    // Use the national ID as the document ID in the "Student" collection
+    const studentRef = db.collection('Student').doc(nationalId);
+    await studentRef.set(newChild);
+
+    console.log('Student added successfully to the Student collection with national ID as the document ID');
+
+    // After adding the student to the "Student" collection, update the school's list of students with a Firestore reference
+    const schoolSnapshot = await db.collection('School').doc(schoolCode).get();
+
+    if (!schoolSnapshot.exists) {
+      console.log('School with this code does not exist');
+      return res.status(404).send('School with this code does not exist');
+    }
+
+    // Add the new student's Firestore reference to the school's student list
+    await db.collection('School').doc(schoolCode).update({
+      students: admin.firestore.FieldValue.arrayUnion(studentRef), // Use the Firestore DocumentReference
+    });
+
+    console.log(`Student reference ${studentRef.path} added to the school's student list as a reference`);
+    res.status(200).send(true); // Respond with success
+  } catch (error) {
+    console.error('Error adding student:', error);
+    res.status(500).send('Failed to add student');
+  }
+});
+
+
+/////////////////////////////////////Delete student API
+app.post('/api/deletestudent', async (req, res) => {
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || ''; // Extract ID token
+  const { uid } = req.body; // Expecting UID of the student to delete
+
+  if (!uid) {
+    return res.status(400).send('Student UID is required');
+  }
+
+  try {
+    // Use verifyIdToken instead of verifySessionCookie
+    const decodedClaims = await admin.auth().verifyIdToken(idToken, true); // Verify ID token instead of session cookie
+    const parentUid = decodedClaims.uid; // Get the parent UID
+
+    // Reference to the School document
+    const schoolRef = db.collection('School').doc(parentUid);
+
+    // Reference to the Student document
+    const studentRef = db.collection('Student').doc(uid);
+    const studentDoc = await studentRef.get();
+
+    if (!studentDoc.exists) {
+      return res.status(404).send('Student not found'); // Return if student does not exist
+    }
+
+    // Fetch student's data
+    const studentData = studentDoc.data();
+    const busUid = studentData.bus; // Get the bus UID the student is assigned to, if any
+
+    // Remove the student reference from the parent's 'students' array in the School document
+    await schoolRef.update({
+      students: admin.firestore.FieldValue.arrayRemove(uid),
+    });
+
+    // If the student was assigned to a bus, update the bus document to remove the student
+    if (busUid) {
+      const busRef = admin.firestore().collection('Bus').doc(busUid);
+      const busDoc = await busRef.get();
+      const busData = busDoc.data();
+      const newCapacity = Number(busData.current_capacity) - 1; // Decrease the capacity
+
+      await busRef.update({
+        students: admin.firestore.FieldValue.arrayRemove(uid),
+        current_capacity: Number(newCapacity), // Update bus capacity
+      });
+    }
+
+    // Finally, delete the student document
+    await studentRef.delete();
+
+    console.log('Student deleted and associated bus updated successfully');
+    res.status(200).send({ message: 'Student deleted and associated bus updated successfully' });
+  } catch (error) {
+    console.error('Error deleting student and updating bus:', error);
+    res.status(500).send('Failed to delete student and update bus');
+  }
+});
+
+
 // Start the server
 const port = process.env.PORT || 5000;
 app.listen(port, () => {

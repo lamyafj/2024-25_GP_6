@@ -34,6 +34,7 @@ class _MyaccountViewState extends State<MyaccountView> {
           .collection('Parent') // Ensure this matches your Firestore structure
           .doc(uid) // Fetch data using the national ID
           .get();
+      print(snapshot.data());
 
       if (snapshot.exists) {
         if (mounted) {
@@ -64,7 +65,7 @@ class _MyaccountViewState extends State<MyaccountView> {
     }
   }
 
-  // Function to handle user logout
+// Function to handle user logout
   Future<void> handleLogout(BuildContext context) async {
     showDialog(
       context: context,
