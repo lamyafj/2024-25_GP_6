@@ -29,6 +29,7 @@ const SignupForm = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   // Handle input change
   const handleChange = (e) => {
@@ -63,7 +64,9 @@ const SignupForm = () => {
     const newErrors = {};
 
     if (formStep === 1) {
-      if (!form.email.includes('@')) newErrors.email = ' @ يجب أن يحتوي الايميل على ';
+      if (!emailRegex.test(form.email)) {
+        newErrors.email = 'يجب أن يكون البريد الإلكتروني بتنسيق صحيح يحتوي على @ ونطاق صالح';
+      }
       if (form.password.length < 6) {
         newErrors.password = 'كلمة المرور يجب أن تتكون من 6 خانات على الأقل';
       }
@@ -246,9 +249,11 @@ const SignupForm = () => {
                 width={100}
                 content="الرمز البريدي"
                 name="postalCode"
+                maxLength="5" 
                 value={form.postalCode}
                 onChange={handleChange}
               />
+               <small style={{color:'gray'}}>{form.postalCode.length}/5</small>
               {errors.postalCode && <p className="error-text">{errors.postalCode}</p>}
 
               {isSuccess && <p className="error-text">{isSuccess}</p>}

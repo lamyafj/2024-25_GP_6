@@ -7,7 +7,7 @@ import Textinput from '../../components/input/input';
  import { useNavigate } from 'react-router-dom';
 import { SchoolRecordContext  } from '../../context/UserContext';
 import { CgSpinnerAlt } from 'react-icons/cg';
-
+import { FaStarOfLife } from "react-icons/fa";
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -91,7 +91,7 @@ export default function Login() {
           <h1>تسجيل الدخول</h1>
 
           <form onSubmit={onSubmit}>
-            <h2>البريد الالكتروني</h2>
+            <h2><FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} />البريد الالكتروني</h2>
             <Textinput
               type="text"
               width={100}
@@ -99,7 +99,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <h2>الرمز السري</h2>
+            <h2><FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} />الرمز السري </h2>
             <Textinput
               type="password"
               width={100}

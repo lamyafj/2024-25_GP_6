@@ -285,9 +285,10 @@ const AddStudent = () => {
                   className="form-input"
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
+                  maxLength="5" 
                   placeholder="الرمز البريدي"
                 />
-
+                   <small style={{color:'gray'}}>{postalCode.length}/5</small>
                 {error && <p className="error-message">{error}</p>}
 
                 <div className='button-area'>

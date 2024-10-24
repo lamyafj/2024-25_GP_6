@@ -37,6 +37,7 @@ export default function StudentDetail() {
   const [buses, setBuses] = useState([]);
   const [availableBuses, setAvailableBuses] = useState([]);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [isAssigningDelete, setIsAssigningDelete] = useState(false);
   const [studentBus, setStudentBus] = useState(null);
   const [isDelete, setIsDelete] = useState(null);
   const [isAccept, setIsAccept] = useState(null);
@@ -44,6 +45,10 @@ export default function StudentDetail() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showSuccessbus, setShowSuccessbus] = useState(false);
   const [showSuccessaccept, setShowSuccessaccept] = useState(false);
+  const [IsModalOpenDeleteBus, setIsModalOpenDeleteBus] = useState(false);
+  const [IsModalOpenEditBus, setIsModalOpenEditBus] = useState(false);
+  const [IsModalOpenAssignBus, setIsModalOpenAssignBus] = useState(false);
+
 
   //const validateCityAndDistrict = (input) => input.trim().length >= 2;
   //const validateStreet = (street) => street.trim().length >= 3;
@@ -131,10 +136,25 @@ export default function StudentDetail() {
     }
   };
   
+  const handleUnassignBusClick = () => {
+    setIsModalOpenDeleteBus(true);
+  };
   
-
+  const handleUnassignBusClickDelete = () => {
+    setIsModalOpenDeleteBus(false);
+  };
   const handleEditClick = () => {
     setIsEditing(true);
+  };
+
+  const handleBusClick = (bus) => {
+    setSelectedBus(bus);
+    setIsModalOpenEditBus(true);
+  };
+
+  const handleBusAssignClick = (bus) => {
+    setSelectedBus(bus);
+    setIsModalOpenAssignBus(true);
   };
 
 const handleSave = async () => {
@@ -203,6 +223,8 @@ const handleSave = async () => {
   };
 
   const handleBusSelect = async (bus) => {
+    setIsModalOpenAssignBus(false)
+    setIsModalOpenEditBus(false)
     setIsAssigning(true);
     try {
       setSelectedBus(bus);
@@ -211,6 +233,7 @@ const handleSave = async () => {
       const updatedData = await BringStudentDetail(uid);
       setStudent(updatedData);
       setFormValues(updatedData);
+      fetchBuses();
     } catch (error) {
       setError('خطأ في تعيين الحافلة');
     } finally {
@@ -220,7 +243,8 @@ const handleSave = async () => {
   };
 
   const handleUnassignBus = async () => {
-    setIsAssigning(true);
+    setIsModalOpenDeleteBus(false)
+    setIsAssigningDelete(true);
     try {
       await unassignStudentBus(uid, studentBus.uid);
       setSelectedBus(null);
@@ -232,7 +256,7 @@ const handleSave = async () => {
     } catch (error) {
       setError('خطأ في إلغاء تعيين الحافلة');
     } finally {
-      setIsAssigning(false);
+      setIsAssigningDelete(false);
     }
   };
 
@@ -545,19 +569,81 @@ const handleSave = async () => {
                         <>
                           <div className="container-box-detail">
                             <h2>معلومات الحافلة</h2>
-                            <button className="no-button" onClick={handleUnassignBus}>
-                              {isAssigning ? (
+                             <div>
+                             <>
+                            <button
+                              className="cancel-student-button"
+                              style={{ marginLeft: '5px', height: '30px' }}
+                              onClick={handleUnassignBusClick}
+                              disabled={isAssigningDelete}
+                            >
+                              {isAssigningDelete ? (
                                 <CgSpinnerAlt className="spinner" />
                               ) : (
-                                <IoTrashBinOutline
-                                  size={20}
-                                  className="hover-icon"
-                                  style={{ color: 'red', marginBottom: '20px' }}
-                                />
+                                <span>حذف</span>
                               )}
                             </button>
+
+                            {IsModalOpenDeleteBus  && (
+                              <ConfirmationModal
+                                isOpen={IsModalOpenDeleteBus }
+                                onClose={handleUnassignBusClickDelete} // Pass the function without invoking it
+                                onConfirm={handleUnassignBus}
+                              >
+                                هل أنت متأكد من أنك تريد حذف الطالب /ـه {student.studentFirstName} {student.studentFamilyName}  من<br/> مسجلين الحافلة {studentBus.uid.split('B')[1]} {studentBus.name} ؟
+                              </ConfirmationModal>
+                            )}
+                          </>
+                            <>
+                              {isAssigning ? (
+                                <button className="choose-bus-button" disabled>
+                                  <CgSpinnerAlt className="spinner" />
+                                </button>
+                              ) : (
+                                <button
+                                  className="choose-bus-button"
+                                  onClick={() => setDropdownVisible(!dropdownVisible)}
+                                >
+                                   {dropdownVisible ? (
+                              <span >إلغاء</span>
+                            ) : (
+                              <span >تعديل</span>
+                            )}
+                                </button>
+                              )}
+                        </> </div>
                           </div>
+                          
                           <hr />
+                          {dropdownVisible && availableBuses.length > 0 && (
+                        <ul className="bus-dropdown">
+  <>
+    {availableBuses.map((bus) => {
+      const isSameBus = studentBus && studentBus.uid === bus.uid;
+      return (
+        <li
+          key={bus.uid}
+          onClick={() => !isSameBus && handleBusClick(bus)}
+          className={isSameBus ? 'disabled-bus' : ''}
+          style={{ color: isSameBus ? 'gray' : 'inherit', cursor: isSameBus ? 'not-allowed' : 'pointer' }}
+        >
+          حافلة {bus.uid.split('B')[1]} {bus.name} - عدد الطلاب بالحافلة: {bus.currentCapacity}
+        </li>
+      );
+    })}
+
+    {IsModalOpenEditBus && (
+      <ConfirmationModal
+        isOpen={IsModalOpenEditBus}
+        onConfirm={() => handleBusSelect(selectedBus)} 
+        onClose={() => setIsModalOpenEditBus(false)}
+      > هل تريد تعيين حافلة {selectedBus.uid.split('B')[1]} {selectedBus.name} للطالب/ـه {student.studentFirstName} {student.studentFamilyName} ؟</ConfirmationModal>
+    )}
+  </>
+                        </ul>
+                      )}
+                          {!dropdownVisible && (
+                        <div>
                           <li>
                             <GoHash style={{ marginBottom: '-3px', marginLeft: '5px' }} />
                             <strong style={{ marginLeft: '5px' }}>رقم الحافلة:</strong>
@@ -568,6 +654,8 @@ const handleSave = async () => {
                             <strong style={{ marginLeft: '5px' }}>اسم الحافلة:</strong>
                             {studentBus.name}
                           </li>
+                        </div>
+                      )}
                         </>
                       ) : (
                         <>
@@ -589,17 +677,28 @@ const handleSave = async () => {
                             </div>
                           </div>
                           <hr />
-                          {dropdownVisible && availableBuses.length > 0 && (
-                            <ul className="bus-dropdown">
-                              {availableBuses.map((bus) => (
-                                <li
-                                  onClick={() => handleBusSelect(bus)}
-                                >
-                                  حافلة {bus.uid.split('B')[1] } {bus.name} - عدد الطلاب بالحافلة: {bus.currentCapacity}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                           <>
+                                    {dropdownVisible && availableBuses.length > 0 && (
+                                      <ul className="bus-dropdown">
+                                        {availableBuses.map((bus) => (
+                                          <li
+                                            key={bus.uid}
+                                            onClick={() => handleBusAssignClick(bus)}
+                                          >
+                                            حافلة {bus.uid.split('B')[1]} {bus.name} - عدد الطلاب بالحافلة: {bus.currentCapacity}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    )}
+
+                                    {IsModalOpenAssignBus && (
+                                      <ConfirmationModal
+                                        isOpen={IsModalOpenAssignBus}
+                                        onConfirm={() => handleBusSelect(selectedBus)}
+                                        onClose={() => setIsModalOpenAssignBus(false)}
+                                      >هل تريد تعيين حافلة {selectedBus.uid.split('B')[1]} {selectedBus.name} للطالب/ـه {student.studentFirstName} {student.studentFamilyName} ؟</ConfirmationModal>
+                                    )}
+                                  </>
                           {dropdownVisible && availableBuses.length === 0 && (
                             <li>لا يوجد حافلات متاحة</li>
                           )}

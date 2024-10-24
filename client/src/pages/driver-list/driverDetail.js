@@ -41,6 +41,11 @@ export default function DriverDetail() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showSuccessbus, setShowSuccessbus] = useState(false);
   const [showSuccessactivate, setShowSuccessactivate] = useState(false);
+  const [IsModalOpenDeleteBus, setIsModalOpenDeleteBus] = useState(false);
+  const [IsModalOpenAssignBus, setIsModalOpenAssignBus] = useState(false);
+  const [IsModalOpenEditBus, setIsModalOpenEditBus] = useState(false);
+  const [IsBusLoadingDelete, setIsBusLoadingDelete] = useState(false);
+ 
  
 
   // Fetch driver record and bus list
@@ -186,9 +191,25 @@ export default function DriverDetail() {
         setIsDriverActiveLoading(false)
     }
   };
-  
+ 
+  const handleUnassignBusClick = () => {
+    setIsModalOpenDeleteBus(true);
+  };
+
+
+  const handleBusClick = (bus) => {
+    setSelectedBus(bus);
+    setIsModalOpenEditBus(true);
+  };
+
+  const handleBusAssignClick = (bus) => {
+    setSelectedBus(bus);
+    setIsModalOpenAssignBus(true);
+  };
 
   const handleBusSelect = async (bus) => {
+    setIsModalOpenAssignBus(false)
+    setIsModalOpenEditBus(false)
     setIsBusLoading(true);
     try {
       setSelectedBus(bus);
@@ -196,6 +217,7 @@ export default function DriverDetail() {
       await assignDriverBus(uid, bus.uid);
       // Refetch driver details to get updated bus assignment
       const updatedData = await BringDriverDetail(uid);
+      await buslist(); 
       setRecord(updatedData);
       setFormValues(updatedData);
     } catch (error) {
@@ -206,14 +228,15 @@ export default function DriverDetail() {
     }
   };
   const deleteDriverBus = async () => {
-    setIsBusLoading(true)
+    setIsModalOpenDeleteBus(false)
+    setIsBusLoadingDelete(true)
     try {
       await UNassignDriverBus(uid, driverBus.uid); // Unassign bus from driver
       setSelectedBus(null); // Clear selected bus
       const updatedData = await BringDriverDetail(uid); 
       await buslist(); 
-      setRecord(updatedData); // Update record with new data
-      setFormValues(updatedData); // Update form values to reflect changes
+      setRecord(updatedData); 
+      setFormValues(updatedData); 
       // Optionally reset driverBus if it's no longer assigned
       if (updatedData.bus === null) {
         setDriverBus(null); // Clear the driver bus reference
@@ -223,13 +246,12 @@ export default function DriverDetail() {
     } catch (error) {
       console.error('Error unassigning bus:', error);
     }finally{
-        setIsBusLoading(false)
+      setIsBusLoadingDelete(false)
         setModalOpen(false)
     }
   };
 
   const activatedriver = async () => {
-    console.log('test2')
     setIsDriverActiveLoading(true)
 
     try {
@@ -442,70 +464,179 @@ export default function DriverDetail() {
                         <>
                      <div className='container-box-detail'>
                       <h2>معلومات الحافلة</h2>
-                      <button className='no-button' onClick={deleteDriverBus}>
-                            {isBusLoading ? (
-                                <CgSpinnerAlt className='spinner' />
-                            ) : (
-                                <IoTrashBinOutline size={20} className="hover-icon" style={{ color: 'red', marginBottom: '20px' }} />
+                      <div>
+                             <>
+                            <button
+                              className="cancel-student-button"
+                              style={{ marginLeft: '5px', height: '30px' }}
+                              onClick={handleUnassignBusClick}
+                              disabled={IsBusLoadingDelete}
+                            >
+                              {IsBusLoadingDelete ? (
+                                <CgSpinnerAlt className="spinner" />
+                              ) : (
+                                <span>حذف</span>
+                              )}
+                            </button>
+
+                            {IsModalOpenDeleteBus  && (
+                              <ConfirmationModal
+                                isOpen={IsModalOpenDeleteBus }
+                                onClose={()=> setIsModalOpenDeleteBus(false)} // Pass the function without invoking it
+                                onConfirm={deleteDriverBus}
+                              >
+                                هل أنت متأكد من أنك تريد حذف السائق {record.driverFirstName} {record.driverFamilyName}  من<br/> تعيين الحافلة {driverBus.uid.split('B')[1]} {driverBus.name} ؟
+                              </ConfirmationModal>
                             )}
-                        </button>
+                          </>
+                            <>
+                              {isBusLoading ? (
+                                <button className="choose-bus-button" disabled>
+                                  <CgSpinnerAlt className="spinner" />
+                                </button>
+                              ) : (
+                                <button
+                                  className="choose-bus-button"
+                                  onClick={() => setDropdownVisible(!dropdownVisible)}
+                                >
+                                   {dropdownVisible ? (
+                              <span >إلغاء</span>
+                            ) : (
+                              <span >تعديل</span>
+                            )}
+                                </button>
+                              )}
+                        </> </div>
                         </div>
                           <hr />
-                          <li>
-                            <GoHash style={{ marginBottom: '-3px', marginLeft: '5px' }} />
-                            <strong style={{ marginLeft: '5px' }}>رقم الحافلة:</strong>
-                            {driverBus.uid.split('B')[1] }
-                          </li>
-                          <li>
-                            <FaBus style={{ marginBottom: '-3px', marginLeft: '5px' }} />
-                            <strong style={{ marginLeft: '5px' }}>اسم الحافلة:</strong>
-                            {driverBus.name}
-                          </li>
+                          <>
+                          <>
+    {dropdownVisible && buses.length > 0 && (
+      <>
+  {buses.length > 0 ? (
+    <>
+      {buses.filter(bus => bus.driver === null).length > 0 ? (
+        <ul className="bus-dropdown">
+          {buses
+            .filter(bus => bus.driver === null)
+            .map((bus) => (
+              <li key={bus.uid} onClick={() => handleBusClick(bus)}>
+                حافلة رقم {bus.uid.split('B')[1]} - {bus.name}
+              </li>
+            ))}
+        </ul>
+      ) : (
+        <li>لا يوجد حافلات خالية من سائق</li>
+      )}
+    </>
+  ) : (
+    <li>لا يوجد حافلات</li>
+  )}
+</>
+
+    )}
+    {IsModalOpenAssignBus && (
+      <ConfirmationModal
+        isOpen={IsModalOpenEditBus}
+        title="تأكيد تعيين الحافلة"
+        message={`هل تريد تعيين حافلة رقم ${selectedBus.uid.split('B')[1]} - ${selectedBus.name}؟`}
+        onConfirm={()=>handleBusSelect(selectedBus)}
+        onClose={() => setIsModalOpenAssignBus(false)}
+      />
+    )}
+  </>
+
+    {IsModalOpenEditBus && (
+      <ConfirmationModal
+        isOpen={IsModalOpenEditBus}
+        onConfirm={()=>handleBusSelect(selectedBus)}
+        onClose={() => setIsModalOpenEditBus(false)}
+      >
+        هل تريد تعيين حافلة {selectedBus.uid.split('B')[1]} {selectedBus.name} للسائق {record.driverFirstName} {record.driverFamilyName} ؟
+      </ConfirmationModal>
+    )}
+  </>
+  {!dropdownVisible && (
+  <>
+    <li>
+      <GoHash style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+      <strong style={{ marginLeft: '5px' }}>رقم الحافلة:</strong>
+      {driverBus.uid.split('B')[1]}
+    </li>
+    <li>
+      <FaBus style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+      <strong style={{ marginLeft: '5px' }}>اسم الحافلة:</strong>
+      {driverBus.name}
+    </li>
+  </>
+)}
                         </>
                       ) : (
                         <>
-                    <div className='container-box-detail'>
-                      <h2>معلومات الحافلة</h2>
-                      <div className="some-container">
-                      {isBusLoading ? (
-                            <button className='choose-bus-button' disabled>
-                                <CgSpinnerAlt className='spinner' />
-                            </button>
-                        ) : (
-                            record.status === 'active' && (
-                                <button className='choose-bus-button' onClick={choosebus}>
-                                    {dropdownVisible ? 'إلغاء' : 'تعيين'}
-                                </button>
-                            )
-                        )}
+                          <>
+    <div className='container-box-detail'>
+      <h2>معلومات الحافلة</h2>
+      <div className="some-container">
+        {isBusLoading ? (
+          <button className='choose-bus-button' disabled>
+            <CgSpinnerAlt className='spinner' />
+          </button>
+        ) : (
+          record.status === 'active' && (
+            <button className='choose-bus-button' onClick={() => setDropdownVisible(!dropdownVisible)}>
+              {dropdownVisible ? 'إلغاء' : 'تعيين'}
+            </button>
+          )
+        )}
+      </div>
+    </div>
 
-                            </div>
-                            </div>
-                          <hr />
-                          {dropdownVisible && buses.length > 0 && (
-                            <ul className="bus-dropdown">
-                              {buses
-                                .filter(bus => bus.driver === null) 
-                                .map((bus) => {              
-                                  return (
-                                    <li key={bus.uid} onClick={() => handleBusSelect(bus)}>
-                                      حافلة رقم {bus.uid.split('B')[1] } - {bus.name}
-                                    </li>
-                                  );
-                                })}
+    <hr />
 
-                            </ul>
-            
-                          )}{dropdownVisible && buses.length === 0 &&(
-                            <li>لا يوجد حافلات</li>
-                          )}
-                           {!dropdownVisible && !record.bus && !isBusLoading && record.status === 'active' && (
-                                <li>السائق غير معين لحافلة</li>
-                            )}
+    {dropdownVisible && (
+      <>
+  {buses.length > 0 ? (
+    <>
+      {buses.filter(bus => bus.driver === null).length > 0 ? (
+        <ul className="bus-dropdown">
+          {buses
+            .filter(bus => bus.driver === null)
+            .map((bus) => (
+              <li key={bus.uid} onClick={() => handleBusAssignClick(bus)}>
+                حافلة رقم {bus.uid.split('B')[1]} - {bus.name}
+              </li>
+            ))}
+        </ul>
+      ) : (
+        <li>لا يوجد حافلات خالية من سائق</li>
+      )}
+    </>
+  ) : (
+    <li>لا يوجد حافلات</li>
+  )}
+</>
+    )}
+    {IsModalOpenAssignBus && (
+      <ConfirmationModal
+        isOpen={IsModalOpenAssignBus}
+        onConfirm={()=> handleBusSelect(selectedBus)}
+        onClose={() => setIsModalOpenAssignBus(false)}
+      >
+        هل تريد تعيين حافلة {selectedBus.uid.split('B')[1]} {selectedBus.name} للسائق {record.driverFirstName} {record.driverFamilyName} ؟
+      </ConfirmationModal>
+    )}
 
-                            {!dropdownVisible && !record.bus && !isBusLoading && record.status !== 'active' && (
-                                <li>السائق غير نشط</li>
-                            )}
+    {!dropdownVisible && !record.bus && !isBusLoading && (
+      <>
+        {record.status === 'active' ? (
+          <li>السائق غير معين لحافلة</li>
+        ) : (
+          <li>السائق غير نشط</li>
+        )}
+      </>
+    )}
+  </>
+
                         </>
                       )}
                     </div>

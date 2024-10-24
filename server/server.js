@@ -13,6 +13,7 @@ const { FieldValue } = require('firebase-admin').firestore;
 const translate = require('@vitalets/google-translate-api');
 const fetch = require('node-fetch');
 const nodemailer = require('nodemailer');
+const { RxCornerTopLeft } = require('react-icons/rx');
 require('dotenv').config()
 //const GeoFire = require('geofire');
 
@@ -921,6 +922,10 @@ app.post('/api/assignbusfordriver', async (req, res) => {
       return res.status(404).send('Bus or Driver not found');
     }
 
+    if (driverDoc.data().bus) {
+      const busRef = driverDoc.data().bus; // Get the bus reference
+      await busRef.update({ driver: null }); // Update the bus document to set the driver to null
+    }
     // Update the driver and bus references in Firestore
     await driverRef.update({ bus: busRef });
     await busRef.update({ driver: driverDoc.data().uid });
@@ -1240,15 +1245,31 @@ app.post('/api/assignstudentbus', async (req, res) => {
       return res.status(404).send('Bus or Student not found');
     }
 
-    // Update the student and bus references in Firestore
-    await studentRef.update({ bus: busuid });  // Use studentRef (the document reference) to update
+    if (studentDoc.data().bus) { // Corrected condition to check if the student is assigned to a bus
+      const oldbusRef = admin.firestore().collection('Bus').doc(studentDoc.data().bus);
+      const oldbusDoc = await oldbusRef.get();
+    
+      if (oldbusDoc.exists) {
+        const oldbusCapacity = oldbusDoc.data().currentCapacity;
+        const oldbusNewCapacity = oldbusCapacity - 1;
+    
+        await oldbusRef.update({
+          students: admin.firestore.FieldValue.arrayRemove(studentuid),
+          currentCapacity: Number(oldbusNewCapacity),
+        });
+      } else {
+        console.error("Bus document does not exist.");
+      }
+    }
+    
+    await studentRef.update({ bus: busuid });  
     const busData = busDoc.data();
-    // Add the student to the students array in the bus document
+  
     const newcapacity=Number(busData.currentCapacity)+1;
     console.log(newcapacity)
     await busRef.update({
-      students: admin.firestore.FieldValue.arrayUnion(studentuid),  // Add new student to the array
-      current_capacity:Number(newcapacity)
+      students: admin.firestore.FieldValue.arrayUnion(studentuid), 
+      currentCapacity:Number(newcapacity)
     });
 
     res.status(200).send('Bus assigned successfully');

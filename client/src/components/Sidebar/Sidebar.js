@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink,Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { MdLogout } from "react-icons/md";
 import './Sidebar.css';
@@ -26,10 +26,10 @@ export const Sidebar = () => {
 
   return (
     <div className='Sidebar'>
-      <div className='SidebarLogo'>
-        <img src="../Maslakbus.png" alt="Logo" style={{ width: '60px', marginTop: '10px' }} />
-        <img src="../MaslakName.png" alt="MaslakName" style={{ width: '90px', marginTop: '10px' }} />
-      </div>
+  <Link to="/adminDashboard" className='SidebarLogo'>
+    <img src="../Maslakbus.png" alt="Logo" style={{ width: '60px', marginTop: '10px' }} />
+    <img src="../MaslakName.png" alt="MaslakName" style={{ width: '90px', marginTop: '10px' }} />
+  </Link>
       {SidebarData.map((val, key) => (
         <div key={key} className='sidebarItem'>
           <NavLink to={val.link} className='sidebarLink'>

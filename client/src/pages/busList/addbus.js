@@ -9,6 +9,7 @@ import { CgSpinnerAlt } from "react-icons/cg";
 import { FaStarOfLife } from "react-icons/fa";
 import SuccessMessage from '../../components/successMessage/successMessage.js'
 
+
 const AddBus = () => {
   const [busName, setBusName] = useState('');
   const [busCapacity, setBusCapacity] = useState('');
