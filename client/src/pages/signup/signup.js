@@ -6,13 +6,20 @@ import Textinput from '../../components/input/input';
 import axios from 'axios';
 import { baseURL, REGISTER } from '../../Api/Api';
 import { useNavigate } from 'react-router-dom';
+import { FaStarOfLife } from "react-icons/fa";
+import SuccessMessage from '../../components/successMessage/successMessage.js'
+import { CgSpinnerAlt } from 'react-icons/cg';
 
 const SignupForm = () => {
   const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isSuccess, setIsSuecess] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [formStep, setFormStep] = useState(1); // Track which form step we're in
   const [form, setForm] = useState({
     email: '',
     password: '',
+    confirmPassword: '',
     schoolName: '',
     phoneNumber: '',
     district: '',
@@ -36,15 +43,13 @@ const SignupForm = () => {
   const validateInput = (name, value) => {
     let error = '';
 
-    if (name === 'email' && (!value.includes('@') || !value)) {
-      error = '* يجب أن يحتوي الايميل على @';
-    } else if (name === 'password' && (!/[A-Za-z]/.test(value) || !/\d/.test(value) || value.length < 6)) {
-      error =  '* كلمة السر يجب ان تحتوي حرف واحد ورقم واحد  وعلى الاقل ستة ';
-    } else if (name === 'phoneNumber' && (!value.startsWith('966') || value.length !== 12)) {
-      error =  '* يجب ان يحتوي رقم الهاتف على 12 خانة ويبدا  966';
-    } else if (name === 'postalCode' && !value) {
-      error = '* ادخل الكود البريدي';
-    }
+    if (name === 'password' && value.length < 6) {
+      error = 'كلمة المرور يجب أن تتكون من 6 خانات على الأقل';
+    } else if (name === 'confirmPassword' && value !== form.password) {
+      error = 'كلمة المرور غير مطابقة';}
+    // } else if (name === 'phoneNumber' && (!/^[5]\d{8}$/.test(value))) {
+    //   error = 'يجب أن يبدأ رقم الهاتف بـ 5 ويتكون من 9 أرقام فقط';
+    // }
 
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -58,18 +63,19 @@ const SignupForm = () => {
     const newErrors = {};
 
     if (formStep === 1) {
-      if (!form.email.includes('@')) newErrors.email = '* يجب أن يحتوي الايميل على @';
-      if (!/[A-Za-z]/.test(form.password) || !/\d/.test(form.password) || form.password.length < 6) {
-        newErrors.password = '* كلمة السر يجب ان تحتوي حرف واحد ورقم واحد  وعلى الاقل ستة ';
+      if (!form.email.includes('@')) newErrors.email = ' @ يجب أن يحتوي الايميل على ';
+      if (form.password.length < 6) {
+        newErrors.password = 'كلمة المرور يجب أن تتكون من 6 خانات على الأقل';
       }
     } else if (formStep === 2) {
-      if (!form.schoolName) newErrors.schoolName = '* يجب أن تكتب اسم المدرسة ';
-      if (!form.phoneNumber.startsWith('966') || form.phoneNumber.length !== 12) {
-        newErrors.phoneNumber = '* يجب ان يحتوي رقم الهاتف على 12 خانة ويبدا  966';
+      if (!form.schoolName) newErrors.schoolName = ' الرجاء ادخال اسم المدرسة';
+      if (!/^[5]\d{8}$/.test(form.phoneNumber)) {
+        newErrors.phoneNumber = ' يجب ان يحتوي رقم الهاتف على 12 خانة ويبدا  966';
       }
-      if (!form.district) newErrors.district = '* ادخل اسم الحي'
-      if (!form.street) newErrors.street = '* ادخل اسم الشارع';
-      if (!form.postalCode) newErrors.postalCode = '* ادخل الكود البريدي';
+      if (!form.district.trim()) newErrors.district = 'الرجاء ادخال اسم الحي'
+      if (!form.street.trim()) newErrors.street = 'الرجاء ادخال اسم الشارع';
+      if (!form.city.trim()) newErrors.city = 'الرجاء ادخال اسم المدينة';
+      if (!/^\d{5}$/.test(form.postalCode)) newErrors.postalCode = 'يجب أن يتكون الكود البريدي من 5 أرقام فقط';
     }
 
     setErrors(newErrors);
@@ -88,33 +94,49 @@ const SignupForm = () => {
 
   // Handle the final form submission
   const handleFinalSubmit = async (e) => {
+    setLoading(true)
     e.preventDefault();
 
     if (!validateFormStep()) return;
 
     try {
       const response = await axios.post(`${baseURL}/${REGISTER}`, form);
-      if (response.data.uid) {
-        navigate('/login');
-      } else {
-        setErrors({ general: 'Registration failed. Please try again.' });
+      console.log(response)
+      if (response.data.success) {
+        
+        handleSuccessOperation()
+      } else if (!response.data.success){
+        console.log(response.data)
+        setIsSuecess(response.data.message);
       }
     } catch (err) {
-      setErrors({ general: 'An error occurred during registration.' });
+      setIsSuecess('حدثت مشكلة اثناء التسجيل. الرجاء إعادة المحاولة');
+    }finally{
+      setLoading(false)
     }
   };
-
+  
+  const handleSuccessOperation = () => {
+    setShowSuccess(false);
+    setTimeout(() => {
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/login'); // Replace '/login' with the route for your login page
+      }, 2000);
+    }, 0);
+  };
   return (
     <div className="Login">
       <GifLogo />
+      {showSuccess && <SuccessMessage message="تم التسجيل بنجاح! الرجاء التحقق من البريد" />}
       <GreenContainer>
-        <h1>تسجيل حساب للمدرسة</h1>
+        <h1>تسجيل حساب جديد للمدرسة</h1>
 
         {formStep === 1 && (
           <form onSubmit={handleFirstFormSubmit} className="form-step">
-            <h2>البريد الالكتروني</h2>
+            <h2> <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} />البريد الالكتروني</h2>
             <Textinput
-              type="email"
+              type="text"
               width={100}
               content="البريد الالكتروني"
               name="email"
@@ -123,7 +145,7 @@ const SignupForm = () => {
             />
             {errors.email && <p className="error-text">{errors.email}</p>}
 
-            <h2>الرمز السري</h2>
+            <h2> <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /> رمز المرور</h2>
             <Textinput
               type="password"
               width={100}
@@ -135,6 +157,19 @@ const SignupForm = () => {
             />
             {errors.password && <p className="error-text">{errors.password}</p>}
 
+            <h2> <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} />تأكيد رمز المرور</h2>
+            <Textinput
+              type="password"
+              width={100}
+              placeholder="تأكيد الرمز السري"
+              content="تأكيد الرمز السري"
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
+            />
+            {errors.confirmPassword && <p className="error-text">{errors.confirmPassword}</p>}
+
+
             <button className="signup-button" type="submit">
               التالي
             </button>
@@ -144,7 +179,7 @@ const SignupForm = () => {
         {formStep === 2 && (
           <div className="scrollable-form">
             <form onSubmit={handleFinalSubmit} className="form-step">
-              <h2>اسم المدرسة</h2>
+            <h2> <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /> اسم المدرسة</h2>
               <Textinput
                 type="text"
                 width={100}
@@ -155,18 +190,34 @@ const SignupForm = () => {
               />
               {errors.schoolName && <p className="error-text">{errors.schoolName}</p>}
 
-              <h2>رقم الهاتف</h2>
+              <h2> <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /> رقم الاتصال</h2>
+
               <Textinput
                 type="text"
                 width={100}
-                content="رقم الهاتف"
+                content="رقم الاتصال"
                 name="phoneNumber"
                 value={form.phoneNumber}
                 onChange={handleChange}
-              />
+                maxLength="9" 
+                number={'+966'}
+                />
+           
+              <small style={{color:'gray'}}>{form.phoneNumber.length}/9</small>
               {errors.phoneNumber && <p className="error-text">{errors.phoneNumber}</p>}
 
-              <h2>الحي</h2>
+              <h2> <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /> المدينة</h2>
+              <Textinput
+                type="text"
+                width={100}
+                content=" المدينة"
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+              />
+                {errors.city && <p className="error-text">{errors.city}</p>}
+
+              <h2> <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /> الحي</h2>
               <Textinput
                 type="text"
                 width={100}
@@ -177,7 +228,7 @@ const SignupForm = () => {
               />
               {errors.district && <p className="error-text">{errors.district}</p>}
 
-              <h2>الشارع</h2>
+              <h2> <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} />الشارع</h2>
               <Textinput
                 type="text"
                 width={100}
@@ -188,17 +239,8 @@ const SignupForm = () => {
               />
               {errors.street && <p className="error-text">{errors.street}</p>}
 
-              <h2> المدينة</h2>
-              <Textinput
-                type="text"
-                width={100}
-                content=" المدينة"
-                name="city"
-                value={form.city}
-                onChange={handleChange}
-              />
 
-              <h2>الرمز البريدي</h2>
+            <h2> <FaStarOfLife size={6} style={{ color: 'red', marginRight: '5px', marginBottom: '5px' }} /> الرمز البريدي</h2>
               <Textinput
                 type="text"
                 width={100}
@@ -209,9 +251,19 @@ const SignupForm = () => {
               />
               {errors.postalCode && <p className="error-text">{errors.postalCode}</p>}
 
-              <button className="signup-button" type="submit">
-                انشاء حساب 
-              </button>
+              {isSuccess && <p className="error-text">{isSuccess}</p>}
+
+              <button
+              className="signup-button"
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <CgSpinnerAlt style={{ marginRight: '5px' }} className="spinner" />
+              ) : (
+                "انشاء حساب"
+              )}
+            </button>
             </form>
           </div>
         )}

@@ -11,6 +11,7 @@ import { CgSpinnerAlt } from "react-icons/cg";
 import HandleLogout from '../../pages/login/handleLogout';
 import SuccessMessage from '../../components/successMessage/successMessage.js'
 import { CiHashtag } from "react-icons/ci";
+import ConfirmationModal from '../../components/Confirmation/confirm.js';
 
 export default function ChangeEmailForm() {
 const { schoolRecord, error } = useContext(SchoolRecordContext);
@@ -18,6 +19,7 @@ const { schoolRecord, error } = useContext(SchoolRecordContext);
   const [formValues, setFormValues] = useState({ email: '', password: '' });
   const [showSuccess, setShowSuccess] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [isModalOpen, setModalOpen] = useState(false);
   
   const navigate = useNavigate();
 
@@ -28,6 +30,11 @@ const { schoolRecord, error } = useContext(SchoolRecordContext);
       [name]: value,
     }));
   };
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
   const handleSave = async () => {
     setSaveError(''); 
     setIsSaving(true);
@@ -53,27 +60,25 @@ const { schoolRecord, error } = useContext(SchoolRecordContext);
     }
   
     try {
-
-     const response= await ChangeEmail(schoolRecord.email, email, password);
+      const response = await ChangeEmail(schoolRecord.email, email, password);
   
-      if(!response.success){
+      console.log(response)
+      if (!response.success) {
         setSaveError(response.message); 
+        setIsSaving(false); // Make sure to reset the saving state
         return;
       }
-
+  
+      setModalOpen(false);
       handleSuccessOperation();
       
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setSaveError(err.response.data.message); 
-      } else {
-        setSaveError('فشل في حفظ التغييرات. يرجى المحاولة مرة أخرى.');
-      }
+      setSaveError('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى لاحقاً.');
     } finally {
-      // Reset the saving state
       setIsSaving(false);
     }
   };
+  
   
   const handleSuccessOperation = () => {
     setShowSuccess(false);
@@ -128,13 +133,27 @@ const { schoolRecord, error } = useContext(SchoolRecordContext);
               </div>
               {saveError && <div className="error-message">{saveError}</div>}
               <div className="button-group">
-                <button
-                  className="change-email-button"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                >
-                  {isSaving ? <CgSpinnerAlt className="spinner" /> : 'تغيير'}
-                </button>
+              <>
+      <button
+        className="change-email-button"
+        onClick={handleOpenModal}
+        disabled={isSaving}
+      >
+        {isSaving ? <CgSpinnerAlt className="spinner" /> : 'تغيير'}
+      </button>
+
+      <ConfirmationModal
+  isOpen={isModalOpen}
+  onClose={() => setModalOpen(false)}
+  onConfirm={() => {
+    setModalOpen(false); // Close modal immediately
+    handleSave(); // Proceed with the save operation
+  }}
+>
+  هل أنت متأكد من أنك تريد تغيير البريد الإلكتروني؟
+</ConfirmationModal>
+
+    </>
               </div>
             </div>
           </ItemContainer>

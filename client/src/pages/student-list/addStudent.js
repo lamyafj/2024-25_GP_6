@@ -193,18 +193,18 @@ const AddStudent = () => {
                   onChange={(e) => setGrade(e.target.value)}
                 >
                   <option value="">اختر الصف</option>
-                  <option value="الصف الأول">الصف الأول</option>
-                  <option value="الصف الثاني">الصف الثاني</option>
-                  <option value="الصف الثالث">الصف الثالث</option>
-                  <option value="الصف الرابع">الصف الرابع</option>
-                  <option value="الصف الخامس">الصف الخامس</option>
-                  <option value="الصف السادس">الصف السادس</option>
-                  <option value="الصف السابع">الصف السابع</option>
-                  <option value="الصف الثامن">الصف الثامن</option>
-                  <option value="الصف التاسع">الصف التاسع</option>
-                  <option value="الصف العاشر">الصف العاشر</option>
-                  <option value="الصف الحادي عشر">الصف الحادي عشر</option>
-                  <option value="الصف الثاني عشر">الصف الثاني عشر</option>
+                  <option value="الصف الأول الابتدائي"> الصف الأول الابتدائي</option>
+                  <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                  <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                  <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                  <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                  <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                  <option value="الصف الأول متوسط">الصف الأول متوسط</option>
+                  <option value="الصف الثاني متوسط">الصف الثاني متوسط</option>
+                  <option value="الصف الثالث متوسط">الصف الثالث متوسط</option>
+                  <option value="الصف الأول ثانوي">الصف الأول ثانوي</option>
+                  <option value="الصف الثاني ثانوي">الصف الثاني ثانوي</option>
+                  <option value="الصف الثالث ثانوي">الصف الثالث ثانوي</option>
                 </select>
                 <div className="title-container">
                   <h3>معلومات ولي الأمر</h3>

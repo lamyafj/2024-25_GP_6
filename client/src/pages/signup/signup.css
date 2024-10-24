@@ -42,19 +42,24 @@ width: 100%;
 
 /* Style for the signup button */
 .signup-button {
-background-color: #084327;
-color: white;
-padding: 12px 20px;
-border: none;
-border-radius: 4px;
-cursor: pointer;
-text-align: center;
-font-size: 16px;
-margin-top: 20px;
+  right:0;
+  font-family: 'zain';
+  width: 100%;
+  margin-top: 20px;
+  background-color: #084327;
+  color: aliceblue;
+  font-size: 20px;
+  border-radius: 5px;
+  box-shadow: none;
+  cursor: pointer;
+  border: none;
+  
 }
 
 .signup-button:hover {
-background-color: #45a049;
+  background-color: #06341e;
+  transform: scale(1.05);
+  transition: transform 0.3s ease, background-color 0.3s ease; 
 }
 
 /* No-account signup button */

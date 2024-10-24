@@ -5,18 +5,20 @@ import SaudiAnimation, { GifLogo } from '../../components/SaudiAnimation/SaudiAn
 import { sendPasswordReset } from './handleLogin';
 import Textinput from '../../components/input/input';
 import { useNavigate } from 'react-router-dom';
+import { CgSpinnerAlt } from 'react-icons/cg';
 import SuccessMessage from '../../components/successMessage/successMessage';
 
 export default function PasswordReset() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSent, setIsSent] = useState(false); // New state variable
 
   const onSubmit = async (e) => {
     e.preventDefault();
-  
+    setIsLoading(true)
     // Check if email is empty
     if (!email.trim()) {
       setError("الرجاء إدخال البريد الإلكتروني.");
@@ -45,7 +47,9 @@ export default function PasswordReset() {
       }
     } catch (err) {
       setError("حدث خطأ أثناء إرسال البريد الإلكتروني. حاول مرة أخرى.");
-
+      
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -74,11 +78,17 @@ export default function PasswordReset() {
                 setError(''); // Reset error on typing
               }}
             />
-            {!isSent ? (
-              <button className='login-button' type="submit">ارسال </button>
-            ) : (
-              <p style={{ color: 'green', fontWeight: 'bold' }}>تم الارسال بنجاح</p>
-            )}
+                {!isSent ? (
+                  <button className='login-button' type="submit" disabled={isLoading}>
+                    {isLoading ? (
+                      <CgSpinnerAlt style={{ marginRight: '5px' }} className="spinner" />
+                    ) : (
+                      "ارسال"
+                    )}
+                  </button>
+                ) : (
+                  <p style={{ color: 'green', fontWeight: 'bold' }}>تم الارسال بنجاح</p>
+                )}
           </form>
           {error && <p style={{ color: 'red' }}>{error}</p>}
 

@@ -26,7 +26,9 @@ const handleLogin = async (email, password) => {
     // Handle errors
     const errorCode = err.response ? err.response.data : err.code; // Capture error from server or Firebase
     if(err.code==='auth/invalid-credential'){
-      return { success: false, error: 'خطأ في البريد او الرمز السري'};
+      return { success: false, error: 'خطأ في البريدالإلكتروني او الرمز السري'};
+    }if(err.code==='auth/invalid-email'){
+      return { success: false, error: 'خطأ في البريد الإلكتروني او الرمز السري'};
     }
     console.error('Login error:', errorCode);
     return { success: false, error: errorCode };  // Return error for further handling

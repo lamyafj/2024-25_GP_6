@@ -45,9 +45,9 @@ export default function StudentDetail() {
   const [showSuccessbus, setShowSuccessbus] = useState(false);
   const [showSuccessaccept, setShowSuccessaccept] = useState(false);
 
-  const validateCityAndDistrict = (input) => input.trim().length >= 2;
-  const validateStreet = (street) => street.trim().length >= 3;
-  const validatePostalCode = (postalCode) => /^\d{5}$/.test(postalCode); // Assuming 5-digit postal codes
+  //const validateCityAndDistrict = (input) => input.trim().length >= 2;
+  //const validateStreet = (street) => street.trim().length >= 3;
+  //const validatePostalCode = (postalCode) => /^\d{5}$/.test(postalCode); // Assuming 5-digit postal codes
   const validateName = (name) => name.trim().length >= 2;
   const validateID = (id) => /^\d{1,10}$/.test(id);
   const validatePhoneNumber = (phone) => /^5\d{8}$/.test(phone);
@@ -59,6 +59,12 @@ export default function StudentDetail() {
         const data = await BringStudentDetail(uid); // Fetch student details
         setStudent(data);
         setFormValues(data);
+        const slicedPhone = data.parentPhone ? data.parentPhone.slice(4) : '';
+
+        setFormValues({
+          ...data,
+          parentPhone: slicedPhone, // Set the sliced phone number
+        });
         
         if (data.bus) {
           setStudentBus(data.bus);
@@ -96,6 +102,7 @@ export default function StudentDetail() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log(formValues)
   
     if (["city", "street", "district", "postalCode"].includes(name)) {
       // Update address fields separately
@@ -106,92 +113,88 @@ export default function StudentDetail() {
           [name]: value,
         },
       }));
+    } else if (name === "parentPhone") {
+      // Format parentPhone based on the starting pattern
+      const formattedPhone = value.startsWith('+966')
+        ? `0${value.slice(4)}`
+        : value;
+  
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        parentPhone: formattedPhone,
+      }));
     } else {
       setFormValues((prevValues) => ({
         ...prevValues,
         [name]: value,
       }));
     }
-    console.log(formValues);
   };
+  
   
 
   const handleEditClick = () => {
     setIsEditing(true);
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
+const handleSave = async () => {
+  setError('');
+  setIsSaving(true);
 
-    const {
-      studentFirstName,
-      studentFamilyName,
-      parentUid,
-      uid,
-      parentPhone,
-      city,
-      street,
-      district,
-      postalCode,
-    } = formValues;
+  const {
+    studentFirstName,
+    studentFamilyName,
+    parentUid,
+    parentPhone,
+    address, 
+    grade,
+  } = formValues;
+  console.log(grade)
 
-    if (
-      !studentFirstName.trim() ||
-      !studentFamilyName.trim() ||
-      !uid.trim() ||
-      !parentUid.trim() ||
-      !city.trim() ||
-      !street.trim() ||
-      !district.trim() ||
-      !postalCode.trim()
-    ) {
-      setError('جميع الحقول مطلوبة.');
-      setIsSaving(false);
-      return;
-    }
+  if(!address.city || !address.street || !address.district || !address.postalCode || !grade){
+    setError('الرجاء تعبئة جميع الحقول')
+    setIsSaving(false);
+    return;
+  }
 
-    if (!validateName(studentFirstName) || !validateName(studentFamilyName)) {
-      setError('الأسماء يجب أن تحتوي على حرفين على الأقل.');
-      setIsSaving(false);
-      return;
-    }
+  if (!validateName(studentFirstName) || !validateName(studentFamilyName)) {
+    setError('الأسماء يجب أن تحتوي على حرفين على الأقل');
+    setIsSaving(false);
+    return;
+  }
 
-    if (!validateID(uid) ) {
-      setError('رقم الهوية او الأقامة يجب ان يكون 10 أرقام');
-      setIsSaving(false);
-      return;
-    }
+  if (!validateID(uid) || !validateID(parentUid)) { // Validate Parent UID
+    setError('رقم الهوية او الأقامة يجب ان يكون 10 أرقام');
+    setIsSaving(false);
+    return;
+  }
 
-    if (!validateCityAndDistrict(city) || !validateCityAndDistrict(district)) {
-      setError('المدينة والمنطقة يجب أن تحتويا على حرفين على الأقل');
-      setIsSaving(false);
-      return;
-    }
+  if (!validatePhoneNumber(parentPhone)) { // Validate Parent Phone
+    setError('رقم هاتف ولي الأمر يجب أن يبدأ بـ 5 ويتكون من 9 أرقام');
+    setIsSaving(false);
+    return;
+  }
 
-    if (!validateStreet(street)) {
-      setError('اسم الشارع يجب أن يكون أطول.');
-      setIsSaving(false);
-      return;
-    }
 
-    if (!validatePostalCode(postalCode)) {
-      setError('رمز البريد يجب أن يكون مكون من 5 أرقام.');
-      setIsSaving(false);
-      return;
-    }
 
-    try {
-      await EditStudentDetail(uid, formValues);
-      setStudent(formValues);
-      setIsEditing(false);
-      setError('');
-    } catch (err) {
-      setError('فشل في حفظ التغييرات. يرجى المحاولة مرة أخرى.');
-    } finally {
-      setIsSaving(false);
-      handleSuccessOperation('1');
-    }
-  };
+  // if (!validatePostalCode(postalCode)) {
+  //   setError('رمز البريد يجب أن يكون مكون من 5 أرقام.');
+  //   setIsSaving(false);
+  //   return;
+  // }
+
+  try {
+    await EditStudentDetail(uid, formValues);
+    setStudent(formValues);
+    setIsEditing(false);
+    setError('');
+  } catch (err) {
+    setError('فشل في حفظ التغييرات. يرجى المحاولة مرة أخرى.');
+  } finally {
+    setIsSaving(false);
+    handleSuccessOperation('1');
+  }
+};
 
   const handleCancel = () => {
     setFormValues(student);
@@ -496,15 +499,39 @@ export default function StudentDetail() {
                         )}
                       </li>
                       <li>
-                        <MdOutlineSmartphone style={{ marginBottom: '-3px', marginLeft: '5px' }} />
-                        <strong style={{ marginLeft: '5px' }}>هاتف ولي الأمر:</strong>
-                        {student.parentPhone.startsWith('+966') ? `0${student.parentPhone.slice(4)}` : student.parentPhone}
-                      </li>
-                      <li>
-                        <FaRegIdCard style={{ marginBottom: '-3px', marginLeft: '5px' }} />
-                        <strong style={{ marginLeft: '5px' }}>الهوية الوطنية أو الاقامة الخاصة بولي الأمر</strong>
-                        {student.parentUid}
-                      </li>
+    <MdOutlineSmartphone style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+    <strong style={{ marginLeft: '5px' }}>هاتف ولي الأمر:</strong>
+    {isEditing ? (
+      <input
+        type="text"
+        name="parentPhone"
+        value={formValues.parentPhone || ''}
+        onChange={handleChange}
+        placeholder="هاتف ولي الأمر"
+        maxLength={9}
+      />
+    ) : (
+      student.parentPhone.startsWith('+966')
+        ? `0${student.parentPhone.slice(4)}`
+        : student.parentPhone
+    )}
+  </li>
+  <li>
+    <FaRegIdCard style={{ marginBottom: '-3px', marginLeft: '5px' }} />
+    <strong style={{ marginLeft: '5px' }}>الهوية الوطنية أو الاقامة الخاصة بولي الأمر</strong>
+    {isEditing ? (
+      <input
+        type="text"
+        name="parentUid"
+        value={formValues.parentUid || ''}
+        onChange={handleChange}
+        placeholder="الهوية الوطنية أو الاقامة"
+        maxLength={10}
+      />
+    ) : (
+      student.parentUid
+    )}
+  </li>
                     </ul>
                   </div>
                 </ItemContainer>

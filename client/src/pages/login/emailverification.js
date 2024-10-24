@@ -6,18 +6,20 @@ import { sendEmailverification } from './handleLogin';
 import Textinput from '../../components/input/input';
 import { useNavigate } from 'react-router-dom';
 import SuccessMessage from '../../components/successMessage/successMessage';
+import { CgSpinnerAlt } from 'react-icons/cg';
 
 export default function Emailverification() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [verification, setVerification] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSent, setIsSent] = useState(false); // New state variable
 
   const onSubmit = async (e) => {
     e.preventDefault();
-  
+    setIsLoading(true)
     // Check if email is empty
     if (!email.trim()) {
       setError("الرجاء إدخال البريد الإلكتروني.");
@@ -47,6 +49,8 @@ export default function Emailverification() {
     } catch (err) {
       setError("حدث خطأ أثناء إرسال البريد الإلكتروني. حاول مرة أخرى.");
       setVerification(true);
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -77,10 +81,17 @@ export default function Emailverification() {
               }}
             />
             {!isSent ? (
-              <button className='login-button' type="submit">ارسال بريد تحقق</button>
+              <button className='login-button' type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <CgSpinnerAlt style={{ marginRight: '5px' }} className="spinner" />
+                ) : (
+                  "ارسال بريد تحقق"
+                )}
+              </button>
             ) : (
               <p style={{ color: 'green', fontWeight: 'bold' }}>تم الارسال بنجاح</p>
             )}
+
           </form>
           {error && <p style={{ color: 'red' }}>{error}</p>}
 

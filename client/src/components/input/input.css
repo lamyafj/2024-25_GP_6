@@ -18,6 +18,12 @@
     font-family: "Nunito";
     text-align: right; /* Align text to the right */
   }
+
+  .content-number{
+    left:30px;
+    bottom: 5;
+    position: absolute;
+  }
   
   .inputform label {
     position: absolute;

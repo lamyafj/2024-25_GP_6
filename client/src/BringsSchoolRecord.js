@@ -29,11 +29,11 @@ export const BringRecord = async () => {
   };
   
 
-  export const EditSchoolDetail = async () => {
+  export const EditSchoolDetail = async (newschool) => {
     const idToken = Cookies.get('session'); 
     if (idToken) {
       try {
-        const response = await axios.post(`${baseURL}/${EDITSCHOOLDETAIL}`, {}, {
+        const response = await axios.post(`${baseURL}/${EDITSCHOOLDETAIL}`, {newschool}, {
           headers: {
             Authorization: `Bearer ${idToken}`, 
           },
@@ -53,36 +53,35 @@ export const BringRecord = async () => {
   };
   
 
-  export const ChangeEmail = async (currentemail ,newemail , password) => {
-
-    try{
-     await signInWithEmailAndPassword(auth, currentemail.trim(), password.trim());
-    }catch(error){
+  export const ChangeEmail = async (currentemail, newemail, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, currentemail.trim(), password.trim());
+    } catch (error) {
       return { success: false, message: 'كلمة المرور خاطئة' };
     }
-
-    const idToken = Cookies.get('session'); 
+  
+    const idToken = Cookies.get('session');
     if (idToken) {
       try {
-        const response = await axios.post(`${baseURL}/${CHANGEEMAIL}`, {newemail,password}, {
+        const response = await axios.post(`${baseURL}/${CHANGEEMAIL}`, { newemail, password }, {
           headers: {
-            Authorization: `Bearer ${idToken}`, 
+            Authorization: `Bearer ${idToken}`,
           },
-          withCredentials: true 
+          withCredentials: true,
         });
-        const record = response.data;
-        return { success: true, message: '' };
+  
+        // Assuming the backend response contains a `success` field
+        return response.data; 
       } catch (error) {
-        
         console.error('Error accessing protected route:', error.response?.data || error);
-        return null; 
+        return { success: false, message: 'حدث خطأ أثناء تغيير البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقاً.' };
       }
     } else {
       console.log('User not authenticated');
-      return null; 
+      return { success: false, message: 'لم يتم التحقق من هوية المستخدم.' };
     }
   };
-
+  
 
   export const PasswordReset = async (email) => {
     const idToken = Cookies.get('session'); 

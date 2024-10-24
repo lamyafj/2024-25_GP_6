@@ -6,6 +6,9 @@ function GreenContainer(props) {
   return (
     <div className='GreenContainer'>
       
+      {/* <div className='green-header'>
+      <h1 style={{color:'white'}}>تسجيل الدخول</h1>
+      </div> */}
       <div className='content'>
        
       {props.children}

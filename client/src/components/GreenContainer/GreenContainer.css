@@ -1,12 +1,43 @@
+/* .GreenContainer {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height: 85vh; 
+  width: 35%;
+  margin: 50px auto; 
+  border-radius: 15px; 
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+  text-align: right; 
+} */
+/* 
+.green-header {
+  height: 100px;
+  background-color: #01391F;
+  clip-path: path('M0,0 H1 V0.738 s-0.082,-0.022,-0.166,0 s-0.089,0.107,-0.17,0.128 s-0.082,-0.052,-0.159,-0.032 s-0.064,0.071,-0.147,0.093 s-0.089,-0.023,-0.179,0 S0,1,0,1');
+  z-index: 1;
+} */
+/* 
+.GreenContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(159, 205, 183, 0.5); 
+  z-index: -1; 
+  border-radius: 15px; 
+} */
+
+
 .GreenContainer {
   position: relative;
   display: block;
   overflow: hidden;
-  height: 85vh; /* Use viewport height to ensure full screen height */
+  height: 100vh; /* Use viewport height to ensure full screen height */
+  margin: 0;
   width: 35%;
-  margin: 50px auto; /* Center horizontally */
-  border-radius: 15px; /* Rounded edges */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Shadow for floating effect */
+  margin-left: 100px;
   text-align: right; /* Ensure text is aligned to the right */
 }
 
@@ -19,9 +50,7 @@
   bottom: 0;
   background-color: rgba(159, 205, 183, 0.5); /* Semi-transparent background */
   z-index: -1; /* Ensures background is behind the content */
-  border-radius: 15px; /* Match the rounded edges */
 }
-
 form {
   display: table ;
   margin: 0; /* Remove any default margins */
@@ -58,7 +87,8 @@ h1 {
   padding:20px;
   padding-left: 10%;
   padding-right: 10%;
-  
+  /* border-radius: 50px;
+  z-index: 1; */
 }
 form {
   display: grid;

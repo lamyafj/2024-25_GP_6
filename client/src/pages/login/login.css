@@ -21,6 +21,8 @@
 
   .login-button:hover{
     background-color: #06341e;
+    transform: scale(1.05);
+    transition: transform 0.3s ease, background-color 0.3s ease; 
   }
   .no-button-login{
     background-color: none;

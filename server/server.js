@@ -60,14 +60,25 @@ const verifyToken = async (req, res, next) => {
 
 //////////////////////Sign up School
 
-
-
 app.post('/api/auth/register', async (req, res) => {
   const { email, password, schoolName, phoneNumber, district, street, city, postalCode } = req.body;
   const lat = 51.5074;
   const lng = 0.1278;
+  let existingUser;
+    try {
+      existingUser = await admin.auth().getUserByEmail(email);
+      if (existingUser) {
+        console.log('hi')
+        return res.send({ success:false, message: 'البريد الإلكتروني مستخدم من قبل' });
+      }
+    } catch (error) {
+      if (error.code !== 'auth/user-not-found') {
+        return res.send({ success:false ,message: 'فشل في التحقق من إتاحية البريد' });
+      }
+    }
 
   try {
+    
     // Retrieve school count and generate school code
     const schoolsSnapshot = await admin.firestore().collection('School').get();
     const schoolCount = schoolsSnapshot.size;
@@ -109,13 +120,12 @@ app.post('/api/auth/register', async (req, res) => {
     await sendEmailVerification(email);  
 
     // Respond with success
-    res.status(201).json({ schoolCode: userRecord.schoolCode });
+    res.status(200).send({success:true, meassage:'تم تسجيلك بنجاح'});
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 });
-
 
 
 
@@ -207,10 +217,10 @@ async function sendEmailVerification(email) {
 }
 
 ////////////////////////////////////////////reset password email
-async function sendPasswordResetLink(userRecord) {
+async function sendPasswordResetLink(email) {
   try {
     // Generate a password reset link
-    const resetLink = await admin.auth().generatePasswordResetLink(userRecord.email);
+    const resetLink = await admin.auth().generatePasswordResetLink(email);
 
     // Configure your email transport using nodemailer
     const transporter = nodemailer.createTransport({
@@ -224,7 +234,7 @@ async function sendPasswordResetLink(userRecord) {
     // Setup email data
     const mailOptions = {
       from: process.env.EMAIL_SERVER,
-      to: userRecord.email,
+      to: email,
       subject: 'إعادة تعيين كلمة المرور', // Subject in Arabic
       html: `<a href="https://ibb.co/T0v0ZLF"><img src="https://i.ibb.co/LgkgM52/maslakheader.jpg" alt="maslakheader" border="0"></a>
         <p>لقد طلبت إعادة تعيين كلمة المرور الخاصة بك. يرجى النقر على الرابط التالي لإعادة تعيين كلمة المرور:</p>
@@ -263,14 +273,14 @@ app.post('/api/changeemail', async (req, res) => {
     try {
       existingUser = await admin.auth().getUserByEmail(newemail);
       if (existingUser) {
-        return res.status(400).send({ message: 'The new email is already in use by another account.' });
+        console.log('hi')
+        return res.send({ success:false, message: 'البريد الإلكتروني مستخدم من قبل' });
       }
     } catch (error) {
       if (error.code !== 'auth/user-not-found') {
-        return res.status(500).send({ error: 'Error checking email availability.' });
+        return res.send({ success:false ,message: 'فشل في التحقق من إتاحية البريد' });
       }
     }
-
     // Fetch user data from School collection
     const schoolRef = db.collection('School').doc(currentUserId);
     const schoolDoc = await schoolRef.get();
@@ -298,9 +308,8 @@ app.post('/api/changeemail', async (req, res) => {
 
     sendEmailVerification(newemail)
 
-   
 
-    res.status(200).send({ message: 'Email changed successfully. Please login with the new email.' });
+    res.status(200).send({success:true,message: 'الرجاء اعاده تسجيل الدخول ' });
   } catch (error) {
     console.error('Error occurred while changing email:', error);
     res.status(500).send('Failed to change email. Please try again later.');
@@ -309,24 +318,22 @@ app.post('/api/changeemail', async (req, res) => {
 
 
 
-
-
 //////////////////////resend email verfication
-
 app.post('/api/emailverification', async (req, res) => {
   console.log('Verification endpoint hit');
   const { email } = req.body;
-
+  
   if (!email) {
     return res.status(403).send('no email'); // No email provided
   }
   
   try {
+    const formatemail=email.trim()
     // Check if a user with the provided email exists
-    const userRecord = await admin.auth().getUserByEmail(email);
+    const userRecord = await admin.auth().getUserByEmail(formatemail);
 
     // If the user exists, send the verification email
-    await sendEmailVerification(userRecord);
+    await sendEmailVerification(formatemail);
     
     res.status(200).send(true);
   } catch (error) {
@@ -343,9 +350,8 @@ app.post('/api/emailverification', async (req, res) => {
 app.post('/api/passwordreset', async (req, res) => {
   console.log('password reset endpoint hit');
   const { email } = req.body;
-
   if (!email) {
-    return res.status(403).send('no email'); // No email provided
+    return res.status(403).send('no email provided'); // No email provided
   }
   
   try {
@@ -354,7 +360,7 @@ app.post('/api/passwordreset', async (req, res) => {
     const userRecord = await admin.auth().getUserByEmail(formatemail);
 
     // If the user exists, send the verification email
-    await sendPasswordResetLink(userRecord);
+    await sendPasswordResetLink(formatemail);
     
     res.status(200).send(true);
   } catch (error) {
@@ -397,9 +403,9 @@ app.post('/api/sessionLogin', async (req, res) => {
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    // if (!decodedToken.email_verified) {
-    //   return res.status(404).send('الرجاء التحقق من البريد الالكتروني');
-    // }
+    if (!decodedToken.email_verified) {
+      return res.status(404).send('الرجاء التحقق من البريد الالكتروني');
+    }
 
     console.log(decodedToken.uid)
     const userDoc = await db.collection('School').doc(decodedToken.uid).get();
@@ -437,6 +443,40 @@ app.post('/api/logout', (req, res) => {
   res.clearCookie('session');
   res.status(200).send({ status: 'success' });
 });
+
+
+/////////////////////////////edit school details
+app.post('/api/editschooldetail', async (req, res) => {
+  console.log('Editing school');
+  const idToken = req.headers.authorization?.split('Bearer ')[1] || '';
+  const { newschool } = req.body;
+
+  if (!newschool) {
+    return res.status(400).send('Student UID and new data are required');
+  }
+  console.log(newschool)
+
+
+  try {
+    const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
+    const school = db.collection('School').doc(decodedClaims.uid);
+    await school.update({
+      address: {
+        city:newschool.city,
+      street:newschool.street,
+      postalCode:newschool.postalCode,
+      district:newschool.district},
+      phoneNumber:newschool.phoneNumber,
+      schoolName:newschool.schoolName,
+    });
+
+    res.status(200).send({ message: 'Student updated successfully' });
+  } catch (error) {
+    console.error('Error updating student:', error);
+    res.status(500).send('Failed to update student');
+  }
+});
+
 
 ///////////////////////bring School record
 app.post('/api/record', async (req, res) => {
@@ -1280,14 +1320,19 @@ app.post('/api/editstudent', async (req, res) => {
   try {
     const decodedClaims = await admin.auth().verifySessionCookie(idToken, true);
     const studentRef = db.collection('Student').doc(uid);
+    const formattedParentPhone = `+966${formValues.parentPhone}`;
     await studentRef.update({
-      student_id: formValues.student_id,
-      student_first_name: formValues.student_first_name,
-      student_family_name: formValues.student_family_name,
-      city: formValues.city,
-      street: formValues.street,         // Added attribute for street
-      postal_code: formValues.postal_code,  // Added attribute for postal code
-      district: formValues.district,     // Added attribute for district
+      //uid: formValues.uid,
+      studentFirstName: formValues.studentFirstName,
+      studentFamilyName: formValues.studentFamilyName,
+      parentUid: formValues.parentUid,
+      parentPhone: formattedParentPhone,
+      grade:formValues.grade,
+      address:{
+      city: formValues.address.city,
+      street: formValues.address.street,         // Added attribute for street
+      postalCode: formValues.address.postalCode,  // Added attribute for postal code
+      district: formValues.address.district, }     // Added attribute for district
       //parent_phone: formValues.parent_phone
     });
 
@@ -1323,7 +1368,7 @@ app.post('/api/deletestudent', async (req, res) => {
     const busuid = studentData.bus; 
 
     await schoolRef.update({
-      students: admin.firestore.FieldValue.arrayRemove(uid),
+      students: admin.firestore.FieldValue.arrayRemove(studentRef),
     });
     // If there's a bus reference, update the bus document
     if (busuid) {

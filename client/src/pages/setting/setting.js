@@ -3,7 +3,7 @@ import { Sidebar } from '../../components/Sidebar/Sidebar.js';
 import Header from '../../components/header/header.js';
 import { SchoolRecordContext } from '../../context/UserContext';
 import {PasswordReset} from '../../BringsSchoolRecord.js'
-import sendPasswordReset from '../login/handleLogin.js'
+import {sendPasswordReset} from '../../pages/login/handleLogin.js'
 import React, { useContext, useEffect, useState } from 'react';
 import FormContainer from '../../components/FormContainer/FormContainer.js';
 import ItemContainer from '../../components/itemContainer/itemContainer.js';
@@ -13,27 +13,35 @@ import { MdOutlineSmartphone, MdOutlineOtherHouses } from "react-icons/md";
 import { CgSpinnerAlt } from "react-icons/cg";
 import { EditSchoolDetail } from '../../BringsSchoolRecord.js';
 import { RiQuestionFill } from "react-icons/ri";
+import ConfirmationModal from '../../components/Confirmation/confirm.js';
 import SuccessMessage from '../../components/successMessage/successMessage.js'
 import HandleLogout from '../../pages/login/handleLogout';
 
 export default function Setting() {
-  const { schoolRecord, error } = useContext(SchoolRecordContext);
+  const { schoolRecord, refetchSchoolRecord, loading ,error} = useContext(SchoolRecordContext);
   const [isEditing, setIsEditing] = useState(false);
   const [formValues, setFormValues] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showSuccessPassword, setShowSuccessPassword] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
+  
   const navigate = useNavigate();
 
   const handleEditClick = () => {
-    setIsEditing(true);
-    setFormValues({
-      schoolName: schoolRecord?.SchoolName || '',
-      phoneNumber: schoolRecord?.phoneNumber || '',
-      ...schoolRecord?.address
-    });
+    if (schoolRecord) {
+      setIsEditing(true);
+      setFormValues({
+        schoolName: schoolRecord.schoolName || '',
+        phoneNumber: schoolRecord.phoneNumber || '',
+        ...schoolRecord.address,
+      });
+    } else {
+      console.error('School record is not loaded yet.');
+    }
   };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,12 +56,12 @@ export default function Setting() {
     navigate('/changeEmail');
   };
 
-  const handleChangePassword = async () => {
+const handleChangePassword = async () => {
     try{ 
    await sendPasswordReset(schoolRecord.email)
    handlePasswordSuccessOperation()
 }catch(error){
-  
+  setSaveError('عذرا فشل في ارسال بريد لاعادة تعيين كلمة المرور')
 }
   };
 
@@ -69,16 +77,22 @@ export default function Setting() {
     }
 
     try {
-      await EditSchoolDetail(schoolRecord.uid, formValues); // Replace with actual save function
+      await EditSchoolDetail(formValues); // Replace with actual save function
       setIsEditing(false);
       setSaveError('');
       handleSuccessOperation()
+      handleReFetch()
     } catch (err) {
       setSaveError('فشل في حفظ التغييرات. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSaving(false);
     }
   };
+
+  const handleReFetch = () => {
+    refetchSchoolRecord();
+  };
+
 
   const handleCancel = () => {
     setFormValues({
@@ -90,7 +104,7 @@ export default function Setting() {
     setIsEditing(false);
   };
 
-  const handleSuccessOperation = (number) => {
+  const handleSuccessOperation = () => {
     setShowSuccess(false); 
     setTimeout(() => {
       setShowSuccess(true);
@@ -106,7 +120,12 @@ export default function Setting() {
     }, 0);
   };
 
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
   useEffect(() => {
+    console.log('School Record:', schoolRecord);
     if (!schoolRecord) {
       console.log('School record is not available.');
     }
@@ -115,6 +134,7 @@ export default function Setting() {
   return (
     <div className="admin-dashboard">
          {showSuccessPassword && <SuccessMessage message="تم ارسال البريد بنجاح" />}
+         {showSuccess && <SuccessMessage message="تم التعديل بنجاح" />}
       <Sidebar />
       <Header />
       {!isEditing && (
@@ -277,10 +297,29 @@ export default function Setting() {
                         <div style={{ display: 'inline-block', position: 'relative' }}>
                         <span class="tooltip-icon"><RiQuestionFill style={{marginBottom: '-3px', marginRight: '5px' }}/></span>
                         <span class="tooltip-text">
-                       عند تغيير كلمة المرور، ستتلقى رسالة عبر البريد الإلكتروني تحتوي على رابط لإتمام عملية التغيير.
+                       عند تغيير كلمة المرور ستتلقى رسالة عبر البريد الإلكتروني تحتوي على رابط لإتمام عملية التغيير.
                         </span>
                         </div>
-                      <button className="change-button" style={{ float: 'left' }} onClick={handleChangePassword}>تغيير الرمز السري</button>
+                        <>
+      <button
+        className="change-button"
+        style={{ float: 'left' }}
+        onClick={handleOpenModal}
+      >
+        تغيير الرمز السري
+      </button>
+
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={() => {
+          setModalOpen(false); 
+          handleChangePassword(); 
+        }}
+      >
+      <p>هل أنت متأكد من أنك تريد تغيير الرمز السري؟<br/> سيتم ارسال رسالة عبر البريد الالكتروني لتغيير كلمه المرور <br/> الرجاء اعادة تسجيل الدخول</p>
+      </ConfirmationModal>
+    </>
                     </li>
                     <div
                         style={{
